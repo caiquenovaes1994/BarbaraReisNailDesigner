@@ -33,8 +33,8 @@ const Finance = () => {
   const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
   const chartData = [
-    { name: 'Receita Efetiva', valor: summary.receita_efetiva, fill: '#D946EF' },
-    { name: 'Receita Agendada', valor: summary.receita_prevista, fill: '#8B5CF6' }
+    { name: 'Receita Efetiva', valor: summary.receita_efetiva, fill: '#22c55e' },
+    { name: 'Receita Agendada', valor: summary.receita_prevista, fill: '#eab308' }
   ];
 
   return (
@@ -98,7 +98,8 @@ const Finance = () => {
             <YAxis stroke="rgba(255,255,255,0.5)" tickFormatter={(val) => `R$ ${val}`} />
             <Tooltip 
               cursor={{fill: 'rgba(255,255,255,0.05)'}} 
-              contentStyle={{ backgroundColor: '#18181B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }} 
+              contentStyle={{ backgroundColor: '#18181B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} 
+              itemStyle={{ color: '#fff' }}
               formatter={(value) => [formatCurrency(value), 'Valor']} 
             />
             <Bar dataKey="valor" radius={[6, 6, 0, 0]} />

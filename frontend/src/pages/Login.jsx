@@ -14,8 +14,15 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
+    const currentUsername = username;
+    const currentPassword = password;
+    
+    // Limpamos o estado imediatamente para que o React remova a senha do DOM (atributo value)
+    // enquanto aguardamos o término da requisição.
+    setPassword('');
+
     try {
-      const res = await api.post('/login', { username, password });
+      await api.post('/login', { username: currentUsername, password: currentPassword });
       
       onLogin();
       navigate('/dashboard');

@@ -7,13 +7,13 @@ exports.getSummary = async (req, res) => {
     const now = new Date();
     
     const dateFilterEfetiva = {};
-    const dateFilterPrevista = { gte: now }; // By default, prevista is from now onwards
+    const dateFilterPrevista = {};
 
     if (startDate && endDate) {
       dateFilterEfetiva.gte = new Date(startDate);
       dateFilterEfetiva.lte = new Date(endDate);
       
-      dateFilterPrevista.gte = new Date(startDate) > now ? new Date(startDate) : now;
+      dateFilterPrevista.gte = new Date(startDate);
       dateFilterPrevista.lte = new Date(endDate);
     }
 
@@ -26,12 +26,12 @@ exports.getSummary = async (req, res) => {
       }
     });
 
-    // Receita Prevista: Pendente ou Agendado e data no futuro (e opcionalmente dentro do filtro)
+    // Receita Prevista: Pendente ou Agendado dentro do período do filtro (independente de ser futuro ou passado)
     const previstaResult = await prisma.appointment.aggregate({
       _sum: { valor_cobrado: true },
       where: { 
         status: { in: ['Pendente', 'Agendado'] },
-        data_atendimento: dateFilterPrevista
+        ...(Object.keys(dateFilterPrevista).length > 0 && { data_atendimento: dateFilterPrevista })
       }
     });
 

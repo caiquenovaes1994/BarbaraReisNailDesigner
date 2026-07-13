@@ -2,12 +2,17 @@ import { useState, useEffect } from 'react';
 import { Bell, X, CalendarPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import AppointmentModal from '../components/AppointmentModal';
+import AppointmentContextMenu from '../components/AppointmentContextMenu';
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
   const navigate = useNavigate();
 
   const firstName = userName ? userName.split(' ')[0] : '';
@@ -60,6 +65,11 @@ const Dashboard = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const openEditForm = (appt) => {
+    setEditingAppointment(appt);
+    setIsModalOpen(true);
   };
 
   const handleNotificationClick = (customerId) => {
@@ -211,7 +221,12 @@ const Dashboard = () => {
                 const dataAtendimento = new Date(appt.data_atendimento);
                 
                 return (
-                  <tr key={appt.id}>
+                  <tr 
+                    key={appt.id} 
+                    onClick={() => openEditForm(appt)}
+                    onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, appointmentId: appt.id }); }}
+                    className="cursor-pointer hover:bg-white/5 transition-colors"
+                  >
                     <td className="font-medium text-white">{appt.customer.nome}</td>
                     <td>{appt.procedure.nome}</td>
                     <td>{dataAtendimento.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
@@ -247,7 +262,12 @@ const Dashboard = () => {
                 const dataAtendimento = new Date(appt.data_atendimento);
                 
                 return (
-                  <tr key={appt.id}>
+                  <tr 
+                    key={appt.id}
+                    onClick={() => openEditForm(appt)}
+                    onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, appointmentId: appt.id }); }}
+                    className="cursor-pointer hover:bg-white/5 transition-colors"
+                  >
                     <td className="font-medium text-white">{appt.customer.nome}</td>
                     <td>{appt.procedure.nome}</td>
                     <td>{dataAtendimento.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
@@ -263,6 +283,19 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <AppointmentContextMenu 
+        contextMenu={contextMenu} 
+        setContextMenu={setContextMenu} 
+        onChangeStatus={fetchAppointments} 
+      />
+
+      <AppointmentModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        editingAppointment={editingAppointment}
+        onSave={fetchAppointments}
+      />
     </div>
   );
 };

@@ -23,7 +23,7 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 
 ### 🗓️ Agenda
 
-- Visualização semanal em grade de horários (calendário interativo)
+- Visualização semanal em grade de horários (calendário interativo) com destaque visual automático para dias que já passaram
 - Criação, edição e exclusão de agendamentos
 - Alteração de status via menu de contexto (botão direito): **Pendente → Agendado → Atendido → Cancelado**
 - Navegação entre semanas com retorno rápido ao dia atual
@@ -44,6 +44,13 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 - Busca e paginação
 - Inativação automática quando o procedimento já foi usado em agendamentos
 - Toggle para exibir/ocultar procedimentos inativos
+
+### 📊 Dashboard
+
+- Visão geral rápida com métricas de clientes diários
+- Saudação dinâmica personalizada
+- Tabelas interativas de Agendamentos Previstos e Atendidos
+- Acesso completo de edição e alteração de status (via clique e botão direito) nos agendamentos sem sair da tela inicial
 
 ### 💰 Financeiro
 
