@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Procedure {
+  id                        Int           @id @default(autoincrement())
+  nome                      String
+  preco                     Float
+  duracao                   Int           @default(60)
+  ativo                     Boolean       @default(true)
+  appointments              Appointment[]
+}
+
+model Customer {
+  id              Int           @id @default(autoincrement())
+  nome            String
+  ddi             String        @default("55")
+  telefone        String
+  data_nascimento String?
+  ativo           Boolean       @default(true)
+  appointments    Appointment[]
+}
+
+model Appointment {
+  id                 Int       @id @default(autoincrement())
+  customerId         Int
+  procedureId        Int
+  data_atendimento   DateTime
+  status             String    // Valores possíveis: 'Pendente' | 'Agendado' | 'Atendido' | 'Cancelado'
+  valor_cobrado      Float
+  dias_para_retorno  Int
+  duracao            Int       @default(60)
+  retorno_dispensado Boolean   @default(false)
+
+  customer           Customer  @relation(fields: [customerId], references: [id])
+  procedure          Procedure @relation(fields: [procedureId], references: [id])
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  nome     String @default("")
+  password String
+}
