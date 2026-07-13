@@ -23,6 +23,7 @@ exports.create = async (req, res) => {
     });
     res.json(customer);
   } catch (error) {
+    console.error('Error creating customer:', error);
     res.status(500).json({ error: 'Erro ao criar cliente.' });
   }
 };
@@ -37,6 +38,7 @@ exports.update = async (req, res) => {
     });
     res.json(customer);
   } catch (error) {
+    console.error('Error updating customer:', error);
     res.status(500).json({ error: 'Erro ao atualizar cliente.' });
   }
 };
