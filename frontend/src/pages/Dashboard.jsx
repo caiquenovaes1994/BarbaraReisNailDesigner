@@ -11,6 +11,13 @@ const Dashboard = () => {
 
   const userName = localStorage.getItem('userName') || '';
   const firstName = userName ? userName.split(' ')[0] : '';
+  
+  let emoji = '';
+  if (firstName) {
+    const norm = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (norm === 'barbara') emoji = '💅';
+    if (norm === 'caique') emoji = '💻';
+  }
 
   const fetchAppointments = async () => {
     try {
@@ -94,8 +101,11 @@ const Dashboard = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex justify-between items-center relative">
-        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-          {firstName ? `Olá, ${firstName}` : 'Dashboard'}
+        <h2 className="text-3xl font-bold flex items-center gap-2">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            {firstName ? `Olá, ${firstName}` : 'Dashboard'}
+          </span>
+          {emoji && <span>{emoji}</span>}
         </h2>
         
         <div className="relative">
@@ -170,21 +180,21 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="glass-panel p-6 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
-        <h3 className="text-xl font-semibold border-b border-surface-border pb-2 mb-4 relative z-10">Agendamentos Previstos (Hoje)</h3>
-        
-        <div className="overflow-x-auto relative z-10">
-          <table className="glass-table">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Procedimento</th>
-                <th>Horário</th>
-                <th>Valor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="glass-panel p-6 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+          <h3 className="text-xl font-semibold border-b border-surface-border pb-2 mb-4 relative z-10">Agendamentos Previstos</h3>
+          
+          <div className="overflow-x-auto relative z-10">
+            <table className="glass-table text-sm">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Procedimento</th>
+                  <th>Horário</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
             <tbody>
               {sortedAppointments.map(appt => {
                 const status = getReturnStatus(appt);
@@ -195,38 +205,32 @@ const Dashboard = () => {
                     <td className="font-medium text-white">{appt.customer.nome}</td>
                     <td>{appt.procedure.nome}</td>
                     <td>{dataAtendimento.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
-                    <td>R$ {appt.valor_cobrado.toFixed(2).replace('.', ',')}</td>
-                    <td>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}>
-                        {status.label}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-              {sortedAppointments.length === 0 && (
-                <tr><td colSpan="5" className="text-center text-gray-500 py-4">Nenhum agendamento pendente para hoje</td></tr>
-              )}
-            </tbody>
-          </table>
+                      <td>R$ {appt.valor_cobrado.toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                  );
+                })}
+                {sortedAppointments.length === 0 && (
+                  <tr><td colSpan="4" className="text-center text-gray-500 py-4">Nenhum agendamento pendente para hoje</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div className="glass-panel p-6 relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
-        <h3 className="text-xl font-semibold border-b border-surface-border pb-2 mb-4 relative z-10">Clientes Atendidos (Hoje)</h3>
-        
-        <div className="overflow-x-auto relative z-10">
-          <table className="glass-table">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Procedimento</th>
-                <th>Horário</th>
-                <th>Valor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+        <div className="glass-panel p-6 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
+          <h3 className="text-xl font-semibold border-b border-surface-border pb-2 mb-4 relative z-10">Clientes Atendidos</h3>
+          
+          <div className="overflow-x-auto relative z-10">
+            <table className="glass-table text-sm">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Procedimento</th>
+                  <th>Horário</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
             <tbody>
               {sortedAtendidosHoje.map(appt => {
                 const status = { label: appt.status, color: 'bg-green-500/20 text-green-400 border-green-500/50' };
@@ -237,20 +241,16 @@ const Dashboard = () => {
                     <td className="font-medium text-white">{appt.customer.nome}</td>
                     <td>{appt.procedure.nome}</td>
                     <td>{dataAtendimento.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
-                    <td>R$ {appt.valor_cobrado.toFixed(2).replace('.', ',')}</td>
-                    <td>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}>
-                        {status.label}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-              {sortedAtendidosHoje.length === 0 && (
-                <tr><td colSpan="5" className="text-center text-gray-500 py-4">Nenhum atendimento finalizado hoje</td></tr>
-              )}
-            </tbody>
-          </table>
+                      <td>R$ {appt.valor_cobrado.toFixed(2).replace('.', ',')}</td>
+                    </tr>
+                  );
+                })}
+                {sortedAtendidosHoje.length === 0 && (
+                  <tr><td colSpan="4" className="text-center text-gray-500 py-4">Nenhum atendimento finalizado hoje</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
