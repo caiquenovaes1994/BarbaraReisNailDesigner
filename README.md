@@ -64,8 +64,8 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 
 - Login com usuário e senha (bcrypt + JWT)
 - Rate limiting de 20 tentativas por IP a cada 15 minutos
-- Token JWT com expiração de 24 horas
-- Redirecionamento automático ao login em caso de token expirado
+- Token JWT armazenado de forma segura em Cookie HTTP-Only com expiração de 24 horas (mitigação de XSS)
+- Verificação de sessão automática via `/api/auth/me` e redirecionamento em caso de token expirado
 
 ---
 
@@ -76,7 +76,7 @@ BarbaraReisNailDesigner/
 ├── backend/                  # API REST — Node.js + Express
 │   ├── src/
 │   │   ├── controllers/      # Lógica de negócio por entidade
-│   │   ├── middleware/       # Autenticação JWT
+│   │   ├── middleware/       # Autenticação JWT via Cookie
 │   │   ├── routes.js         # Definição de rotas
 │   │   └── index.js          # Ponto de entrada do servidor
 │   └── prisma/
@@ -86,7 +86,7 @@ BarbaraReisNailDesigner/
     └── src/
         ├── components/       # Header, Sidebar
         ├── pages/            # Dashboard, Clients, Procedures, Schedule, Finance, Login
-        └── utils/            # Instância axios com interceptor JWT, lista de países
+        └── utils/            # Instância axios com withCredentials, lista de países
 ```
 
 ---
@@ -103,9 +103,10 @@ BarbaraReisNailDesigner/
 | SQLite             | —      | Banco de dados               |
 | bcryptjs           | ^3     | Hash de senhas               |
 | jsonwebtoken       | ^9     | Autenticação JWT             |
+| cookie-parser      | ^1     | Leitura de Cookies HTTP-Only |
 | helmet             | ^8     | Headers de segurança HTTP    |
 | express-rate-limit | ^8     | Proteção contra brute-force  |
-| cors               | ^2     | Controle de origem           |
+| cors               | ^2     | Controle de origem (CORS)    |
 | dotenv             | ^17    | Variáveis de ambiente        |
 
 ### Frontend
@@ -116,7 +117,7 @@ BarbaraReisNailDesigner/
 | Vite            | ^8     | Build tool / Dev server          |
 | Tailwind CSS    | ^3     | Estilização utilitária           |
 | React Router DOM| ^7     | Roteamento SPA                   |
-| Axios           | ^1     | Cliente HTTP com interceptor JWT |
+| Axios           | ^1     | Cliente HTTP (withCredentials)   |
 | Recharts        | ^3     | Gráficos financeiros             |
 | Lucide React    | ^1     | Ícones                           |
 
@@ -124,7 +125,8 @@ BarbaraReisNailDesigner/
 
 ## 🔒 Segurança
 
-- Todas as rotas da API (exceto `/login`) são protegidas por JWT Bearer token
+- Todas as rotas da API (exceto `/login`) são protegidas por JWT validado via **Cookie HTTP-Only**
+- Sem armazenamento de tokens no `localStorage`, mitigando severamente ataques de roubo de sessão via XSS
 - Senhas hasheadas com bcrypt (salt rounds padrão)
 - Rate limiting de 20 req/15min na rota de autenticação
 - CORS restrito à origem do frontend configurada via variável de ambiente

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { Sparkles, Eye, EyeOff } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
@@ -15,13 +15,9 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const api = axios.create({ baseURL: `http://${window.location.hostname}:3001/api` });
       const res = await api.post('/login', { username, password });
       
-      const { token, nome } = res.data;
-      localStorage.setItem('token', token);
-      if (nome) localStorage.setItem('userName', nome);
-      onLogin(token);
+      onLogin();
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Erro ao fazer login.');

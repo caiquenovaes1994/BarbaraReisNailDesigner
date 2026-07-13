@@ -8,34 +8,62 @@ import Procedures from './pages/Procedures';
 import Schedule from './pages/Schedule';
 import Finance from './pages/Finance';
 import Login from './pages/Login';
+import api from './utils/api';
 
-const ProtectedRoute = ({ children, token }) => {
-  if (!token) {
+const ProtectedRoute = ({ children, isAuthenticated }) => {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
 };
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleLogin = (newToken) => {
-    setToken(newToken);
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        await api.get('/auth/me');
+        setIsAuthenticated(true);
+      } catch (err) {
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkSession();
+  }, []);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
   };
 
-  const handleLogout = () => {
-    setToken(null);
-    localStorage.removeItem('token');
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (err) {
+      console.error(err);
+    }
+    setIsAuthenticated(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-primary">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <Router>
       <Routes>
         <Route path="/login" element={
-          token ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
         } />
         <Route path="/*" element={
-          <ProtectedRoute token={token}>
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
             <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-white">
               <Sidebar onLogout={handleLogout} />
               <main className="flex-1 overflow-y-auto p-4 md:p-8 relative pb-24 md:pb-8">

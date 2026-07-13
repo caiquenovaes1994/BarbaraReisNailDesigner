@@ -11,9 +11,12 @@ const AuthController = require('./controllers/AuthController');
 
 // Rota pública
 router.post('/login', AuthController.login);
+router.post('/auth/logout', AuthController.logout);
 
 // Protege todas as rotas abaixo com JWT
 router.use(authenticate);
+
+router.get('/auth/me', AuthController.me);
 
 router.get('/notifications', NotificationController.getNotifications);
 

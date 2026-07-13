@@ -8,6 +8,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 
 const app = express();
@@ -17,8 +18,10 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5174',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Rate limiting para rotas de autenticação
 const authLimiter = rateLimit({

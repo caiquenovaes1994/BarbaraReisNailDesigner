@@ -38,9 +38,33 @@ exports.login = async (req, res) => {
       expiresIn: '1d',
     });
 
-    res.json({ token, username: user.username, nome: user.nome });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 1 dia
+    });
+
+    res.json({ username: user.username, nome: user.nome });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao fazer login.' });
   }
+};
+
+exports.me = (req, res) => {
+  // req.user é populado pelo middleware de autenticação
+  if (!req.user) {
+    return res.status(401).json({ error: 'Não autenticado' });
+  }
+  res.json({
+    id: req.user.id,
+    username: req.user.username,
+    nome: req.user.nome
+  });
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logout efetuado com sucesso' });
 };

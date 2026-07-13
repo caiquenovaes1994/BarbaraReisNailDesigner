@@ -7,9 +7,9 @@ const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
 
-  const userName = localStorage.getItem('userName') || '';
   const firstName = userName ? userName.split(' ')[0] : '';
   
   let emoji = '';
@@ -37,7 +37,17 @@ const Dashboard = () => {
     }
   };
 
+  const fetchUser = async () => {
+    try {
+      const res = await api.get('/auth/me');
+      setUserName(res.data.nome || res.data.username || '');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
+    fetchUser();
     fetchAppointments();
     fetchNotifications();
   }, []);
