@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
+const backupService = require('./services/backupService');
 
 const app = express();
 
@@ -36,4 +37,5 @@ app.use('/api', routes);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT} (TZ: ${process.env.TZ})`);
+  backupService.initBackupJob();
 });

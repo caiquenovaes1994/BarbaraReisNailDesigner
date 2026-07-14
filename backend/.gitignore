@@ -12,6 +12,7 @@ node_modules/
 *.db-wal
 *.db-shm
 prisma/dev.db
+backups/
 
 # ─── Artefatos Prisma ────────────────────────────────────────────────────────
 /generated/prisma
