@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import AppointmentModal from '../components/AppointmentModal';
 import AppointmentContextMenu from '../components/AppointmentContextMenu';
@@ -51,9 +52,10 @@ const Schedule = () => {
     try {
       await api.patch(`/appointments/${id}/status`, { status: newStatus });
       fetchData();
+      toast.success('Status alterado!');
     } catch (e) {
       console.error(e);
-      alert('Erro ao alterar status.');
+      toast.error('Erro ao alterar status.');
     }
   };
 

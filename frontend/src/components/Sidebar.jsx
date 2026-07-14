@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, User, Scissors, CalendarDays, DollarSign, Sparkles, LogOut } from 'lucide-react';
+import { LayoutDashboard, User, Scissors, CalendarDays, DollarSign, Sparkles, LogOut, FileText } from 'lucide-react';
 
 const Sidebar = ({ onLogout }) => {
   const links = [
@@ -8,6 +8,7 @@ const Sidebar = ({ onLogout }) => {
     { to: '/finance', icon: <DollarSign className="w-6 h-6 md:w-5 md:h-5" />, label: 'Financeiro' },
     { to: '/clients', icon: <User className="w-6 h-6 md:w-5 md:h-5" />, label: 'Clientes' },
     { to: '/procedures', icon: <Scissors className="w-6 h-6 md:w-5 md:h-5" />, label: 'Procedimentos' },
+    { to: '/reports', icon: <FileText className="w-6 h-6 md:w-5 md:h-5" />, label: 'Relatórios' },
   ];
 
   return (

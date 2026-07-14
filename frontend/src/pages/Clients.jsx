@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { countries } from '../utils/countries';
 import api from '../utils/api';
 
@@ -8,6 +9,9 @@ const Clients = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [customerForm, setCustomerForm] = useState({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
   
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
@@ -113,36 +117,50 @@ const Clients = () => {
       setHistoryModalOpen(true);
     } catch (e) {
       console.error(e);
-      alert('Erro ao buscar histórico.');
+      toast.error('Erro ao buscar histórico.');
     }
   };
 
   const saveCustomer = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     const payload = { ...customerForm, telefone: customerForm.telefone.replace(/\D/g, '') };
-    if (editingId) {
-      await api.put(`/customers/${editingId}`, payload);
-    } else {
-      await api.post('/customers', payload);
+    try {
+      if (editingId) {
+        await api.put(`/customers/${editingId}`, payload);
+        toast.success('Cliente atualizado com sucesso!');
+      } else {
+        await api.post('/customers', payload);
+        toast.success('Cliente cadastrado com sucesso!');
+      }
+      setCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+      setEditingId(null);
+      setIsFormOpen(false);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error('Erro ao salvar cliente.');
+    } finally {
+      setIsSaving(false);
     }
-    setCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
-    setEditingId(null);
-    setIsFormOpen(false);
-    fetchData();
   };
 
-  const deleteCustomer = async (id) => {
-    if (window.confirm('Tem certeza que deseja remover este cliente?')) {
-      try {
-        const res = await api.delete(`/customers/${id}`);
-        if (res.data.softDeleted) {
-          alert(res.data.message); // Avisa que foi inativado
-        }
-        fetchData();
-      } catch (error) {
-        console.error(error);
-        alert('Erro ao excluir cliente.');
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await api.delete(`/customers/${deleteConfirmId}`);
+      if (res.data.softDeleted) {
+        toast.success(res.data.message); // Avisa que foi inativado
+      } else {
+        toast.success('Cliente excluído!');
       }
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao excluir cliente.');
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmId(null);
     }
   };
 
@@ -254,7 +272,7 @@ const Clients = () => {
                       </button>
                       {c.ativo && (
                         <button 
-                          onClick={() => deleteCustomer(c.id)}
+                          onClick={() => setDeleteConfirmId(c.id)}
                           className="p-2 text-gray-400 hover:text-red-400 transition-colors rounded-lg hover:bg-surface-border"
                           title="Deletar/Inativar"
                         >
@@ -408,8 +426,8 @@ const Clients = () => {
                   />
                 </div>
               </div>
-              <button type="submit" className="btn-primary mt-4">
-                {editingId ? 'Salvar Alterações' : 'Salvar Cliente'}
+              <button type="submit" disabled={isSaving} className="btn-primary mt-4 flex items-center justify-center gap-2">
+                {isSaving ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : (editingId ? 'Salvar Alterações' : 'Salvar Cliente')}
               </button>
             </form>
           </div>
@@ -483,6 +501,32 @@ const Clients = () => {
       >
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
+          <div className="glass-panel p-6 w-full max-w-sm text-center shadow-2xl border border-red-500/20">
+            <h3 className="text-xl font-bold text-white mb-2">Excluir Cliente</h3>
+            <p className="text-gray-300 text-sm mb-6">
+              Tem certeza que deseja remover este cliente? Se ele possuir agendamentos, será inativado.
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setDeleteConfirmId(null)} 
+                className="flex-1 py-2 rounded-lg bg-surface border border-surface-border text-white hover:bg-white/10 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDelete} 
+                disabled={isDeleting}
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 font-medium disabled:opacity-50"
+              >
+                {isDeleting ? <><Loader2 size={18} className="animate-spin" /> Excluindo...</> : 'Sim, Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

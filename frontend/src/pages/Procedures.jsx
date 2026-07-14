@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 
 const Procedures = () => {
@@ -7,6 +8,9 @@ const Procedures = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [procedureForm, setProcedureForm] = useState({
     nome: '',
     precoStr: '',
@@ -67,6 +71,7 @@ const Procedures = () => {
 
   const saveProcedure = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     
     // Parse preco
     const precoValue = parseFloat(procedureForm.precoStr.replace(/[^\d,-]/g, '').replace(',', '.'));
@@ -84,8 +89,10 @@ const Procedures = () => {
     try {
       if (editingId) {
         await api.put(`/procedures/${editingId}`, payload);
+        toast.success('Procedimento atualizado com sucesso!');
       } else {
         await api.post('/procedures', payload);
+        toast.success('Procedimento criado com sucesso!');
       }
       setProcedureForm({ nome: '', precoStr: '', duracao_hhmm: '01:00' });
       setEditingId(null);
@@ -93,22 +100,28 @@ const Procedures = () => {
       fetchData();
     } catch (err) {
       console.error('Erro ao salvar procedimento:', err);
-      alert(err.response?.data?.error || 'Erro ao salvar procedimento. Tente novamente.');
+      toast.error(err.response?.data?.error || 'Erro ao salvar procedimento. Tente novamente.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const deleteProcedure = async (id) => {
-    if (window.confirm('Tem certeza que deseja remover este procedimento?')) {
-      try {
-        const res = await api.delete(`/procedures/${id}`);
-        if (res.data.softDeleted) {
-          alert(res.data.message); // Avisa que foi inativado
-        }
-        fetchData();
-      } catch (error) {
-        console.error(error);
-        alert('Erro ao excluir procedimento.');
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await api.delete(`/procedures/${deleteConfirmId}`);
+      if (res.data.softDeleted) {
+        toast.success(res.data.message); // Avisa que foi inativado
+      } else {
+        toast.success('Procedimento excluído!');
       }
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao excluir procedimento.');
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmId(null);
     }
   };
 
@@ -202,7 +215,7 @@ const Procedures = () => {
                       </button>
                       {p.ativo && (
                         <button 
-                          onClick={() => deleteProcedure(p.id)}
+                          onClick={() => setDeleteConfirmId(p.id)}
                           className="p-2 text-gray-400 hover:text-red-400 transition-colors rounded-lg hover:bg-surface-border"
                           title="Deletar/Inativar"
                         >
@@ -302,8 +315,8 @@ const Procedures = () => {
                   }
                 />
               </div>
-              <button type="submit" className="btn-primary mt-4">
-                {editingId ? 'Salvar Alterações' : 'Salvar Procedimento'}
+              <button type="submit" disabled={isSaving} className="btn-primary mt-4 flex items-center justify-center gap-2">
+                {isSaving ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : (editingId ? 'Salvar Alterações' : 'Salvar Procedimento')}
               </button>
             </form>
           </div>
@@ -317,6 +330,32 @@ const Procedures = () => {
       >
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
+          <div className="glass-panel p-6 w-full max-w-sm text-center shadow-2xl border border-red-500/20">
+            <h3 className="text-xl font-bold text-white mb-2">Excluir Procedimento</h3>
+            <p className="text-gray-300 text-sm mb-6">
+              Tem certeza que deseja remover este procedimento? Se houver agendamentos, será inativado.
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setDeleteConfirmId(null)} 
+                className="flex-1 py-2 rounded-lg bg-surface border border-surface-border text-white hover:bg-white/10 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDelete} 
+                disabled={isDeleting}
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 font-medium disabled:opacity-50"
+              >
+                {isDeleting ? <><Loader2 size={18} className="animate-spin" /> Excluindo...</> : 'Sim, Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './pages/Dashboard';
@@ -7,6 +8,7 @@ import Clients from './pages/Clients';
 import Procedures from './pages/Procedures';
 import Schedule from './pages/Schedule';
 import Finance from './pages/Finance';
+import Reports from './pages/Reports';
 import Login from './pages/Login';
 import api from './utils/api';
 
@@ -58,6 +60,22 @@ function App() {
 
   return (
     <Router>
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: '#2A2A35',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)'
+          },
+          success: {
+            iconTheme: {
+              primary: '#d946ef',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <Routes>
         <Route path="/login" element={
           isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
@@ -80,6 +98,7 @@ function App() {
                     <Route path="/procedures" element={<Procedures />} />
                     <Route path="/schedule" element={<Schedule />} />
                     <Route path="/finance" element={<Finance />} />
+                    <Route path="/reports" element={<Reports />} />
                   </Routes>
                 </div>
               </main>

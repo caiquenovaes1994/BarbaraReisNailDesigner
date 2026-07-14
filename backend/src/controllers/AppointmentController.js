@@ -3,7 +3,27 @@ const prisma = new PrismaClient();
 
 exports.getAll = async (req, res) => {
   try {
+    const { startDate, endDate, customerId, procedureId } = req.query;
+    
+    const whereClause = {};
+    
+    if (startDate && endDate) {
+      whereClause.data_atendimento = {
+        gte: new Date(startDate),
+        lte: new Date(endDate)
+      };
+    }
+    
+    if (customerId) {
+      whereClause.customerId = parseInt(customerId);
+    }
+    
+    if (procedureId) {
+      whereClause.procedureId = parseInt(procedureId);
+    }
+
     const appointments = await prisma.appointment.findMany({
+      where: whereClause,
       include: { customer: true, procedure: true },
       orderBy: { data_atendimento: 'asc' }
     });

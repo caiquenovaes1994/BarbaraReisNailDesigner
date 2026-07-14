@@ -1,0 +1,15 @@
+{
+  "name": "Bárbara Reis - Nail Designer",
+  "short_name": "Bárbara Reis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#d946ef",
+  "icons": [
+    {
+      "src": "/sparkles.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ]
+}

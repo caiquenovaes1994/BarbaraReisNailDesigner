@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 
 const AppointmentContextMenu = ({ contextMenu, setContextMenu, onChangeStatus }) => {
@@ -15,9 +16,10 @@ const AppointmentContextMenu = ({ contextMenu, setContextMenu, onChangeStatus })
       await api.patch(`/appointments/${id}/status`, { status: newStatus });
       setContextMenu(null);
       if (onChangeStatus) onChangeStatus();
+      toast.success('Status alterado!');
     } catch (e) {
       console.error(e);
-      alert('Erro ao alterar status.');
+      toast.error('Erro ao alterar status.');
     }
   };
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Check } from 'lucide-react';
+import { Plus, X, Check, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import { countries } from '../utils/countries';
 
@@ -28,6 +29,11 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
   const [newProcedureForm, setNewProcedureForm] = useState({ nome: '', precoStr: '', duracao: '', dias_retorno: '' });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [isSavingAppointment, setIsSavingAppointment] = useState(false);
+  const [isSavingCustomer, setIsSavingCustomer] = useState(false);
+  const [isSavingProcedure, setIsSavingProcedure] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -134,6 +140,7 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
 
   const saveNewCustomer = async (e) => {
     e.preventDefault();
+    setIsSavingCustomer(true);
     const payload = { ...newCustomerForm, telefone: newCustomerForm.telefone.replace(/\D/g, '') };
     try {
       const res = await api.post('/customers', payload);
@@ -142,14 +149,18 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
       setCustomerSearch(res.data.nome);
       setIsNewCustomerModalOpen(false);
       setNewCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+      toast.success('Cliente cadastrado com sucesso!');
     } catch (err) {
       console.error(err);
-      alert('Erro ao salvar cliente');
+      toast.error('Erro ao salvar cliente');
+    } finally {
+      setIsSavingCustomer(false);
     }
   };
 
   const saveNewProcedure = async (e) => {
     e.preventDefault();
+    setIsSavingProcedure(true);
     const precoValue = parseFloat(newProcedureForm.precoStr.replace(/[^\d,-]/g, '').replace(',', '.'));
     const payload = { ...newProcedureForm, preco: precoValue, ativo: true };
     if (!payload.preco) payload.preco = 0;
@@ -160,18 +171,22 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
       handleProcedureChange({ target: { value: res.data.id } }, res.data);
       setIsNewProcedureModalOpen(false);
       setNewProcedureForm({ nome: '', precoStr: '', duracao: '', dias_retorno: '' });
+      toast.success('Procedimento criado com sucesso!');
     } catch (err) {
       console.error(err);
-      alert('Erro ao salvar procedimento');
+      toast.error('Erro ao salvar procedimento');
+    } finally {
+      setIsSavingProcedure(false);
     }
   };
 
   const saveAppointment = async (e) => {
     e.preventDefault();
     if (!form.customerId) {
-      alert('Por favor, pesquise e selecione um cliente da lista.');
+      toast.error('Por favor, pesquise e selecione um cliente da lista.');
       return;
     }
+    setIsSavingAppointment(true);
     const [h, m] = form.duracao_hhmm.split(':');
     const duracao = parseInt(h) * 60 + parseInt(m);
     const precoValue = parseFloat(form.valorStr.replace(/[^\d,-]/g, '').replace(',', '.'));
@@ -180,26 +195,34 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
     try {
       if (editingAppointment) {
         await api.put(`/appointments/${editingAppointment.id}`, payload);
+        toast.success('Agendamento atualizado com sucesso!');
       } else {
         await api.post('/appointments', payload);
+        toast.success('Agendamento criado com sucesso!');
       }
       onSave();
       onClose();
     } catch (err) {
       console.error('Erro ao salvar agendamento:', err);
-      alert(err.response?.data?.error || 'Erro ao salvar agendamento. Tente novamente.');
+      toast.error(err.response?.data?.error || 'Erro ao salvar agendamento. Tente novamente.');
+    } finally {
+      setIsSavingAppointment(false);
     }
   };
 
   const confirmDelete = async () => {
+    setIsDeleting(true);
     try {
       await api.delete(`/appointments/${editingAppointment.id}`);
       setShowDeleteConfirm(false);
+      toast.success('Agendamento excluído!');
       onSave();
       onClose();
     } catch (e) {
       console.error(e);
-      alert('Erro ao excluir agendamento.');
+      toast.error('Erro ao excluir agendamento.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -319,8 +342,8 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
             </div>
 
             <div className="flex gap-4 mt-4">
-              <button type="submit" className="btn-primary flex-1">
-                Salvar Agendamento
+              <button type="submit" disabled={isSavingAppointment} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                {isSavingAppointment ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : 'Salvar Agendamento'}
               </button>
               {editingAppointment && (
                 <button 
@@ -352,9 +375,10 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
               </button>
               <button 
                 onClick={confirmDelete} 
-                className="flex-1 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 font-medium"
+                disabled={isDeleting}
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 font-medium disabled:opacity-50"
               >
-                Sim, Excluir
+                {isDeleting ? <><Loader2 size={18} className="animate-spin" /> Excluindo...</> : 'Sim, Excluir'}
               </button>
             </div>
           </div>
@@ -454,7 +478,9 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
                   />
                 </div>
               </div>
-              <button type="submit" className="btn-primary mt-4">Salvar e Selecionar</button>
+              <button type="submit" disabled={isSavingCustomer} className="btn-primary mt-4 flex items-center justify-center gap-2">
+                {isSavingCustomer ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : 'Salvar e Selecionar'}
+              </button>
             </form>
           </div>
         </div>
@@ -516,7 +542,9 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
                   />
                 </div>
               </div>
-              <button type="submit" className="btn-primary mt-4">Salvar e Selecionar</button>
+              <button type="submit" disabled={isSavingProcedure} className="btn-primary mt-4 flex items-center justify-center gap-2">
+                {isSavingProcedure ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : 'Salvar e Selecionar'}
+              </button>
             </form>
           </div>
         </div>
