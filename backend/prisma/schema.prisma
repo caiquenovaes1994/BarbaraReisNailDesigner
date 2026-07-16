@@ -35,7 +35,7 @@ model Appointment {
   customerId         Int
   procedureId        Int
   data_atendimento   DateTime
-  status             String    // Valores possíveis: 'Pendente' | 'Agendado' | 'Atendido' | 'Cancelado'
+  status             String    // Valores possíveis: 'Agendado' | 'Atendido' | 'Cancelado'
   valor_cobrado      Float
   dias_para_retorno  Int
   duracao            Int       @default(60)

@@ -31,8 +31,8 @@ const AppointmentContextMenu = ({ contextMenu, setContextMenu, onChangeStatus })
       style={{ top: contextMenu.y, left: contextMenu.x }}
       onClick={(e) => e.stopPropagation()}
     >
-      <button className="w-full text-left px-4 py-2 hover:bg-white/5 transition-colors text-yellow-400" onClick={() => changeStatus(contextMenu.appointmentId, 'Pendente')}>
-        Pendente
+      <button className="w-full text-left px-4 py-2 hover:bg-white/5 transition-colors text-yellow-400" onClick={() => changeStatus(contextMenu.appointmentId, 'Agendado')}>
+        Agendado
       </button>
       <button className="w-full text-left px-4 py-2 hover:bg-white/5 transition-colors text-green-400" onClick={() => changeStatus(contextMenu.appointmentId, 'Atendido')}>
         Atendido

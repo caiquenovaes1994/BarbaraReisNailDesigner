@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, CalendarPlus } from 'lucide-react';
+import { Bell, X, CalendarPlus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import AppointmentModal from '../components/AppointmentModal';
@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const navigate = useNavigate();
 
   const firstName = userName ? userName.split(' ')[0] : '';
@@ -77,7 +78,7 @@ const Dashboard = () => {
   };
 
   const getReturnStatus = (appt) => {
-    if (appt.status === 'Atendido' || appt.status === 'Concluido') {
+    if (appt.status === 'Atendido') {
       return { label: appt.status, color: 'bg-green-500/20 text-green-400 border-green-500/50' };
     }
     if (appt.status === 'Cancelado') {
@@ -86,27 +87,26 @@ const Dashboard = () => {
     if (appt.status === 'Agendado') {
       return { label: appt.status, color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' };
     }
-    // Pendente (padrão)
+    // Agendado (padrão)
     return { label: appt.status, color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' };
   };
 
-  // Filtrar todos os agendamentos de HOJE
+  // Filtrar todos os agendamentos da data selecionada
   const todaysAllAppointments = appointments.filter(a => {
-    const today = new Date();
     const apptDate = new Date(a.data_atendimento);
     return (
-      apptDate.getDate() === today.getDate() &&
-      apptDate.getMonth() === today.getMonth() &&
-      apptDate.getFullYear() === today.getFullYear()
+      apptDate.getDate() === selectedDate.getDate() &&
+      apptDate.getMonth() === selectedDate.getMonth() &&
+      apptDate.getFullYear() === selectedDate.getFullYear()
     );
   });
 
   const todaysAppointments = todaysAllAppointments.filter(a => 
-    a.status !== 'Concluido' && a.status !== 'Atendido' && a.status !== 'Cancelado'
+    a.status !== 'Atendido' && a.status !== 'Cancelado'
   );
 
   const atendidosHoje = todaysAllAppointments.filter(a => 
-    a.status === 'Concluido' || a.status === 'Atendido'
+    a.status === 'Atendido'
   );
 
   // Ordenar pelo horário
@@ -118,12 +118,50 @@ const Dashboard = () => {
     return new Date(a.data_atendimento) - new Date(b.data_atendimento);
   });
 
+  const nextDate = () => {
+    setSelectedDate(prev => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + 1);
+      return d;
+    });
+  };
+
+  const prevDate = () => {
+    setSelectedDate(prev => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() - 1);
+      return d;
+    });
+  };
+
+  const isToday = (d) => {
+    const today = new Date();
+    return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  };
+  const isTomorrow = (d) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return d.getDate() === tomorrow.getDate() && d.getMonth() === tomorrow.getMonth() && d.getFullYear() === tomorrow.getFullYear();
+  };
+  const isYesterday = (d) => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth() && d.getFullYear() === yesterday.getFullYear();
+  };
+
+  const getDateLabel = () => {
+    if (isToday(selectedDate)) return '(Hoje)';
+    if (isTomorrow(selectedDate)) return '(Amanhã)';
+    if (isYesterday(selectedDate)) return '(Ontem)';
+    return `(${selectedDate.toLocaleDateString('pt-BR')})`;
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex justify-between items-center relative">
         <h2 className="text-3xl font-bold flex items-center gap-2">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-            {firstName ? `Olá, ${firstName}` : 'Dashboard'}
+            {firstName ? `Olá, ${firstName}` : 'Início'}
           </span>
           {emoji && <span>{emoji}</span>}
         </h2>
@@ -180,22 +218,36 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="glass-panel p-6 flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-sm font-medium">Clientes Previstos (Hoje)</p>
-            <h3 className="text-3xl font-bold text-white mt-1">{todaysAppointments.length}</h3>
+        <div className="glass-panel p-6 flex flex-col justify-between relative group">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-400 text-sm font-medium flex items-center gap-2">
+              Clientes Previstos {getDateLabel()}
+            </p>
+            <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 absolute top-6 right-6">
+              <CalendarPlus size={24} />
+            </div>
           </div>
-          <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500">
-            <CalendarPlus size={24} />
+          <div className="flex items-end justify-between mt-2">
+            <h3 className="text-4xl font-bold text-white">{todaysAppointments.length}</h3>
+            <div className="flex items-center gap-1 bg-surface-border rounded-lg p-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={prevDate} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white transition-colors" title="Dia anterior">
+                <ChevronLeft size={16} />
+              </button>
+              <button onClick={nextDate} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white transition-colors" title="Próximo dia">
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
-        <div className="glass-panel p-6 flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-sm font-medium">Clientes Atendidos (Hoje)</p>
-            <h3 className="text-3xl font-bold text-white mt-1">{atendidosHoje.length}</h3>
+        <div className="glass-panel p-6 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-400 text-sm font-medium">Clientes Atendidos {getDateLabel()}</p>
+            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+            </div>
           </div>
-          <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+          <div className="mt-2">
+            <h3 className="text-4xl font-bold text-white">{atendidosHoje.length}</h3>
           </div>
         </div>
       </div>
@@ -235,7 +287,7 @@ const Dashboard = () => {
                   );
                 })}
                 {sortedAppointments.length === 0 && (
-                  <tr><td colSpan="4" className="text-center text-gray-500 py-4">Nenhum agendamento pendente para hoje</td></tr>
+                  <tr><td colSpan="4" className="text-center text-gray-500 py-4">Nenhum agendamento pendente {isToday(selectedDate) ? 'para hoje' : `em ${selectedDate.toLocaleDateString('pt-BR')}`}</td></tr>
                 )}
               </tbody>
             </table>
@@ -276,7 +328,7 @@ const Dashboard = () => {
                   );
                 })}
                 {sortedAtendidosHoje.length === 0 && (
-                  <tr><td colSpan="4" className="text-center text-gray-500 py-4">Nenhum atendimento finalizado hoje</td></tr>
+                  <tr><td colSpan="4" className="text-center text-gray-500 py-4">Nenhum atendimento finalizado {isToday(selectedDate) ? 'hoje' : `em ${selectedDate.toLocaleDateString('pt-BR')}`}</td></tr>
                 )}
               </tbody>
             </table>

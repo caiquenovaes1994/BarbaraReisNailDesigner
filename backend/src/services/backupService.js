@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const cron = require('node-cron');
 
 const DB_PATH = path.join(__dirname, '../../prisma/dev.db');
 const BACKUP_DIR = path.join(__dirname, '../../backups');
@@ -59,20 +58,23 @@ function performBackup() {
   }
 }
 
-function initBackupJob() {
-  // Dispara diariamente às 12:00 (Brasília)
-  // O fuso horário de Brasília está configurado no próprio cron job
-  cron.schedule('0 12 * * *', () => {
-    performBackup();
-  }, {
-    scheduled: true,
-    timezone: "America/Sao_Paulo"
+function backupMiddleware(req, res, next) {
+  res.on('finish', () => {
+    // Verifica se a requisição foi bem sucedida
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      // Verifica se é uma requisição que altera dados
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+        // Ignora rotas de login/logout, se desejado
+        if (!req.path.includes('/login') && !req.path.includes('/logout')) {
+          performBackup();
+        }
+      }
+    }
   });
-
-  console.log('[Backup] Serviço de backup diário configurado para as 12:00 (Horário de Brasília).');
+  next();
 }
 
 module.exports = {
   performBackup,
-  initBackupJob
+  backupMiddleware
 };

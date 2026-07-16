@@ -3,8 +3,9 @@ import { FileText, Download, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import api from '../utils/api';
-import logo from '../assets/BRND.svg';
+import { Link } from 'react-router-dom';
+import api from '../../utils/api';
+import logo from '../../assets/BRND.svg';
 
 const loadImageAsPngBase64 = (src) => {
   return new Promise((resolve, reject) => {
@@ -23,7 +24,7 @@ const loadImageAsPngBase64 = (src) => {
   });
 };
 
-const Reports = () => {
+const AppointmentsReport = () => {
   const [customers, setCustomers] = useState([]);
   const [procedures, setProcedures] = useState([]);
   
@@ -37,6 +38,7 @@ const Reports = () => {
     endDate: lastDay,
     customerId: '',
     procedureId: '',
+    status: '',
     orderBy: 'Data',
     groupBy: 'Nenhum'
   });
@@ -96,7 +98,11 @@ const Reports = () => {
       if (form.procedureId) url += `&procedureId=${form.procedureId}`;
 
       const res = await api.get(url);
-      const data = res.data;
+      let data = res.data;
+
+      if (form.status) {
+        data = data.filter(appt => appt.status && appt.status.toLowerCase() === form.status.toLowerCase());
+      }
 
       if (data.length === 0) {
         toast.error('Nenhum agendamento encontrado para os filtros selecionados.');
@@ -146,7 +152,10 @@ const Reports = () => {
       }
       if (form.procedureId) {
         const p = procedures.find(x => x.id === parseInt(form.procedureId));
-        if (p) filterText += `Procedimento: ${p.nome}`;
+        if (p) filterText += `Procedimento: ${p.nome}   `;
+      }
+      if (form.status) {
+        filterText += `Status: ${form.status}`;
       }
       if (filterText) {
         doc.text(filterText, 14, 36);
@@ -191,9 +200,9 @@ const Reports = () => {
         const dataFormatada = dateObj.toLocaleDateString('pt-BR') + ' ' + dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(appt.valor_cobrado);
         
-        if (appt.status === 'Atendido' || appt.status === 'Concluido') {
+        if (appt.status === 'Atendido') {
             totalValor += appt.valor_cobrado;
-        } else if (appt.status === 'Pendente' || appt.status === 'Agendado') {
+        } else if (appt.status === 'Agendado') {
             totalPendente += appt.valor_cobrado;
         }
 
@@ -291,15 +300,20 @@ const Reports = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-3">
-          <FileText size={32} className="text-primary" />
-          Relatórios
-        </h2>
+        <div className="flex items-center gap-4">
+          <Link to="/reports" className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </Link>
+          <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-3">
+            <FileText size={32} className="text-primary" />
+            Relatório de Atendimentos
+          </h2>
+        </div>
       </div>
 
       <div className="glass-panel p-6 sm:p-8 relative overflow-hidden max-w-4xl mx-auto">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
-        <h3 className="text-xl font-semibold border-b border-surface-border pb-4 mb-6">Emissão de Relatório Estatístico (Atendimentos)</h3>
+        <h3 className="text-xl font-semibold border-b border-surface-border pb-4 mb-6">Filtros para Atendimentos</h3>
 
         <form onSubmit={generateReport} className="flex flex-col gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -402,7 +416,17 @@ const Reports = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm text-gray-400">Status</label>
+              <select name="status" value={form.status} onChange={handleChange} className="glass-input bg-background/90">
+                <option value="">Todos</option>
+                <option value="Agendado">Agendado</option>
+                <option value="Atendido">Atendido</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-400">Agrupar por</label>
               <select name="groupBy" value={form.groupBy} onChange={handleChange} className="glass-input bg-background/90">
@@ -440,4 +464,4 @@ const Reports = () => {
   );
 };
 
-export default Reports;
+export default AppointmentsReport;

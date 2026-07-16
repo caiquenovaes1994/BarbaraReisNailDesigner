@@ -45,7 +45,7 @@ exports.create = async (req, res) => {
         customer: { connect: { id: parseInt(customerId) } },
         procedure: { connect: { id: parseInt(procedureId) } },
         data_atendimento: new Date(data_atendimento),
-        status: status || 'Pendente',
+        status: status || 'Agendado',
         valor_cobrado: parseFloat(valor_cobrado) || 0,
         dias_para_retorno: diasRetorno,
         duracao: parseInt(duracao) || 60

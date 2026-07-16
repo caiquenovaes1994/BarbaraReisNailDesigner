@@ -11,33 +11,36 @@ exports.getSummary = async (req, res) => {
 
     if (startDate && endDate) {
       dateFilterEfetiva.gte = new Date(startDate);
-      dateFilterEfetiva.lte = new Date(endDate);
+      
+      const endDateObj = new Date(endDate);
+      endDateObj.setHours(23, 59, 59, 999);
+      dateFilterEfetiva.lte = endDateObj;
       
       dateFilterPrevista.gte = new Date(startDate);
-      dateFilterPrevista.lte = new Date(endDate);
+      dateFilterPrevista.lte = endDateObj;
     }
 
-    // Receita Efetiva: Atendido ou Concluido
-    const efetivaResult = await prisma.appointment.aggregate({
+    // Receita Efetiva: Atendido
+    const receitaEfetivaResult = await prisma.appointment.aggregate({
       _sum: { valor_cobrado: true },
-      where: { 
-        status: { in: ['Atendido', 'Concluido'] },
+      where: {
+        status: 'Atendido',
         ...(Object.keys(dateFilterEfetiva).length > 0 && { data_atendimento: dateFilterEfetiva })
       }
     });
 
-    // Receita Prevista: Pendente ou Agendado dentro do período do filtro (independente de ser futuro ou passado)
-    const previstaResult = await prisma.appointment.aggregate({
+    // Receita Prevista: Agendado dentro do período do filtro (independente de ser futuro ou passado)
+    const receitaPrevistaResult = await prisma.appointment.aggregate({
       _sum: { valor_cobrado: true },
-      where: { 
-        status: { in: ['Pendente', 'Agendado'] },
+      where: {
+        status: 'Agendado',
         ...(Object.keys(dateFilterPrevista).length > 0 && { data_atendimento: dateFilterPrevista })
       }
     });
 
     res.json({
-      receita_efetiva: efetivaResult._sum.valor_cobrado || 0,
-      receita_prevista: previstaResult._sum.valor_cobrado || 0
+      receita_efetiva: receitaEfetivaResult._sum.valor_cobrado || 0,
+      receita_prevista: receitaPrevistaResult._sum.valor_cobrado || 0
     });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar resumo financeiro.' });

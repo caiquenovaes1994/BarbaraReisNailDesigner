@@ -143,7 +143,7 @@ const Procedures = () => {
             <div className={`block w-10 h-6 rounded-full transition-colors ${showInactive ? 'bg-primary' : 'bg-surface-border'}`}></div>
             <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showInactive ? 'transform translate-x-4' : ''}`}></div>
           </div>
-          Mostrar Inativos
+          Inativos
         </label>
       </div>
 

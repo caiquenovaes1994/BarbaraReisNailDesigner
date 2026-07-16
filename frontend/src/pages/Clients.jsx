@@ -182,7 +182,7 @@ const Clients = () => {
             <div className={`block w-10 h-6 rounded-full transition-colors ${showInactive ? 'bg-primary' : 'bg-surface-border'}`}></div>
             <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${showInactive ? 'transform translate-x-4' : ''}`}></div>
           </div>
-          Mostrar Inativos
+          Inativos
         </label>
       </div>
 
@@ -472,11 +472,10 @@ const Clients = () => {
                           <td>{dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
                           <td>{appt.procedure?.nome}</td>
                           <td>
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              appt.status === 'Atendido' || appt.status === 'Concluido' ? 'bg-green-500/20 text-green-400' :
-                              appt.status === 'Cancelado' ? 'bg-red-500/20 text-red-400' :
-                              'bg-yellow-500/20 text-yellow-400'
-                            }`}>
+                            <span className={`px-2 py-1 rounded text-xs font-medium border
+                              ${appt.status === 'Atendido' ? 'bg-green-500/20 text-green-400' : 
+                                appt.status === 'Agendado' ? 'bg-yellow-500/20 text-yellow-400' : 
+                                'bg-red-500/20 text-red-400'}`}>
                               {appt.status}
                             </span>
                           </td>
