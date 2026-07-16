@@ -32,10 +32,13 @@ const authLimiter = rateLimit({
 });
 
 app.use('/api/login', authLimiter);
+
+// Aplica o middleware de backup para monitorar as alterações de dados
+app.use(backupService.backupMiddleware);
+
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT} (TZ: ${process.env.TZ})`);
-  backupService.initBackupJob();
 });

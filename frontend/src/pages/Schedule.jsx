@@ -180,7 +180,7 @@ const Schedule = () => {
                       
                       let bgColor = 'bg-yellow-500 border border-yellow-600 shadow-md';
                       let textColor = 'text-yellow-950';
-                      if (appt.status === 'Atendido' || appt.status === 'Concluido') {
+                      if (appt.status === 'Atendido') {
                         bgColor = 'bg-green-600 border border-green-700 shadow-md';
                         textColor = 'text-white';
                       } else if (appt.status === 'Cancelado') {

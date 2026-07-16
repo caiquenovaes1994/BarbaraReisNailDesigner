@@ -8,7 +8,7 @@ exports.getNotifications = async (req, res) => {
       where: {
         dias_para_retorno: { gt: 0 },
         retorno_dispensado: false,
-        status: { in: ['Atendido', 'Concluido'] }
+        status: 'Atendido'
       },
       include: { customer: true, procedure: true }
     });

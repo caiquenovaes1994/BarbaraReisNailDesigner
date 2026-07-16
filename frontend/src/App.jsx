@@ -8,7 +8,9 @@ import Clients from './pages/Clients';
 import Procedures from './pages/Procedures';
 import Schedule from './pages/Schedule';
 import Finance from './pages/Finance';
-import Reports from './pages/Reports';
+import ReportsList from './pages/reports/ReportsList';
+import AppointmentsReport from './pages/reports/AppointmentsReport';
+import StatisticsReport from './pages/reports/StatisticsReport';
 import Login from './pages/Login';
 import api from './utils/api';
 
@@ -98,7 +100,9 @@ function App() {
                     <Route path="/procedures" element={<Procedures />} />
                     <Route path="/schedule" element={<Schedule />} />
                     <Route path="/finance" element={<Finance />} />
-                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/reports" element={<ReportsList />} />
+                    <Route path="/reports/atendimentos" element={<AppointmentsReport />} />
+                    <Route path="/reports/estatistico" element={<StatisticsReport />} />
                   </Routes>
                 </div>
               </main>
