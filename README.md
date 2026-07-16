@@ -13,9 +13,31 @@
 
 ---
 
+## 📑 Índice
+
+- [📋 Visão Geral](#-visão-geral)
+- [✨ Funcionalidades](#-funcionalidades)
+  - [🗓️ Agenda](#️-agenda)
+  - [👥 Clientes](#-clientes)
+  - [📄 Relatórios PDF](#-relatórios-pdf)
+  - [💅 Procedimentos](#-procedimentos)
+  - [🏠 Início (Dashboard)](#-início-dashboard)
+  - [💰 Financeiro](#-financeiro)
+  - [🔔 Notificações de Retorno](#-notificações-de-retorno)
+  - [📱 Experiência de Usuário e PWA](#-experiência-de-usuário-e-pwa)
+  - [🔐 Autenticação](#-autenticação)
+- [🏗️ Arquitetura](#️-arquitetura)
+- [🛠️ Stack Tecnológica](#️-stack-tecnológica)
+- [🔒 Segurança](#-segurança)
+- [📊 Modelo de Dados](#-modelo-de-dados)
+- [📄 Licença](#-licença)
+- [📬 Contato](#-contato)
+
+---
+
 ## 📋 Visão Geral
 
-Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do estúdio **Bárbara Reis Nail Designer**. O sistema centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna e responsiva.
+Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do estúdio **Bárbara Reis Nail Designer**. O sistema centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna, responsiva e pronta para ser instalada como aplicativo (PWA). Conta com relatórios em PDF, modais customizados e feedback visual rico.
 
 ---
 
@@ -37,6 +59,14 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 - Link direto para WhatsApp a partir do número cadastrado
 - Inativação automática de clientes com agendamentos vinculados (soft delete)
 - Toggle para exibir/ocultar clientes inativos
+- Exclusão via modal customizado integrado com interface de carregamento (spinner)
+
+### 📄 Relatórios PDF
+
+- Geração de relatórios analíticos no próprio navegador via `jsPDF` sem sobrecarregar o servidor
+- Relatórios Estatísticos e de Atendimentos detalhados por período
+- Design sofisticado incluindo logo SVG e tipografia especial (*Imperial Script*) embutidos
+- Cabeçalhos centralizados, tabelas organizadas e totais calculados dinamicamente
 
 ### 💅 Procedimentos
 
@@ -45,18 +75,19 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 - Inativação automática quando o procedimento já foi usado em agendamentos
 - Toggle para exibir/ocultar procedimentos inativos
 
-### 📊 Dashboard
+### 🏠 Início (Dashboard)
 
 - Visão geral rápida com métricas de clientes diários
 - Saudação dinâmica personalizada
-- Tabelas interativas de Agendamentos Previstos e Atendidos
+- Navegador de datas interativo (`<` `>`) para explorar agendamentos e atendimentos de dias anteriores ou futuros
+- Tabelas interativas de Agendamentos Previstos e Atendidos integradas e responsivas à data selecionada
 - Acesso completo de edição e alteração de status (via clique e botão direito) nos agendamentos sem sair da tela inicial
 
 ### 💰 Financeiro
 
 - Filtro por período (intervalo de datas)
 - **Faturamento Efetivo**: soma dos agendamentos com status `Atendido`
-- **Faturamento Agendado**: soma dos agendamentos futuros com status `Pendente` ou `Agendado`
+- **Faturamento Agendado**: soma dos agendamentos futuros com status `Agendado`
 - **Faturamento Potencial**: efetivo + agendado
 - Gráfico de barras comparativo
 
@@ -66,6 +97,13 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 - Indicação de urgência com diferença de dias
 - Opção de dispensar notificação individualmente
 - Clique direto na notificação abre o formulário de agendamento pré-preenchido com o cliente
+
+### 📱 Experiência de Usuário e PWA
+
+- Layout interativo em `glassmorphism`
+- Transição da UI (Sidebar com toggle recolhível para otimizar espaço de tela e animações suaves)
+- Substituição de popups nativos por `Toasts` estilizados (`react-hot-toast`)
+- Suporte a instalação via tela inicial de dispositivos móveis com Manifest e ícone customizado
 
 ### 🔐 Autenticação
 
@@ -127,6 +165,8 @@ BarbaraReisNailDesigner/
 | Axios           | ^1     | Cliente HTTP (withCredentials)   |
 | Recharts        | ^3     | Gráficos financeiros             |
 | Lucide React    | ^1     | Ícones                           |
+| jsPDF           | ^4     | Geração de Relatórios PDF        |
+| react-hot-toast | ^2     | Notificações (Toasts) visuais    |
 
 ---
 
@@ -153,24 +193,9 @@ Procedure   → serviços oferecidos (nome, preço, duração)
 Appointment → agendamentos (cliente × procedimento × data × status × valor)
 ```
 
-**Status de agendamento:** `Pendente` | `Agendado` | `Atendido` | `Cancelado`
+**Status de agendamento:** `Agendado` | `Atendido` | `Cancelado`
 
 **Soft delete:** Clientes e procedimentos com agendamentos vinculados são **inativados** (campo `ativo = false`) em vez de excluídos permanentemente, preservando o histórico.
-
----
-
-## 🌍 Configuração de Ambiente
-
-O arquivo `backend/.env` deve conter:
-
-```env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="<string-aleatoria-longa-e-segura>"
-TZ="America/Sao_Paulo"
-FRONTEND_URL="http://localhost:5174"
-```
-
-> ⚠️ O arquivo `.env` **nunca deve ser versionado**. Consulte `.env.example` como referência.
 
 ---
 
