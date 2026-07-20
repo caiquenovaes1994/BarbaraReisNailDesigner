@@ -22,9 +22,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Credenciais inválidas.' });
     }
 
-    // Usando queryRaw para contornar o cache do Prisma Client (EPERM lock)
-    const users = await prisma.$queryRaw`SELECT * FROM User WHERE username = ${username} LIMIT 1`;
-    const user = users[0];
+    const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
