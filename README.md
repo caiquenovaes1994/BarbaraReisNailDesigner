@@ -5,7 +5,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5-000000?style=flat&logo=express&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat&logo=prisma&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=flat&logo=sqlite&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
@@ -125,7 +125,7 @@ BarbaraReisNailDesigner/
 │   │   ├── routes.js         # Definição de rotas
 │   │   └── index.js          # Ponto de entrada do servidor
 │   └── prisma/
-│       ├── schema.prisma     # Modelo de dados (SQLite)
+│       ├── schema.prisma     # Modelo de dados (PostgreSQL/Supabase)
 │       └── migrations/       # Histórico de migrações
 └── frontend/                 # SPA — React + Vite + Tailwind CSS
     └── src/
@@ -145,7 +145,7 @@ BarbaraReisNailDesigner/
 | Node.js            | ≥ 18   | Runtime                      |
 | Express            | ^5     | Framework HTTP               |
 | Prisma             | ^5     | ORM / Migrations             |
-| SQLite             | —      | Banco de dados               |
+| PostgreSQL         | —      | Banco de dados (Supabase)    |
 | bcryptjs           | ^3     | Hash de senhas               |
 | jsonwebtoken       | ^9     | Autenticação JWT             |
 | cookie-parser      | ^1     | Leitura de Cookies HTTP-Only |
@@ -167,6 +167,21 @@ BarbaraReisNailDesigner/
 | Lucide React    | ^1     | Ícones                           |
 | jsPDF           | ^4     | Geração de Relatórios PDF        |
 | react-hot-toast | ^2     | Notificações (Toasts) visuais    |
+
+---
+
+## 🚀 Deploy
+
+A aplicação está configurada para deploy em um ambiente distribuído:
+
+- **Banco de Dados**: PostgreSQL hospedado no [Supabase](https://supabase.com/).
+- **Backend (API)**: Web Service no [Render](https://render.com/).
+- **Frontend (SPA)**: Static Site no [Render](https://render.com/).
+
+### Scripts Úteis
+
+- **Backend**: `npm run build` faz a geração do client do Prisma e sincroniza o banco remoto (`prisma generate && prisma db push`). O comando `npm start` inicia a API.
+- **Frontend**: `npm run build` cria os arquivos estáticos na pasta `dist/`.
 
 ---
 
