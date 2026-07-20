@@ -6,7 +6,7 @@ import axios from 'axios';
  * Redireciona para /login se a sessão expirar (401/403).
  */
 const api = axios.create({
-  baseURL: `http://${window.location.hostname}:3001/api`,
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : `http://${window.location.hostname}:3001/api`,
   withCredentials: true,
 });
 
