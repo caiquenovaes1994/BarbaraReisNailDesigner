@@ -1,87 +1,60 @@
-# Bárbara Reis — Nail Designer
+# 💅 Bárbara Reis — Nail Designer
 
-> Sistema de gerenciamento interno para agenda, clientes, procedimentos e financeiro.
+> Sistema de gestão interna para estúdio de nail design
+>
+> Agendamentos · Clientes · Procedimentos · Financeiro · Relatórios
 
-![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-5-000000?style=flat&logo=express&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat&logo=prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat&logo=postgresql&logoColor=white)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat&logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat&logo=jsonwebtokens&logoColor=white)
-
----
-
-## 📑 Índice
-
-- [📋 Visão Geral](#-visão-geral)
-- [✨ Funcionalidades](#-funcionalidades)
-  - [🗓️ Agenda](#️-agenda)
-  - [👥 Clientes](#-clientes)
-  - [📄 Relatórios PDF](#-relatórios-pdf)
-  - [💅 Procedimentos](#-procedimentos)
-  - [🏠 Início (Dashboard)](#-início-dashboard)
-  - [💰 Financeiro](#-financeiro)
-  - [🔔 Notificações de Retorno](#-notificações-de-retorno)
-  - [📱 Experiência de Usuário e PWA](#-experiência-de-usuário-e-pwa)
-  - [🔐 Autenticação](#-autenticação)
-- [🏗️ Arquitetura](#️-arquitetura)
-- [🛠️ Stack Tecnológica](#️-stack-tecnológica)
-- [🔒 Segurança](#-segurança)
-- [📊 Modelo de Dados](#-modelo-de-dados)
-- [📄 Licença](#-licença)
-- [📬 Contato](#-contato)
+![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?style=for-the-badge&logo=express&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
 ---
 
-## 📋 Visão Geral
+## Sobre o Projeto
 
-Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do estúdio **Bárbara Reis Nail Designer**. O sistema centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna, responsiva e pronta para ser instalada como aplicativo (PWA). Conta com relatórios em PDF, modais customizados e feedback visual rico.
+Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
+
+> **Versão atual:** `v1.0.0` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 ### 🗓️ Agenda
 
-- Visualização semanal em grade de horários (calendário interativo) com destaque visual automático para dias que já passaram
+- Grade semanal interativa com destaque para dias passados
 - Criação, edição e exclusão de agendamentos
-- Alteração de status via menu de contexto (botão direito): **Pendente → Agendado → Atendido → Cancelado**
+- Alteração de status via menu de contexto: **Agendado → Atendido → Cancelado**
 - Navegação entre semanas com retorno rápido ao dia atual
-- Formulário com busca de cliente por nome (com suporte a acentuação), seleção de procedimento, data/hora, valor e tempo de duração
+- Busca de cliente por nome (com suporte a acentuação)
 
 ### 👥 Clientes
 
-- Cadastro completo com nome, telefone internacional (DDI + máscara), data de nascimento
+- Cadastro com telefone internacional (DDI + máscara) e data de nascimento
 - Busca por nome ou telefone com paginação configurável
 - Histórico completo de atendimentos por cliente
 - Link direto para WhatsApp a partir do número cadastrado
-- Inativação automática de clientes com agendamentos vinculados (soft delete)
-- Toggle para exibir/ocultar clientes inativos
-- Exclusão via modal customizado integrado com interface de carregamento (spinner)
-
-### 📄 Relatórios PDF
-
-- Geração de relatórios analíticos no próprio navegador via `jsPDF` sem sobrecarregar o servidor
-- Relatórios Estatísticos e de Atendimentos detalhados por período
-- Design sofisticado incluindo logo SVG e tipografia especial (*Imperial Script*) embutidos
-- Cabeçalhos centralizados, tabelas organizadas e totais calculados dinamicamente
+- Soft delete com toggle de exibição de clientes inativos
 
 ### 💅 Procedimentos
 
 - Cadastro com nome, preço e duração (HH:mm)
 - Busca e paginação
-- Inativação automática quando o procedimento já foi usado em agendamentos
+- Inativação automática para procedimentos já utilizados em agendamentos
 - Toggle para exibir/ocultar procedimentos inativos
 
-### 🏠 Início (Dashboard)
+### 🏠 Dashboard
 
-- Visão geral rápida com métricas de clientes diários
+- Métricas diárias de clientes previstos e atendidos
 - Saudação dinâmica personalizada
-- Navegador de datas interativo (`<` `>`) para explorar agendamentos e atendimentos de dias anteriores ou futuros
-- Tabelas interativas de Agendamentos Previstos e Atendidos integradas e responsivas à data selecionada
-- Acesso completo de edição e alteração de status (via clique e botão direito) nos agendamentos sem sair da tela inicial
+- Navegador de datas interativo para explorar dias anteriores ou futuros
+- Tabelas de Agendamentos Previstos e Atendidos integradas
+- Edição e alteração de status sem sair da tela inicial
 
 ### 💰 Financeiro
 
@@ -89,146 +62,141 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 - **Faturamento Efetivo**: soma dos agendamentos com status `Atendido`
 - **Faturamento Agendado**: soma dos agendamentos futuros com status `Agendado`
 - **Faturamento Potencial**: efetivo + agendado
-- Gráfico de barras comparativo
+- Gráfico de barras comparativo (Recharts)
+
+### 📄 Relatórios PDF
+
+- Geração client-side via jsPDF (zero carga no servidor)
+- Relatórios Estatísticos e de Atendimentos detalhados por período
+- Design sofisticado com logo SVG e tipografia *Imperial Script* embutidos
 
 ### 🔔 Notificações de Retorno
 
-- Alerta automático quando um cliente está próximo da data de retorno recomendada (≤ 5 dias)
+- Alerta automático quando um cliente está ≤ 5 dias da data de retorno
 - Indicação de urgência com diferença de dias
 - Opção de dispensar notificação individualmente
-- Clique direto na notificação abre o formulário de agendamento pré-preenchido com o cliente
+- Clique direto abre formulário de agendamento pré-preenchido
 
-### 📱 Experiência de Usuário e PWA
+### 📱 PWA e Experiência de Usuário
 
-- Layout interativo em `glassmorphism`
-- Transição da UI (Sidebar com toggle recolhível para otimizar espaço de tela e animações suaves)
-- Substituição de popups nativos por `Toasts` estilizados (`react-hot-toast`)
-- Suporte a instalação via tela inicial de dispositivos móveis com Manifest e ícone customizado
+- Layout com glassmorphism e animações suaves
+- Sidebar recolhível com transições de UI
+- Toasts estilizados via `react-hot-toast` (substitui popups nativos)
+- Instalável como aplicativo via tela inicial de dispositivos móveis
 
-### 🔐 Autenticação
+### 📖 Changelog
 
-- Login com usuário e senha (bcrypt + JWT)
-- Rate limiting de 20 tentativas por IP a cada 15 minutos
-- Token JWT armazenado de forma segura em Cookie HTTP-Only com expiração de 24 horas (mitigação de XSS)
-- Verificação de sessão automática via `/api/auth/me` e redirecionamento em caso de token expirado
-
-### 📖 Histórico de Versões (Changelog)
-
-- Tela dedicada com design amigável para visualizar as novidades, melhorias e correções (Release Notes) de cada versão do sistema.
-- Acesso rápido pelo botão de versão no menu lateral e cabeçalho.
+- Tela dedicada com design amigável para visualizar release notes de cada versão
+- Acesso rápido pelo botão de versão no menu lateral e cabeçalho
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```text
 BarbaraReisNailDesigner/
-├── backend/                  # API REST — Node.js + Express
+├── backend/                    API REST — Node.js · Express · Prisma
 │   ├── src/
-│   │   ├── controllers/      # Lógica de negócio por entidade
-│   │   ├── middleware/       # Autenticação JWT via Cookie
-│   │   ├── routes.js         # Definição de rotas
-│   │   └── index.js          # Ponto de entrada do servidor
+│   │   ├── controllers/        Lógica de negócio por entidade
+│   │   ├── middleware/         Autenticação JWT via Cookie HTTP-Only
+│   │   ├── routes.js           Definição centralizada de rotas
+│   │   └── index.js            Entry point do servidor
 │   └── prisma/
-│       ├── schema.prisma     # Modelo de dados (PostgreSQL/Supabase)
-│       └── migrations/       # Histórico de migrações
-└── frontend/                 # SPA — React + Vite + Tailwind CSS
+│       ├── schema.prisma       Modelo de dados (PostgreSQL)
+│       └── migrations/         Histórico de migrações
+│
+└── frontend/                   SPA — React · Vite · Tailwind CSS
     └── src/
-        ├── components/       # Header, Sidebar
-        ├── pages/            # Dashboard, Clients, Procedures, Schedule, Finance, Login
-        └── utils/            # Instância axios com withCredentials, lista de países
+        ├── components/         Header, Sidebar, Modais
+        ├── pages/              Dashboard, Clients, Procedures, Schedule, Finance, Login, Changelog
+        └── utils/              Axios (withCredentials), helpers
 ```
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 ### Backend
 
-| Tecnologia         | Versão | Uso                          |
-| ------------------ | ------ | ---------------------------- |
-| Node.js            | ≥ 18   | Runtime                      |
-| Express            | ^5     | Framework HTTP               |
-| Prisma             | ^5     | ORM / Migrations             |
-| PostgreSQL         | —      | Banco de dados (Supabase)    |
-| bcryptjs           | ^3     | Hash de senhas               |
-| jsonwebtoken       | ^9     | Autenticação JWT             |
-| cookie-parser      | ^1     | Leitura de Cookies HTTP-Only |
-| helmet             | ^8     | Headers de segurança HTTP    |
-| express-rate-limit | ^8     | Proteção contra brute-force  |
-| cors               | ^2     | Controle de origem (CORS)    |
-| dotenv             | ^17    | Variáveis de ambiente        |
+| Tecnologia | Uso |
+| --- | --- |
+| **Node.js** ≥ 18 | Runtime JavaScript |
+| **Express** 5 | Framework HTTP |
+| **Prisma** 5 | ORM e migrações de schema |
+| **PostgreSQL** | Banco de dados relacional |
+| **bcryptjs** | Hash de senhas |
+| **jsonwebtoken** | Autenticação JWT |
+| **cookie-parser** | Cookies HTTP-Only |
+| **helmet** | Headers de segurança HTTP |
+| **express-rate-limit** | Proteção contra brute-force |
+| **node-cron** | Tarefas agendadas |
 
 ### Frontend
 
-| Tecnologia      | Versão | Uso                              |
-| --------------- | ------ | -------------------------------- |
-| React           | ^19    | UI Framework                     |
-| Vite            | ^8     | Build tool / Dev server          |
-| Tailwind CSS    | ^3     | Estilização utilitária           |
-| React Router DOM| ^7     | Roteamento SPA                   |
-| Axios           | ^1     | Cliente HTTP (withCredentials)   |
-| Recharts        | ^3     | Gráficos financeiros             |
-| Lucide React    | ^1     | Ícones                           |
-| jsPDF           | ^4     | Geração de Relatórios PDF        |
-| react-hot-toast | ^2     | Notificações (Toasts) visuais    |
+| Tecnologia | Uso |
+| --- | --- |
+| **React** 19 | UI Framework |
+| **Vite** 8 | Build tool e dev server |
+| **Tailwind CSS** 3 | Estilização utilitária |
+| **React Router** 7 | Roteamento SPA |
+| **Axios** | Cliente HTTP com credentials |
+| **Recharts** | Gráficos financeiros |
+| **Lucide React** | Biblioteca de ícones |
+| **jsPDF** | Geração de relatórios PDF |
+| **react-hot-toast** | Notificações visuais (toasts) |
 
 ---
 
-## 🚀 Deploy
+## Infraestrutura de Produção
 
-A aplicação está configurada para deploy em um ambiente distribuído:
+A aplicação opera em um ambiente distribuído na nuvem:
 
-- **Banco de Dados**: PostgreSQL hospedado no [Supabase](https://supabase.com/).
-- **Backend (API)**: Web Service no [Render](https://render.com/).
-- **Frontend (SPA)**: Static Site no [Render](https://render.com/).
-
-### Scripts Úteis
-
-- **Backend**: `npm run build` faz a geração do client do Prisma e sincroniza o banco remoto (`prisma generate && prisma db push`). O comando `npm start` inicia a API.
-- **Frontend**: `npm run build` cria os arquivos estáticos na pasta `dist/`.
+| Camada | Provedor | Tipo |
+| --- | --- | --- |
+| **Banco de Dados** | [Supabase](https://supabase.com/) | PostgreSQL gerenciado |
+| **Backend (API)** | [Render](https://render.com/) | Web Service |
+| **Frontend (SPA)** | [Render](https://render.com/) | Static Site |
 
 ---
 
-## 🔒 Segurança
+## Segurança
 
-- Todas as rotas da API (exceto `/login`) são protegidas por JWT validado via **Cookie HTTP-Only**
-- Sem armazenamento de tokens no `localStorage`, mitigando severamente ataques de roubo de sessão via XSS
-- Senhas hasheadas com bcrypt (salt rounds padrão)
-- Rate limiting de 20 req/15min na rota de autenticação
-- CORS restrito à origem do frontend configurada via variável de ambiente
-- Headers de segurança HTTP gerenciados pelo Helmet
-- Variáveis sensíveis isoladas em `.env` (nunca versionadas)
-- Proteção contra DoS via bcrypt: senhas com mais de 128 caracteres são rejeitadas
-- Redirecionamento automático ao login em respostas 401/403
+| Medida | Detalhes |
+| --- | --- |
+| **Autenticação** | JWT armazenado em Cookie HTTP-Only (expiração de 24h) |
+| **Proteção XSS** | Sem tokens no `localStorage`; cookies inacessíveis via JavaScript |
+| **Hashing de Senhas** | bcrypt com salt rounds padrão; limite de 128 caracteres |
+| **Rate Limiting** | 20 requisições / 15 min na rota de autenticação |
+| **CORS** | Origem restrita ao domínio do frontend (variável de ambiente) |
+| **Headers HTTP** | Gerenciados pelo Helmet (CSP, HSTS, X-Frame-Options, etc.) |
+| **Variáveis Sensíveis** | Isoladas em `.env`, nunca versionadas |
+| **Sessão Expirada** | Redirecionamento automático ao login em respostas 401/403 |
 
 ---
 
-## 📊 Modelo de Dados
+## Modelo de Dados
 
 ```text
-users        → autenticação do sistema
-customers    → clientes da nail designer
-procedures   → serviços oferecidos (nome, preço, duração)
-appointments → agendamentos (cliente × procedimento × data × status × valor)
+users        →  Autenticação do sistema
+customers    →  Clientes do estúdio
+procedures   →  Serviços oferecidos (nome, preço, duração)
+appointments →  Agendamentos (cliente × procedimento × data × status × valor)
 ```
 
-**Padrão de Nomenclatura:** Todas as tabelas internas foram mapeadas para `snake_case` minúsculas (via `@@map` no Prisma) para garantir total compatibilidade com PostgreSQL no Supabase, evitando bugs de capitalização comuns.
-
-**Status de agendamento:** `Agendado` | `Atendido` | `Cancelado`
-
-**Soft delete:** Clientes e procedimentos com agendamentos vinculados são **inativados** (campo `ativo = false`) em vez de excluídos permanentemente, preservando o histórico.
+- **Nomenclatura:** Tabelas mapeadas para `snake_case` via `@@map` (Prisma), garantindo compatibilidade total com PostgreSQL.
+- **Status:** `Agendado` · `Atendido` · `Cancelado`
+- **Soft Delete:** Clientes e procedimentos com vínculos são **inativados** (`ativo = false`) em vez de excluídos, preservando integridade referencial e histórico.
 
 ---
 
-## 📄 Licença
+## Licença
 
-Este projeto é software proprietário. © 2026 Caique Novaes — Todos os direitos reservados.
+Este projeto é **software proprietário**. © 2026 Caique Novaes — Todos os direitos reservados.
 Consulte o arquivo [LICENSE](./LICENSE) para os termos completos.
 
 ---
 
-## 📬 Contato
+## Contato
 
-[![GitHub](https://img.shields.io/badge/GitHub-caiquenovaes1994-181717?style=flat&logo=github&logoColor=white)](https://github.com/caiquenovaes1994)
-[![Gmail](https://img.shields.io/badge/Gmail-caiquenovaes1994%40gmail.com-EA4335?style=flat&logo=gmail&logoColor=white)](mailto:caiquenovaes1994@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-caiquenovaes1994-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/caiquenovaes1994)
+[![Gmail](https://img.shields.io/badge/Gmail-caiquenovaes1994%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:caiquenovaes1994@gmail.com)
