@@ -49,6 +49,8 @@ model Appointment {
   customer           Customer  @relation(fields: [customerId], references: [id])
   procedure          Procedure @relation(fields: [procedureId], references: [id])
 
+  @@index([customerId])
+  @@index([procedureId])
   @@map("appointments")
 }
 
