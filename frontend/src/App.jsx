@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -11,6 +11,7 @@ import Finance from './pages/Finance';
 import ReportsList from './pages/reports/ReportsList';
 import AppointmentsReport from './pages/reports/AppointmentsReport';
 import StatisticsReport from './pages/reports/StatisticsReport';
+import Changelog from './pages/Changelog';
 import Login from './pages/Login';
 import api from './utils/api';
 
@@ -88,11 +89,19 @@ function App() {
               <Sidebar onLogout={handleLogout} />
               <main className="flex-1 overflow-y-auto p-4 md:p-8 relative pb-24 md:pb-8">
                 <Header />
+                <div className="md:hidden absolute top-4 left-4 z-20">
+                  <Link 
+                    to="/changelog" 
+                    className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full hover:bg-primary/20 transition-colors"
+                  >
+                    v 1.0
+                  </Link>
+                </div>
                 {/* Decorative background glow */}
                 <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none"></div>
                 <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-secondary/20 rounded-full blur-[120px] pointer-events-none"></div>
                 
-                <div className="max-w-6xl mx-auto relative z-10 pt-4 md:pt-8">
+                <div className="max-w-6xl mx-auto relative z-10 pt-12 md:pt-8">
                   <Routes>
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -103,6 +112,7 @@ function App() {
                     <Route path="/reports" element={<ReportsList />} />
                     <Route path="/reports/atendimentos" element={<AppointmentsReport />} />
                     <Route path="/reports/estatistico" element={<StatisticsReport />} />
+                    <Route path="/changelog" element={<Changelog />} />
                   </Routes>
                 </div>
               </main>
