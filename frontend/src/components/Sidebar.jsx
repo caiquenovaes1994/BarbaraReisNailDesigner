@@ -83,8 +83,14 @@ const Sidebar = ({ onLogout }) => {
           </button>
         )}
         <div className={`flex flex-col items-center text-[10px] text-gray-500 opacity-60 transition-all duration-500 ${
-          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'
+          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-20 opacity-100'
         }`}>
+          <NavLink 
+            to="/changelog" 
+            className="mb-2 px-3 py-1 border border-primary/50 text-primary font-bold rounded-full hover:bg-primary/20 transition-colors"
+          >
+            v 1.0
+          </NavLink>
           <span>Desenvolvido por Caique Novaes</span>
           <span>2026</span>
         </div>

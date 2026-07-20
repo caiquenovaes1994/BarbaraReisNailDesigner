@@ -112,6 +112,11 @@ Aplicação full-stack desenvolvida sob demanda para gerenciar as operações do
 - Token JWT armazenado de forma segura em Cookie HTTP-Only com expiração de 24 horas (mitigação de XSS)
 - Verificação de sessão automática via `/api/auth/me` e redirecionamento em caso de token expirado
 
+### 📖 Histórico de Versões (Changelog)
+
+- Tela dedicada com design amigável para visualizar as novidades, melhorias e correções (Release Notes) de cada versão do sistema.
+- Acesso rápido pelo botão de versão no menu lateral e cabeçalho.
+
 ---
 
 ## 🏗️ Arquitetura
@@ -202,11 +207,13 @@ A aplicação está configurada para deploy em um ambiente distribuído:
 ## 📊 Modelo de Dados
 
 ```text
-User        → autenticação do sistema
-Customer    → clientes da nail designer
-Procedure   → serviços oferecidos (nome, preço, duração)
-Appointment → agendamentos (cliente × procedimento × data × status × valor)
+users        → autenticação do sistema
+customers    → clientes da nail designer
+procedures   → serviços oferecidos (nome, preço, duração)
+appointments → agendamentos (cliente × procedimento × data × status × valor)
 ```
+
+**Padrão de Nomenclatura:** Todas as tabelas internas foram mapeadas para `snake_case` minúsculas (via `@@map` no Prisma) para garantir total compatibilidade com PostgreSQL no Supabase, evitando bugs de capitalização comuns.
 
 **Status de agendamento:** `Agendado` | `Atendido` | `Cancelado`
 
