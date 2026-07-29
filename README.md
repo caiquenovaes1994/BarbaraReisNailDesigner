@@ -19,7 +19,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** `v1.0.0` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** `v1.1.0` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 ---
 
@@ -35,7 +35,9 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 
 ### 👥 Clientes
 
-- Cadastro com telefone internacional (DDI + máscara) e data de nascimento
+- Cadastro com telefone internacional (DDI + máscara), data de nascimento e endereço
+- Indicadores visuais de campos obrigatórios (asterisco vermelho com tooltip)
+- Botão "Ir" para navegação GPS (Google Maps no desktop; Uber, Waze e Maps no mobile)
 - Busca por nome ou telefone com paginação configurável
 - Histórico completo de atendimentos por cliente
 - Link direto para WhatsApp a partir do número cadastrado
@@ -99,6 +101,8 @@ BarbaraReisNailDesigner/
 │   ├── src/
 │   │   ├── controllers/        Lógica de negócio por entidade
 │   │   ├── middleware/         Autenticação JWT via Cookie HTTP-Only
+│   │   ├── scripts/            Migração de criptografia e validação de segurança
+│   │   ├── utils/              Criptografia AES-256-CBC de dados sensíveis
 │   │   ├── routes.js           Definição centralizada de rotas
 │   │   └── index.js            Entry point do servidor
 │   └── prisma/
@@ -163,14 +167,18 @@ A aplicação opera em um ambiente distribuído na nuvem:
 
 | Medida | Detalhes |
 | --- | --- |
-| **Autenticação** | JWT armazenado em Cookie HTTP-Only (expiração de 24h) |
-| **Proteção XSS** | Sem tokens no `localStorage`; cookies inacessíveis via JavaScript |
+| **Autenticação** | JWT armazenado em Cookie HTTP-Only (`sameSite: lax`, `secure: true` em produção, expiração de 24h) |
+| **Proteção XSS** | Sem tokens no `localStorage`/`sessionStorage`; cookies inacessíveis via JavaScript |
+| **Criptografia de Dados** | AES-256-CBC com chave derivada via `scrypt` e salt configurável; telefone, data de nascimento e endereço criptografados em repouso |
 | **Hashing de Senhas** | bcrypt com salt rounds padrão; limite de 128 caracteres |
 | **Rate Limiting** | 20 requisições / 15 min na rota de autenticação |
-| **CORS** | Origem restrita ao domínio do frontend (variável de ambiente) |
-| **Headers HTTP** | Gerenciados pelo Helmet (CSP, HSTS, X-Frame-Options, etc.) |
-| **Variáveis Sensíveis** | Isoladas em `.env`, nunca versionadas |
+| **CORS** | Whitelist restrita ao domínio de produção e localhost; `origin: true` eliminado |
+| **CSP** | Content Security Policy personalizada via Helmet (backend) e meta tag (frontend) |
+| **Headers HTTP** | Gerenciados pelo Helmet (CSP, HSTS, X-Frame-Options, CORP, COEP, etc.) |
+| **Sourcemaps** | Desabilitados explicitamente no build de produção (`sourcemap: false`) |
+| **Variáveis Sensíveis** | Isoladas em `.env`, nunca versionadas; certificados SSL no `.gitignore` |
 | **Sessão Expirada** | Redirecionamento automático ao login em respostas 401/403 |
+| **Validação Automatizada** | Script `validate-security.js` com 20 verificações de conformidade |
 
 ---
 

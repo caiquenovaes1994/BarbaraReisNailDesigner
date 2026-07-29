@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Check, Loader2, CornerUpRight, MapPin, Navigation, Car } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { countries } from '../utils/countries';
 import api from '../utils/api';
@@ -12,10 +12,11 @@ const Clients = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [customerForm, setCustomerForm] = useState({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+  const [customerForm, setCustomerForm] = useState({ nome: '', telefone: '', ddi: '55', data_nascimento: '', endereco: '' });
   
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
+  const [navModalOpen, setNavModalOpen] = useState(false);
   
   const normalizeString = (str) => {
     return str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
@@ -99,13 +100,13 @@ const Clients = () => {
 
   const openNewForm = () => {
     setEditingId(null);
-    setCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+    setCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '', endereco: '' });
     setIsFormOpen(true);
   };
 
   const openEditForm = (customer) => {
     setEditingId(customer.id);
-    setCustomerForm({ nome: customer.nome, telefone: applyPhoneMask(customer.telefone, customer.ddi || '55'), ddi: customer.ddi || '55', data_nascimento: customer.data_nascimento || '' });
+    setCustomerForm({ nome: customer.nome, telefone: applyPhoneMask(customer.telefone, customer.ddi || '55'), ddi: customer.ddi || '55', data_nascimento: customer.data_nascimento || '', endereco: customer.endereco || '' });
     setIsFormOpen(true);
   };
 
@@ -133,7 +134,7 @@ const Clients = () => {
         await api.post('/customers', payload);
         toast.success('Cliente cadastrado com sucesso!');
       }
-      setCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+      setCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '', endereco: '' });
       setEditingId(null);
       setIsFormOpen(false);
       fetchData();
@@ -161,6 +162,20 @@ const Clients = () => {
     } finally {
       setIsDeleting(false);
       setDeleteConfirmId(null);
+    }
+  };
+
+  const handleNavigate = () => {
+    if (!customerForm.endereco) {
+      toast.error('Preencha o endereço primeiro.');
+      return;
+    }
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      setNavModalOpen(true);
+    } else {
+      window.open(`https://maps.google.com/?q=${encodeURIComponent(customerForm.endereco)}`, '_blank');
     }
   };
 
@@ -334,17 +349,22 @@ const Clients = () => {
             </h3>
             
             <form onSubmit={saveCustomer} className="flex flex-col gap-4">
-              <input
-                placeholder="Nome do Cliente"
-                className="glass-input"
-                required
-                value={customerForm.nome}
-                onChange={(e) =>
-                  setCustomerForm({ ...customerForm, nome: e.target.value })
-                }
-              />
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-400 ml-1">Data de Nascimento (opcional)</label>
+                <label className="text-sm text-gray-400 ml-1">
+                  Nome do Cliente <span className="text-red-500" title="Campo obrigatório">*</span>
+                </label>
+                <input
+                  placeholder="Nome do Cliente"
+                  className="glass-input"
+                  required
+                  value={customerForm.nome}
+                  onChange={(e) =>
+                    setCustomerForm({ ...customerForm, nome: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-400 ml-1">Data de Nascimento</label>
                 <input
                   type="date"
                   className="glass-input"
@@ -355,7 +375,9 @@ const Clients = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-400 ml-1">Telefone / WhatsApp</label>
+                <label className="text-sm text-gray-400 ml-1">
+                  Telefone / WhatsApp <span className="text-red-500" title="Campo obrigatório">*</span>
+                </label>
                 <div className="flex gap-2 relative">
                   <div className="relative">
                     <button 
@@ -424,6 +446,27 @@ const Clients = () => {
                     value={customerForm.telefone}
                     onChange={handlePhoneChange}
                   />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-400 ml-1">Endereço (opcional)</label>
+                <div className="flex gap-2">
+                  <input
+                    placeholder="Endereço"
+                    className="glass-input flex-1"
+                    value={customerForm.endereco || ''}
+                    onChange={(e) =>
+                      setCustomerForm({ ...customerForm, endereco: e.target.value })
+                    }
+                  />
+                  <button 
+                    type="button" 
+                    onClick={handleNavigate}
+                    className="bg-[#1e1e24] text-primary hover:bg-primary hover:text-white p-3 rounded-xl transition-colors border border-surface-border hover:border-primary flex items-center justify-center shrink-0 shadow-lg shadow-black/20"
+                    title="Ir para o endereço"
+                  >
+                    <CornerUpRight size={20} />
+                  </button>
                 </div>
               </div>
               <button type="submit" disabled={isSaving} className="btn-primary mt-4 flex items-center justify-center gap-2">
@@ -521,6 +564,50 @@ const Clients = () => {
               >
                 {isDeleting ? <><Loader2 size={18} className="animate-spin" /> Excluindo...</> : 'Sim, Excluir'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation App Chooser Modal */}
+      {navModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-0 sm:p-4" onClick={() => setNavModalOpen(false)}>
+          <div className="glass-panel p-6 w-full max-w-sm bg-[#1e1e24] sm:rounded-2xl rounded-t-3xl rounded-b-none border-b-0 sm:border-b animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white">Como deseja ir?</h3>
+              <button type="button" onClick={() => setNavModalOpen(false)} className="text-gray-400 hover:text-white"><X size={20}/></button>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <a 
+                href={`https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(customerForm.endereco)}`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-surface-border hover:border-primary/50 transition-colors"
+                onClick={() => setNavModalOpen(false)}
+              >
+                <div className="bg-black text-white p-2 rounded-full border border-gray-800"><Car size={20}/></div>
+                <span className="font-medium text-white">Uber</span>
+              </a>
+              
+              <a 
+                href={`https://waze.com/ul?q=${encodeURIComponent(customerForm.endereco)}&navigate=yes`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-surface-border hover:border-primary/50 transition-colors"
+                onClick={() => setNavModalOpen(false)}
+              >
+                <div className="bg-blue-500/20 text-blue-400 p-2 rounded-full"><Navigation size={20}/></div>
+                <span className="font-medium text-white">Waze</span>
+              </a>
+              
+              <a 
+                href={`https://maps.google.com/?q=${encodeURIComponent(customerForm.endereco)}`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-surface-border hover:border-primary/50 transition-colors"
+                onClick={() => setNavModalOpen(false)}
+              >
+                <div className="bg-green-500/20 text-green-400 p-2 rounded-full"><MapPin size={20}/></div>
+                <span className="font-medium text-white">Google Maps</span>
+              </a>
             </div>
           </div>
         </div>

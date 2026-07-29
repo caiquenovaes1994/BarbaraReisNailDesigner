@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { encrypt, decrypt } = require('../utils/crypto');
 
 exports.getAll = async (req, res) => {
   try {
@@ -8,7 +9,13 @@ exports.getAll = async (req, res) => {
     const customers = await prisma.customer.findMany({
       where: filter
     });
-    res.json(customers);
+    const decryptedCustomers = customers.map(c => ({
+      ...c,
+      telefone: decrypt(c.telefone),
+      data_nascimento: decrypt(c.data_nascimento),
+      endereco: decrypt(c.endereco)
+    }));
+    res.json(decryptedCustomers);
   } catch (error) {
     console.error('Error fetching customers:', error);
     res.status(500).json({ error: 'Erro ao buscar clientes.' });
@@ -17,10 +24,20 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { nome, telefone, ddi, data_nascimento } = req.body;
+    const { nome, telefone, ddi, data_nascimento, endereco } = req.body;
     const customer = await prisma.customer.create({
-      data: { nome, telefone, ddi: ddi || '55', data_nascimento, ativo: true }
+      data: { 
+        nome, 
+        telefone: encrypt(telefone), 
+        ddi: ddi || '55', 
+        data_nascimento: encrypt(data_nascimento), 
+        endereco: encrypt(endereco), 
+        ativo: true 
+      }
     });
+    customer.telefone = decrypt(customer.telefone);
+    customer.data_nascimento = decrypt(customer.data_nascimento);
+    customer.endereco = decrypt(customer.endereco);
     res.json(customer);
   } catch (error) {
     console.error('Error creating customer:', error);
@@ -31,11 +48,20 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, telefone, ddi, data_nascimento } = req.body;
+    const { nome, telefone, ddi, data_nascimento, endereco } = req.body;
     const customer = await prisma.customer.update({
       where: { id: parseInt(id) },
-      data: { nome, telefone, ddi: ddi || '55', data_nascimento }
+      data: { 
+        nome, 
+        telefone: encrypt(telefone), 
+        ddi: ddi || '55', 
+        data_nascimento: encrypt(data_nascimento), 
+        endereco: encrypt(endereco) 
+      }
     });
+    customer.telefone = decrypt(customer.telefone);
+    customer.data_nascimento = decrypt(customer.data_nascimento);
+    customer.endereco = decrypt(customer.endereco);
     res.json(customer);
   } catch (error) {
     console.error('Error updating customer:', error);

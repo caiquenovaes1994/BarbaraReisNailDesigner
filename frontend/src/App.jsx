@@ -94,7 +94,7 @@ function App() {
                     to="/changelog" 
                     className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full hover:bg-primary/20 transition-colors"
                   >
-                    v 1.0
+                    v 1.1
                   </Link>
                 </div>
                 {/* Decorative background glow */}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, User, Scissors, CalendarDays, DollarSign, Sparkles, LogOut, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, User, Scissors, CalendarDays, DollarSign, Sparkles, LogOut, FileText, ChevronLeft, ChevronRight, ChevronsRight, ChevronsDown, ChevronsUp } from 'lucide-react';
 
 const Sidebar = ({ onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const links = [
     { to: '/dashboard', icon: <Home className="w-6 h-6 md:w-5 md:h-5" />, label: 'Início' },
     { to: '/schedule', icon: <CalendarDays className="w-6 h-6 md:w-5 md:h-5" />, label: 'Agenda' },
@@ -14,7 +15,16 @@ const Sidebar = ({ onLogout }) => {
   ];
 
   return (
-    <div className={`glass-panel fixed md:relative bottom-0 left-0 w-full m-0 md:m-4 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-8 z-50 shrink-0 rounded-t-2xl rounded-b-none md:rounded-2xl border-t border-l-0 border-r-0 border-b-0 md:border pb-safe transition-all duration-500 ease-in-out ${isCollapsed ? 'md:w-20' : 'md:w-64'}`}>
+    <>
+      <div className={`glass-panel fixed md:relative bottom-0 left-0 w-full m-0 md:m-4 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-8 z-[60] shrink-0 rounded-t-2xl rounded-b-none md:rounded-2xl border-t border-l-0 border-r-0 border-b-0 md:border pb-safe transition-all duration-500 ease-in-out ${isCollapsed ? 'md:w-20' : 'md:w-64'} ${isMobileOpen ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}`}>
+        
+        {/* Mobile Toggle Button (attached to menu) */}
+        <button
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="md:hidden absolute -top-10 left-4 bg-[#1e1e24] text-gray-300 px-4 py-2 rounded-t-xl border border-b-0 border-surface-border shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] flex items-center justify-center transition-colors"
+        >
+          {isMobileOpen ? <ChevronsDown size={24} className="text-primary" /> : <ChevronsUp size={24} className="text-primary" />}
+        </button>
       
       {/* Toggle Button */}
       <button 
@@ -89,13 +99,14 @@ const Sidebar = ({ onLogout }) => {
             to="/changelog" 
             className="mb-2 px-3 py-1 border border-primary/50 text-primary font-bold rounded-full hover:bg-primary/20 transition-colors"
           >
-            v 1.0
+            v 1.1
           </NavLink>
           <span>Desenvolvido por Caique Novaes</span>
           <span>2026</span>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -22,6 +22,30 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Credenciais inválidas.' });
     }
 
+    // Verifica primeiro se é o usuário Admin local configurado no .env
+    if (
+      process.env.ADMIN_USERNAME && 
+      process.env.ADMIN_PASSWORD_HASH && 
+      username === process.env.ADMIN_USERNAME
+    ) {
+      const validAdminPassword = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
+      if (validAdminPassword) {
+        const token = jwt.sign({ id: 0, username: username, nome: 'Administrador (Local)' }, JWT_SECRET, {
+          expiresIn: '1d',
+        });
+
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+          maxAge: 24 * 60 * 60 * 1000 // 1 dia
+        });
+
+        return res.json({ username, nome: 'Administrador (Local)' });
+      }
+    }
+
+    // Caso não seja o admin local, busca no banco de dados
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
@@ -39,7 +63,7 @@ exports.login = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
       maxAge: 24 * 60 * 60 * 1000 // 1 dia
     });
 
@@ -66,7 +90,7 @@ exports.logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
   });
   res.json({ message: 'Logout efetuado com sucesso' });
 };

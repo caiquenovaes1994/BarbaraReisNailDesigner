@@ -29,6 +29,7 @@ model Customer {
   ddi             String        @default("55")
   telefone        String
   data_nascimento String?
+  endereco        String?
   ativo           Boolean       @default(true)
   appointments    Appointment[]
 

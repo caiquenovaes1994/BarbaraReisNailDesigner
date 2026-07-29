@@ -13,12 +13,39 @@ const routes = require('./routes');
 const backupService = require('./services/backupService');
 
 const app = express();
+// Headers de segurança com CSP personalizada
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
-app.use(helmet());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://barbarareisnaildesigner.onrender.com',
+  'http://localhost:5174',
+].filter(Boolean);
+
 app.use(cors({
-  origin: true, // Reflete o header Origin da requisição para compatibilidade com credenciais
+  origin: (origin, callback) => {
+    // Permite requisições sem origin (ex: mobile apps, curl, Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Bloqueado pela política CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type'],
   credentials: true,
 }));
 app.use(express.json());

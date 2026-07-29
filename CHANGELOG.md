@@ -1,4 +1,36 @@
+<!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
+
+## [v1.1.0] - 2026-07-29
+
+### 🚀 Novidades e Funcionalidades (Features)
+
+- **Campo Endereço no Cadastro de Clientes**: Novo campo de endereço completo no formulário de cadastro/edição de clientes.
+- **Botão "Ir" para Navegação GPS**: Botão estilizado com ícone de seta ao lado do endereço do cliente:
+  - **Desktop**: Abre o Google Maps diretamente no navegador.
+  - **Mobile**: Exibe opções de navegação via Uber, Waze e Google Maps, conforme apps instalados no dispositivo.
+- **Indicadores de Campos Obrigatórios**: Asterisco vermelho (`*`) com tooltip informativo nos campos Nome e Telefone, sinalizando obrigatoriedade visual.
+
+### 🔐 Segurança (Security)
+
+- **Criptografia de Dados Sensíveis (AES-256-CBC)**: Telefone, data de nascimento e endereço dos clientes agora são criptografados no banco de dados, protegendo informações pessoais em repouso.
+- **Remoção de Chave Hardcoded**: Eliminado o fallback inseguro `'chave_padrao_super_secreta_32byte'` do módulo de criptografia; o servidor agora recusa iniciar sem `ENCRYPTION_KEY` ou `JWT_SECRET` definidos.
+- **Salt Dinâmico na Derivação de Chave**: Substituído o salt estático `'salt'` por valor configurável via variável de ambiente `ENCRYPTION_SALT`, fortalecendo a derivação da chave AES.
+- **Correção de CORS**: Substituída a configuração permissiva `origin: true` (que aceitava qualquer domínio) por whitelist restrita ao domínio de produção e localhost.
+- **Content Security Policy (CSP)**: Adicionada CSP personalizada via Helmet no backend e meta tag no frontend, restringindo origens de scripts, estilos, fontes e conexões.
+- **Sourcemap Desabilitado**: Configuração explícita `sourcemap: false` no Vite para impedir exposição do código-fonte em produção.
+- **Cookie SameSite Reforçado**: Alterada política de `sameSite` dos cookies de `'none'` para `'lax'` em produção, melhorando proteção contra CSRF.
+- **Certificado SSL Removido do Git**: Arquivo `prod-ca-2021.crt` removido do versionamento e adicionado ao `.gitignore`.
+- **Header Authorization Removido do CORS**: Removido `Authorization` dos `allowedHeaders` do CORS (autenticação é exclusivamente via cookie HTTP-Only).
+
+### 🛠 Alterações Técnicas (Technical Changes)
+
+- **Script de Migração de Criptografia** (`migrate-encryption.js`): Script para re-criptografar dados existentes quando o salt de derivação é alterado.
+- **Script de Validação de Segurança** (`validate-security.js`): Script automatizado com 20 verificações que valida todas as configurações de segurança do projeto.
+- **Novo `.gitignore` na Raiz**: Criado para ignorar certificados (`*.crt`, `*.pem`, `*.key`).
+- **`.env.example` Atualizado**: Documentação de `ENCRYPTION_SALT` e `ENCRYPTION_KEY` com instruções de geração.
+
+---
 
 ## [v1.0.0] - 2026-07-20
 

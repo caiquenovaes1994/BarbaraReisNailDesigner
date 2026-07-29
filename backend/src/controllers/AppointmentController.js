@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { decrypt } = require('../utils/crypto');
 
 exports.getAll = async (req, res) => {
   try {
@@ -27,7 +28,17 @@ exports.getAll = async (req, res) => {
       include: { customer: true, procedure: true },
       orderBy: { data_atendimento: 'asc' }
     });
-    res.json(appointments);
+    
+    const decryptedAppointments = appointments.map(appt => {
+      if (appt.customer) {
+        if (appt.customer.endereco) appt.customer.endereco = decrypt(appt.customer.endereco);
+        if (appt.customer.telefone) appt.customer.telefone = decrypt(appt.customer.telefone);
+        if (appt.customer.data_nascimento) appt.customer.data_nascimento = decrypt(appt.customer.data_nascimento);
+      }
+      return appt;
+    });
+    
+    res.json(decryptedAppointments);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar agendamentos.' });
   }
