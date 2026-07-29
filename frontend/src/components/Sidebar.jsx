@@ -99,7 +99,7 @@ const Sidebar = ({ onLogout }) => {
             to="/changelog" 
             className="mb-2 px-3 py-1 border border-primary/50 text-primary font-bold rounded-full hover:bg-primary/20 transition-colors"
           >
-            v 1.1
+            v 1.1.0
           </NavLink>
           <span>Desenvolvido por Caique Novaes</span>
           <span>2026</span>
