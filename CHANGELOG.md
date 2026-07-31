@@ -5,7 +5,8 @@
 
 ### 🐛 Correções de Bugs (Bug Fixes)
 
-- **Correção de Logout Inesperado**: Resolvido problema em que o sistema deslogava o usuário a cada clique no menu. A configuração do cookie JWT (`SameSite` e `path`) foi ajustada para suportar a comunicação entre as diferentes portas locais do frontend e backend corretamente, restabelecendo a comunicação contínua com o banco de dados Supabase.
+- **Correção de Logout Inesperado**: Resolvido problema em que o sistema deslogava o usuário a cada clique no menu. A configuração do cookie JWT (`SameSite` e `path`) foi ajustada para suportar a comunicação cruzada (cross-site) no ambiente de produção do Render, restabelecendo a comunicação contínua com o banco de dados Supabase.
+- **CSP (Content Security Policy)**: Corrigido bloqueio de carregamento de fontes adicionando permissão para data URIs.
 
 ## [v1.1.0] - 2026-07-29
 
