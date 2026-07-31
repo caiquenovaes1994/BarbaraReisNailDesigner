@@ -1,6 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.1.1] - 2026-07-30
+
+### 🐛 Correções de Bugs (Bug Fixes)
+
+- **Correção de Logout Inesperado**: Resolvido problema em que o sistema deslogava o usuário a cada clique no menu. A configuração do cookie JWT (`SameSite` e `path`) foi ajustada para suportar a comunicação entre as diferentes portas locais do frontend e backend corretamente, restabelecendo a comunicação contínua com o banco de dados Supabase.
+
 ## [v1.1.0] - 2026-07-29
 
 ### 🚀 Novidades e Funcionalidades (Features)

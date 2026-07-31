@@ -11,7 +11,7 @@ import Finance from './pages/Finance';
 import ReportsList from './pages/reports/ReportsList';
 import AppointmentsReport from './pages/reports/AppointmentsReport';
 import StatisticsReport from './pages/reports/StatisticsReport';
-import Changelog from './pages/Changelog';
+
 import Login from './pages/Login';
 import api from './utils/api';
 
@@ -90,12 +90,11 @@ function App() {
               <main className="flex-1 overflow-y-auto p-4 md:p-8 relative pb-24 md:pb-8">
                 <Header />
                 <div className="md:hidden absolute top-4 left-4 z-20">
-                  <Link 
-                    to="/changelog" 
-                    className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full hover:bg-primary/20 transition-colors"
+                  <span 
+                    className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full bg-primary/10"
                   >
-                    v 1.1.0
-                  </Link>
+                    v 1.1.1
+                  </span>
                 </div>
                 {/* Decorative background glow */}
                 <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none"></div>
@@ -112,7 +111,7 @@ function App() {
                     <Route path="/reports" element={<ReportsList />} />
                     <Route path="/reports/atendimentos" element={<AppointmentsReport />} />
                     <Route path="/reports/estatistico" element={<StatisticsReport />} />
-                    <Route path="/changelog" element={<Changelog />} />
+
                   </Routes>
                 </div>
               </main>

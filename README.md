@@ -19,7 +19,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** `v1.1.0` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** `v1.1.1` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 ---
 
