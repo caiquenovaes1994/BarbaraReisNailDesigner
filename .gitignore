@@ -3,5 +3,5 @@
 *.pem
 *.key
 
-# ─── Scripts Locais ───────────────────────────────────────────────────────────
-banco_de_dados.bat
+# ─── Documentação de Planejamento Local ───────────────────────────────────────
+ROADMAP_MELHORIAS.md

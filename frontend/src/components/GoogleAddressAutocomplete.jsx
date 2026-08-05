@@ -62,7 +62,15 @@ export default function GoogleAddressAutocomplete({
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
-    if (!apiKey || !inputRef.current || readOnly || disabled) return;
+    if (!apiKey) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('⚠️ [GoogleAddressAutocomplete] VITE_GOOGLE_MAPS_API_KEY não definida no arquivo .env.');
+      } else {
+        console.warn('⚠️ [GoogleAddressAutocomplete] VITE_GOOGLE_MAPS_API_KEY não configurada nas Environment Variables do Render.');
+      }
+      return;
+    }
+    if (!inputRef.current || readOnly || disabled) return;
 
     let isMounted = true;
     loadGoogleMapsScript(apiKey)
