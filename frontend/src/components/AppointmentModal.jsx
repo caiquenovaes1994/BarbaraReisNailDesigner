@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Check, Loader2 } from 'lucide-react';
+import { Plus, X, Check, Loader2, Pencil, CornerUpRight, MapPin, Navigation, Car } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import GoogleAddressAutocomplete from './GoogleAddressAutocomplete';
 import api from '../utils/api';
 import { countries } from '../utils/countries';
 
@@ -19,9 +20,13 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
   
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const [clientAddress, setClientAddress] = useState('');
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
+  const [navModalOpen, setNavModalOpen] = useState(false);
 
   const [isNewCustomerModalOpen, setIsNewCustomerModalOpen] = useState(false);
-  const [newCustomerForm, setNewCustomerForm] = useState({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+  const [newCustomerForm, setNewCustomerForm] = useState({ nome: '', telefone: '', ddi: '55', data_nascimento: '', endereco: '' });
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
 
@@ -62,9 +67,13 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
       });
       
       setCustomerSearch(editingAppointment.customer?.nome || '');
+      setClientAddress(editingAppointment.customer?.endereco || '');
+      setIsEditingAddress(false);
     } else if (isOpen) {
       setForm({ customerId: '', procedureId: '', data_atendimento: '', valorStr: '', dias_para_retorno: '', duracao_hhmm: '01:00' });
       setCustomerSearch('');
+      setClientAddress('');
+      setIsEditingAddress(false);
     }
   }, [isOpen, editingAppointment]);
 
@@ -81,7 +90,10 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
       // Se houver um agendamento em edição, atualiza a pesquisa com o nome correto caso a lista carregue depois
       if (editingAppointment && cust.data) {
         const c = cust.data.find(c => c.id === editingAppointment.customerId);
-        if (c) setCustomerSearch(c.nome);
+        if (c) {
+          setCustomerSearch(c.nome);
+          setClientAddress(c.endereco || '');
+        }
       }
     } catch (error) {
       console.error(error);
@@ -138,6 +150,53 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
     }
   };
 
+  const handleNavigate = () => {
+    if (!clientAddress) {
+      toast.error('Preencha ou cadastre o endereço primeiro.');
+      return;
+    }
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      setNavModalOpen(true);
+    } else {
+      window.open(`https://maps.google.com/?q=${encodeURIComponent(clientAddress)}`, '_blank');
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    if (!form.customerId) return;
+    const currentCustomer = customers.find(c => c.id === form.customerId);
+    if (!currentCustomer) return;
+    
+    setIsSavingAddress(true);
+    try {
+      const payload = {
+        nome: currentCustomer.nome,
+        telefone: currentCustomer.telefone,
+        ddi: currentCustomer.ddi || '55',
+        data_nascimento: currentCustomer.data_nascimento || '',
+        endereco: clientAddress
+      };
+      const res = await api.put(`/customers/${form.customerId}`, payload);
+      setCustomers(customers.map(c => c.id === form.customerId ? { ...c, endereco: res.data.endereco } : c));
+      setClientAddress(res.data.endereco || '');
+      setIsEditingAddress(false);
+      toast.success('Endereço atualizado no cadastro do cliente!');
+    } catch (err) {
+      console.error('Erro ao atualizar endereço do cliente:', err);
+      toast.error('Erro ao atualizar endereço do cliente.');
+    } finally {
+      setIsSavingAddress(false);
+    }
+  };
+
+  const handleCancelEditAddress = () => {
+    const currentCustomer = customers.find(c => c.id === form.customerId);
+    setClientAddress(currentCustomer?.endereco || '');
+    setIsEditingAddress(false);
+  };
+
   const saveNewCustomer = async (e) => {
     e.preventDefault();
     setIsSavingCustomer(true);
@@ -147,8 +206,10 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
       setCustomers([...customers, res.data].sort((a, b) => a.nome.localeCompare(b.nome)));
       setForm({...form, customerId: res.data.id});
       setCustomerSearch(res.data.nome);
+      setClientAddress(res.data.endereco || '');
+      setIsEditingAddress(false);
       setIsNewCustomerModalOpen(false);
-      setNewCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '' });
+      setNewCustomerForm({ nome: '', telefone: '', ddi: '55', data_nascimento: '', endereco: '' });
       toast.success('Cliente cadastrado com sucesso!');
     } catch (err) {
       console.error(err);
@@ -193,6 +254,24 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
     const payload = { ...form, duracao, valor_cobrado: precoValue };
     
     try {
+      // Se o endereço foi editado e não foi salvo individualmente, sincroniza com o cadastro do cliente
+      const currentCustomer = customers.find(c => c.id === form.customerId);
+      if (currentCustomer && (currentCustomer.endereco || '') !== clientAddress) {
+        try {
+          const payloadCustomer = {
+            nome: currentCustomer.nome,
+            telefone: currentCustomer.telefone,
+            ddi: currentCustomer.ddi || '55',
+            data_nascimento: currentCustomer.data_nascimento || '',
+            endereco: clientAddress
+          };
+          const resCust = await api.put(`/customers/${form.customerId}`, payloadCustomer);
+          setCustomers(prev => prev.map(c => c.id === form.customerId ? { ...c, endereco: resCust.data.endereco } : c));
+        } catch (e) {
+          console.error('Erro ao sincronizar endereço no cadastro do cliente:', e);
+        }
+      }
+
       if (editingAppointment) {
         await api.put(`/appointments/${editingAppointment.id}`, payload);
         toast.success('Agendamento atualizado com sucesso!');
@@ -256,6 +335,8 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
                   onChange={(e) => {
                     setCustomerSearch(e.target.value);
                     setForm({...form, customerId: ''});
+                    setClientAddress('');
+                    setIsEditingAddress(false);
                     setShowCustomerDropdown(true);
                   }}
                 />
@@ -271,6 +352,8 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
                           onClick={() => {
                             setForm({...form, customerId: c.id});
                             setCustomerSearch(c.nome);
+                            setClientAddress(c.endereco || '');
+                            setIsEditingAddress(false);
                             setShowCustomerDropdown(false);
                           }}
                         >
@@ -288,6 +371,88 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
                 title="Novo Cliente"
               >
                 <Plus size={20} />
+              </button>
+            </div>
+
+            {/* Campo de Endereço do Cliente */}
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1 flex items-center">
+                {isEditingAddress ? (
+                  <GoogleAddressAutocomplete
+                    className="glass-input w-full pr-12 text-sm text-white border-primary/50 bg-black/40 transition-colors"
+                    placeholder="Digite o endereço..."
+                    value={clientAddress}
+                    onChange={(e) => setClientAddress(e.target.value)}
+                    onPlaceSelected={(place) => {
+                      if (place?.formatted_address) {
+                        setClientAddress(place.formatted_address);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSaveAddress();
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        handleCancelEditAddress();
+                      }
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  <input 
+                    type="text" 
+                    className="glass-input w-full pr-12 text-sm transition-colors text-gray-300 bg-black/20 cursor-default"
+                    placeholder={form.customerId ? "Endereço não cadastrado" : "Endereço do cliente"}
+                    value={clientAddress}
+                    readOnly
+                    disabled={!form.customerId}
+                  />
+                )}
+                {form.customerId && (
+                  <div className="absolute right-2.5 flex items-center gap-1">
+                    {isEditingAddress ? (
+                      <>
+                        <button 
+                          type="button" 
+                          onClick={handleSaveAddress}
+                          disabled={isSavingAddress}
+                          className="p-1 text-green-400 hover:text-green-300 transition-colors"
+                          title="Salvar Endereço"
+                        >
+                          {isSavingAddress ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={handleCancelEditAddress}
+                          disabled={isSavingAddress}
+                          className="p-1 text-gray-400 hover:text-white transition-colors"
+                          title="Cancelar"
+                        >
+                          <X size={16} />
+                        </button>
+                      </>
+                    ) : (
+                      <button 
+                        type="button" 
+                        onClick={() => setIsEditingAddress(true)}
+                        className="p-1 text-gray-400 hover:text-primary transition-colors"
+                        title="Editar Endereço"
+                      >
+                        <Pencil size={16} strokeWidth={1.5} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              <button 
+                type="button" 
+                onClick={handleNavigate}
+                disabled={!clientAddress}
+                className="bg-[#1e1e24] text-primary hover:bg-primary hover:text-white disabled:opacity-30 disabled:hover:bg-[#1e1e24] disabled:hover:text-primary p-3 rounded-xl transition-colors border border-surface-border hover:border-primary flex items-center justify-center shrink-0 shadow-lg shadow-black/20"
+                title="Ir para o endereço"
+              >
+                <CornerUpRight size={20} />
               </button>
             </div>
             
@@ -478,6 +643,20 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
                   />
                 </div>
               </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-400 ml-1">Endereço (opcional)</label>
+                <GoogleAddressAutocomplete
+                  placeholder="Endereço"
+                  className="glass-input"
+                  value={newCustomerForm.endereco || ''}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, endereco: e.target.value })}
+                  onPlaceSelected={(place) => {
+                    if (place?.formatted_address) {
+                      setNewCustomerForm(prev => ({ ...prev, endereco: place.formatted_address }));
+                    }
+                  }}
+                />
+              </div>
               <button type="submit" disabled={isSavingCustomer} className="btn-primary mt-4 flex items-center justify-center gap-2">
                 {isSavingCustomer ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : 'Salvar e Selecionar'}
               </button>
@@ -549,8 +728,53 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
           </div>
         </div>
       )}
+
+      {/* Navigation App Chooser Modal */}
+      {navModalOpen && (
+        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-0 sm:p-4" onClick={() => setNavModalOpen(false)}>
+          <div className="glass-panel p-6 w-full max-w-sm bg-[#1e1e24] sm:rounded-2xl rounded-t-3xl rounded-b-none border-b-0 sm:border-b animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white">Como deseja ir?</h3>
+              <button type="button" onClick={() => setNavModalOpen(false)} className="text-gray-400 hover:text-white"><X size={20}/></button>
+            </div>
+            
+            <div className="flex flex-col gap-3">
+              <a 
+                href={`https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(clientAddress)}`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-surface-border hover:border-primary/50 transition-colors"
+                onClick={() => setNavModalOpen(false)}
+              >
+                <div className="bg-black text-white p-2 rounded-full border border-gray-800"><Car size={20}/></div>
+                <span className="font-medium text-white">Uber</span>
+              </a>
+              
+              <a 
+                href={`https://waze.com/ul?q=${encodeURIComponent(clientAddress)}&navigate=yes`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-surface-border hover:border-primary/50 transition-colors"
+                onClick={() => setNavModalOpen(false)}
+              >
+                <div className="bg-blue-500/20 text-blue-400 p-2 rounded-full"><Navigation size={20}/></div>
+                <span className="font-medium text-white">Waze</span>
+              </a>
+              
+              <a 
+                href={`https://maps.google.com/?q=${encodeURIComponent(clientAddress)}`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-surface-border hover:border-primary/50 transition-colors"
+                onClick={() => setNavModalOpen(false)}
+              >
+                <div className="bg-green-500/20 text-green-400 p-2 rounded-full"><MapPin size={20}/></div>
+                <span className="font-medium text-white">Google Maps</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
 
 export default AppointmentModal;
+

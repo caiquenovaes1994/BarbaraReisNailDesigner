@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Check, Loader2, CornerUpRight, MapPin, Navigation, Car } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import GoogleAddressAutocomplete from '../components/GoogleAddressAutocomplete';
 import { countries } from '../utils/countries';
 import api from '../utils/api';
 
@@ -451,13 +452,18 @@ const Clients = () => {
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-400 ml-1">Endereço (opcional)</label>
                 <div className="flex gap-2">
-                  <input
+                  <GoogleAddressAutocomplete
                     placeholder="Endereço"
                     className="glass-input flex-1"
                     value={customerForm.endereco || ''}
                     onChange={(e) =>
                       setCustomerForm({ ...customerForm, endereco: e.target.value })
                     }
+                    onPlaceSelected={(place) => {
+                      if (place?.formatted_address) {
+                        setCustomerForm(prev => ({ ...prev, endereco: place.formatted_address }));
+                      }
+                    }}
                   />
                   <button 
                     type="button" 

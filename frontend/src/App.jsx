@@ -93,7 +93,7 @@ function App() {
                   <span 
                     className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full bg-primary/10"
                   >
-                    v 1.1.1
+                    v 1.2.0
                   </span>
                 </div>
                 {/* Decorative background glow */}

@@ -19,7 +19,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** `v1.1.1` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** `v1.2.0` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 ---
 
@@ -29,6 +29,8 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 
 - Grade semanal interativa com destaque para dias passados
 - Criação, edição e exclusão de agendamentos
+- **Endereço Integrado**: Visualização do endereço do cliente no agendamento, edição inline rápida com Google Places e botão "Salvar Endereço"
+- **Navegação GPS ("Ir")**: Acesso rápido a rotas via Google Maps (desktop) ou seleção de app (Uber, Waze e Maps no mobile)
 - Alteração de status via menu de contexto: **Agendado → Atendido → Cancelado**
 - Navegação entre semanas com retorno rápido ao dia atual
 - Busca de cliente por nome (com suporte a acentuação)
@@ -36,6 +38,7 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 ### 👥 Clientes
 
 - Cadastro com telefone internacional (DDI + máscara), data de nascimento e endereço
+- **Google Places Autocomplete**: Sugestão inteligente e preenchimento automático de logradouro, número, bairro, cidade e CEP restrito ao Brasil
 - Indicadores visuais de campos obrigatórios (asterisco vermelho com tooltip)
 - Botão "Ir" para navegação GPS (Google Maps no desktop; Uber, Waze e Maps no mobile)
 - Busca por nome ou telefone com paginação configurável
@@ -148,6 +151,7 @@ BarbaraReisNailDesigner/
 | **Lucide React** | Biblioteca de ícones |
 | **jsPDF** | Geração de relatórios PDF |
 | **react-hot-toast** | Notificações visuais (toasts) |
+| **Google Places API** | Preenchimento automático de endereços |
 
 ---
 

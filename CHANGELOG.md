@@ -1,6 +1,36 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.2.0] - 2026-08-05
+
+### 🚀 Novidades e Funcionalidades (Features)
+
+- **Preenchimento Automático de Endereço com Google Places**:
+  - Integração com a API do Google Places Autocomplete em todos os fluxos que utilizam endereço no sistema.
+  - Sugestões automáticas e completas de logradouro, número, bairro, cidade e CEP em tempo real conforme o usuário digita.
+  - Restrição geográfica inteligente para o Brasil (`country: 'br'`) e idioma em português (`pt-BR`).
+  - Dropdown com estilização exclusiva em Dark Theme e glassmorphism, totalmente integrada à identidade visual da aplicação.
+- **Edição e Gestão de Endereço no Modal de Agendamentos**:
+  - Exibição de campo de endereço do cliente selecionado diretamente no modal de agendamento (somente leitura por padrão).
+  - Ícone de lápis para habilitar edição rápida do endereço com suporte nativo ao Google Places Autocomplete.
+  - Botão de confirmação de edição ("Salvar Endereço") que sincroniza e atualiza imediatamente os dados do cliente no banco de dados.
+  - Botão "Ir" integrado para navegação GPS rápida (Google Maps, Waze e Uber).
+- **Endereço no Sub-modal de Novo Cliente no Agendamento**:
+  - Possibilidade de preencher o endereço com autocomplete ao cadastrar um novo cliente diretamente pelo fluxo de criação de agendamentos.
+- **Autocomplete no Módulo de Clientes**:
+  - Atualização do formulário de criação e edição da tela de Clientes com o novo componente integrado do Google Places.
+
+### 🔐 Segurança e Performance (Security & Performance)
+
+- **Content Security Policy (CSP) Atualizada**:
+  - Atualizadas diretivas de CSP no `index.html` para permitir scripts (`maps.googleapis.com`), conexões, imagens (`maps.gstatic.com`) e fontes (`use.typekit.net`) estritamente autorizadas.
+- **Componente Nativo com Carregamento Assíncrono (`loading=async`)**:
+  - Criação do componente `GoogleAddressAutocomplete.jsx` com padrão Singleton e carregamento assíncrono do script, compatível com React 19 e Vite sem dependências externas obsoletas.
+- **CORS Local**:
+  - Inclusão da porta `http://localhost:5173` na lista de origens autorizadas pelo backend.
+
+---
+
 ## [v1.1.1] - 2026-07-30
 
 ### 🐛 Correções de Bugs (Bug Fixes)

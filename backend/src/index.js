@@ -34,6 +34,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   'https://barbarareisnaildesigner.onrender.com',
   'http://localhost:5174',
+  'http://localhost:5173',
 ].filter(Boolean);
 
 app.use(cors({
