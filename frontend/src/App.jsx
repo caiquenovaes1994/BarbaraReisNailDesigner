@@ -11,6 +11,7 @@ import Finance from './pages/Finance';
 import ReportsList from './pages/reports/ReportsList';
 import AppointmentsReport from './pages/reports/AppointmentsReport';
 import StatisticsReport from './pages/reports/StatisticsReport';
+import BirthdaysReport from './pages/reports/BirthdaysReport';
 
 import Login from './pages/Login';
 import api from './utils/api';
@@ -93,7 +94,7 @@ function App() {
                   <span 
                     className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full bg-primary/10"
                   >
-                    v 1.2.0
+                    v 1.3.0
                   </span>
                 </div>
                 {/* Decorative background glow */}
@@ -109,9 +110,9 @@ function App() {
                     <Route path="/schedule" element={<Schedule />} />
                     <Route path="/finance" element={<Finance />} />
                     <Route path="/reports" element={<ReportsList />} />
+                    <Route path="/reports/aniversariantes" element={<BirthdaysReport />} />
                     <Route path="/reports/atendimentos" element={<AppointmentsReport />} />
                     <Route path="/reports/estatistico" element={<StatisticsReport />} />
-
                   </Routes>
                 </div>
               </main>

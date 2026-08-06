@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import logo from '../../assets/BRND.svg';
+import { applySpaceMonoFont, getSpaceMonoTableStyles } from '../../utils/pdfFontManager';
 
 const loadImageAsPngBase64 = (src) => {
   return new Promise((resolve, reject) => {
@@ -61,35 +62,42 @@ const StatisticsReport = () => {
       }
 
       const doc = new jsPDF('portrait', 'mm', 'a4');
+      await applySpaceMonoFont(doc);
       
       try {
         const logoBase64 = await loadImageAsPngBase64(logo);
-        doc.addImage(logoBase64, 'PNG', 14, 6, 32, 20);
+        doc.addImage(logoBase64, 'PNG', 14, 6, 28, 17.5);
       } catch (err) {
         console.error('Erro ao carregar logo no PDF', err);
       }
 
-      doc.setFontSize(18);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(16);
       doc.setTextColor(40);
-      doc.text('Relatório Estatístico', 105, 22, { align: 'center' });
+      doc.text('Relatório Estatístico', 105, 20, { align: 'center' });
 
+      // Data e Hora de emissão à direita (2 linhas)
       const now = new Date();
       const emissaoDate = now.toLocaleDateString('pt-BR');
       const emissaoTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      doc.setFontSize(10);
-      doc.setTextColor(150);
-      doc.text(`${emissaoDate} - ${emissaoTime}`, 196, 22, { align: 'right' });
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(140);
+      doc.text(emissaoDate, 196, 19, { align: 'right' });
+      doc.text(emissaoTime, 196, 24, { align: 'right' });
       
       const formatBr = (dateString) => {
         const [y, m, d] = dateString.split('-');
         return `${d}/${m}/${y}`;
       };
       
-      doc.setFontSize(10);
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(9.5);
       doc.setTextColor(100);
       doc.text(`${formatBr(form.startDate)} a ${formatBr(form.endDate)}`, 105, 26, { align: 'center' });
 
-      let currentY = 40;
+      let currentY = 38;
+      const baseTableStyles = getSpaceMonoTableStyles();
 
       // Calculate Procedure Stats
       if (form.type === 'Todos' || form.type === 'Procedimentos') {
@@ -109,10 +117,11 @@ const StatisticsReport = () => {
           revenue: procStats[name].revenue
         })).sort((a, b) => b.count - a.count);
 
-        doc.setFontSize(14);
+        doc.setFont('SpaceMono', 'bold');
+        doc.setFontSize(11);
         doc.setTextColor(40);
         doc.text('Procedimentos Mais Realizados', 14, currentY);
-        currentY += 5;
+        currentY += 4;
 
         autoTable(doc, {
           startY: currentY,
@@ -122,16 +131,20 @@ const StatisticsReport = () => {
             p.count,
             new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.revenue)
           ]),
-          theme: 'striped',
-          headStyles: { fillColor: [217, 70, 239] },
-          margin: { top: 10, bottom: 20 }
+          ...baseTableStyles,
+          columnStyles: {
+            0: { cellWidth: 100 },
+            1: { cellWidth: 35, halign: 'center' },
+            2: { cellWidth: 47, halign: 'right' }
+          },
+          margin: { top: 10, bottom: 20, left: 14, right: 14 }
         });
-        currentY = doc.lastAutoTable.finalY + 15;
+        currentY = doc.lastAutoTable.finalY + 12;
       }
 
       // Calculate Customer Stats
       if (form.type === 'Todos' || form.type === 'Clientes') {
-        if (currentY > 250) {
+        if (currentY > 230) {
           doc.addPage();
           currentY = 20;
         }
@@ -152,13 +165,14 @@ const StatisticsReport = () => {
           revenue: custStats[name].revenue
         })).sort((a, b) => b.count - a.count);
 
-        // Keep top 20 or all if we want. Let's do top 20 clients.
+        // Top 20 clients
         const topCustomers = custArray.slice(0, 20);
 
-        doc.setFontSize(14);
+        doc.setFont('SpaceMono', 'bold');
+        doc.setFontSize(11);
         doc.setTextColor(40);
         doc.text('Top Clientes (Mais Atendimentos)', 14, currentY);
-        currentY += 5;
+        currentY += 4;
 
         autoTable(doc, {
           startY: currentY,
@@ -168,20 +182,24 @@ const StatisticsReport = () => {
             c.count,
             new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(c.revenue)
           ]),
-          theme: 'striped',
-          headStyles: { fillColor: [217, 70, 239] },
-          margin: { top: 10, bottom: 20 }
+          ...baseTableStyles,
+          columnStyles: {
+            0: { cellWidth: 100 },
+            1: { cellWidth: 35, halign: 'center' },
+            2: { cellWidth: 47, halign: 'right' }
+          },
+          margin: { top: 10, bottom: 20, left: 14, right: 14 }
         });
-        currentY = doc.lastAutoTable.finalY + 15;
       }
 
       // Add page numbers
       const pageCount = doc.internal.getNumberOfPages();
       for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`${i}/${pageCount}`, 105, 285, { align: 'center' });
+        doc.setFont('SpaceMono', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(150);
+        doc.text(`Bárbara Reis Nail Designer • Página ${i} de ${pageCount}`, 105, 290, { align: 'center' });
       }
 
       doc.save('Relatorio_Estatistico.pdf');

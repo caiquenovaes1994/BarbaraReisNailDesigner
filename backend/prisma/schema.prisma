@@ -13,12 +13,14 @@ datasource db {
 }
 
 model Procedure {
-  id                        Int           @id @default(autoincrement())
-  nome                      String
-  preco                     Float
-  duracao                   Int           @default(60)
-  ativo                     Boolean       @default(true)
-  appointments              Appointment[]
+  id            Int           @id @default(autoincrement())
+  nome          String
+  preco         Float
+  duracao       Int           @default(60)
+  ativo         Boolean       @default(true)
+  criado_em     DateTime      @default(now()) @map("criado_em")
+  atualizado_em DateTime      @default(now()) @updatedAt @map("atualizado_em")
+  appointments  Appointment[]
 
   @@map("procedures")
 }
@@ -31,6 +33,8 @@ model Customer {
   data_nascimento String?
   endereco        String?
   ativo           Boolean       @default(true)
+  criado_em       DateTime      @default(now()) @map("criado_em")
+  atualizado_em   DateTime      @default(now()) @updatedAt @map("atualizado_em")
   appointments    Appointment[]
 
   @@map("customers")
@@ -46,6 +50,8 @@ model Appointment {
   dias_para_retorno  Int
   duracao            Int       @default(60)
   retorno_dispensado Boolean   @default(false)
+  criado_em          DateTime  @default(now()) @map("criado_em")
+  atualizado_em      DateTime  @default(now()) @updatedAt @map("atualizado_em")
 
   customer           Customer  @relation(fields: [customerId], references: [id])
   procedure          Procedure @relation(fields: [procedureId], references: [id])
@@ -56,10 +62,12 @@ model Appointment {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  nome     String @default("")
-  password String
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  nome          String   @default("")
+  password      String
+  criado_em     DateTime @default(now()) @map("criado_em")
+  atualizado_em DateTime @default(now()) @updatedAt @map("atualizado_em")
 
   @@map("users")
 }

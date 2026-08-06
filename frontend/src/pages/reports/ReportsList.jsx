@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom';
-import { FileText, Calendar, TrendingUp } from 'lucide-react';
+import { FileText, Calendar, TrendingUp, Cake } from 'lucide-react';
 
 const ReportsList = () => {
   const reports = [
+    {
+      id: 'aniversariantes',
+      name: 'Aniversariantes',
+      description: 'Lista de aniversariantes do mês com status de agendamento e felicitação via WhatsApp.',
+      icon: Cake,
+      path: '/reports/aniversariantes'
+    },
     {
       id: 'atendimentos',
       name: 'Atendimentos',

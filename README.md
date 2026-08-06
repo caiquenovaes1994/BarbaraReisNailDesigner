@@ -19,7 +19,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** `v1.2.0` — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.3.0-d946ef?style=flat&logo=semver&logoColor=white) — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 ---
 
@@ -45,6 +45,13 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 - Histórico completo de atendimentos por cliente
 - Link direto para WhatsApp a partir do número cadastrado
 - Soft delete com toggle de exibição de clientes inativos
+
+### 🎂 Aniversariantes do Mês
+
+- Relatório com filtro dinâmico por mês e ano
+- Cruzamento automático com agenda mensal (clientes atendidas/agendadas vs. sem agendamento)
+- Botão de envio rápido para WhatsApp com mensagem personalizada (primeiro nome, quebras de linha e emojis)
+- Exportação em PDF tabular oficial
 
 ### 💅 Procedimentos
 
@@ -72,8 +79,9 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 ### 📄 Relatórios PDF
 
 - Geração client-side via jsPDF (zero carga no servidor)
-- Relatórios Estatísticos e de Atendimentos detalhados por período
-- Design sofisticado com logo SVG e tipografia *Imperial Script* embutidos
+- Tipografia oficial **Space Mono** (Regular & Bold) em 100% dos relatórios (Atendimentos, Estatístico e Aniversariantes)
+- Painel de estatísticas e faturamento fixado com precisão no rodapé da página
+- Data e hora de emissão estruturadas em 2 linhas alinhadas à direita superior
 
 ### 🔔 Notificações de Retorno
 
@@ -213,3 +221,7 @@ Consulte o arquivo [LICENSE](./LICENSE) para os termos completos.
 [![GitHub](https://img.shields.io/badge/GitHub-caiquenovaes1994-181717?style=flat&logo=github&logoColor=white)](https://github.com/caiquenovaes1994)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-caiquenovaes-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/caiquenovaes/)
 [![Gmail](https://img.shields.io/badge/Gmail-caiquenovaes1994%40gmail.com-EA4335?style=flat&logo=gmail&logoColor=white)](mailto:caiquenovaes1994@gmail.com)
+
+---
+
+> *"Transformando a arte de cuidar das unhas em uma experiência única de beleza, sofisticação e autoestima."* ✨💅

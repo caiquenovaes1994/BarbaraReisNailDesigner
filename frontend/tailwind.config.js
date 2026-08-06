@@ -18,7 +18,7 @@ export default {
         'glass': '12px',
       },
       fontFamily: {
-        sans: ['Nunito', 'sans-serif'],
+        sans: ['Montserrat', 'sans-serif'],
         imperial: ['"Imperial Script"', 'cursive'],
       }
     },

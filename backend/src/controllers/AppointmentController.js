@@ -1,6 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-const { decrypt } = require('../utils/crypto');
+const prisma = require('../utils/prisma');
+const { getStartOfDayBRT, getEndOfDayBRT } = require('../utils/dateUtils');
 
 exports.getAll = async (req, res) => {
   try {
@@ -10,8 +9,8 @@ exports.getAll = async (req, res) => {
     
     if (startDate && endDate) {
       whereClause.data_atendimento = {
-        gte: new Date(startDate),
-        lte: new Date(endDate)
+        gte: getStartOfDayBRT(startDate),
+        lte: getEndOfDayBRT(endDate)
       };
     }
     
@@ -29,16 +28,7 @@ exports.getAll = async (req, res) => {
       orderBy: { data_atendimento: 'asc' }
     });
     
-    const decryptedAppointments = appointments.map(appt => {
-      if (appt.customer) {
-        if (appt.customer.endereco) appt.customer.endereco = decrypt(appt.customer.endereco);
-        if (appt.customer.telefone) appt.customer.telefone = decrypt(appt.customer.telefone);
-        if (appt.customer.data_nascimento) appt.customer.data_nascimento = decrypt(appt.customer.data_nascimento);
-      }
-      return appt;
-    });
-    
-    res.json(decryptedAppointments);
+    res.json(appointments);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar agendamentos.' });
   }

@@ -1,6 +1,49 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.3.0] - 2026-08-06
+
+### 🚀 Novidades e Funcionalidades (Features)
+
+- **Novo Relatório de Aniversariantes do Mês (`/reports/aniversariantes`)**:
+  - Filtro intuitivo por mês e ano para identificação de aniversariantes com ordenação cronológica por dia.
+  - Cruzamento de dados em tempo real com agendamentos do mês selecionado, sinalizando visualmente clientes agendadas (*com data e horário*) vs. clientes sem horário marcado.
+  - Botão de envio rápido de WhatsApp com mensagem de felicitações personalizada contendo o primeiro nome da cliente, emojis e quebras de linha adequadas.
+  - Exportação em PDF oficial formatado em **Space Mono** com layout tabular e cabeçalho institucional.
+  - Integração do card de acesso direto na central de relatórios (`ReportsList.jsx`).
+
+- **Tipografia Space Mono 100% em Todos os Relatórios PDF**:
+  - Integração de fontes TrueType oficiais (`SpaceMono-Regular.ttf` e `SpaceMono-Bold.ttf`) via VFS do `jsPDF`.
+  - Migração de todos os relatórios (`AppointmentsReport.jsx`, `StatisticsReport.jsx`, `BirthdaysReport.jsx`) para estética monoespaçada, proporcionando alinhamento contábil e tabular de alta precisão.
+  - Painel de estatísticas e totais fixado permanentemente no rodapé da página com grade de 4 colunas (Total Faturado, Pendente, Potencial e Registros).
+  - Data e hora de emissão padronizadas em 2 linhas independentes alinhadas à direita superior.
+
+- **Acessibilidade e Ergonomia no Menu Contextual de Agendamentos**:
+  - Detecção automática de limites da tela (*collision detection*) para evitar que o menu transborde no PC ou Mobile.
+  - Suporte completo à navegação por teclado (tecla `Escape` para fechar, setas `ArrowDown` / `ArrowUp` e auto-foco).
+  - Fechamento inteligente por clique fora (*click outside*).
+  - Suporte a semântica WAI-ARIA (`role="menu"`, `role="menuitem"`, `aria-label`).
+  - Ícones visuais de status (`Clock` para Agendado, `CheckCircle2` para Atendido e `XCircle` para Cancelado).
+
+### 🐛 Correções de Bugs (Bug Fixes)
+
+- **Padronização de Fuso Horário de Brasília (Offset -03:00)**:
+  - Criação do utilitário nativo `dateUtils.js` com `getStartOfDayBRT`, `getEndOfDayBRT` e `getMonthRangeBRT`.
+  - Eliminação definitiva de cortes indevidos de agendamentos noturnos (entre 21h00 e 23h59) que ocorriam nos relatórios e filtros financeiros do `FinanceController.js` e `AppointmentController.js`.
+- **Contraste de Ícone em Inputs Nativos**:
+  - Ajuste global via CSS (`input[type="time"]::-webkit-calendar-picker-indicator`) para manter o ícone do relógio 100% branco (`#ffffff`) sobre tema escuro na tela de Procedimentos.
+
+### 🔐 Segurança e Banco de Dados (Security & Database)
+
+- **Criptografia Transparente via Prisma Client Extensions (`$extends`)**:
+  - Criptografia automática de dados sensíveis (`telefone`, `endereco`) nas operações de escrita (`create`, `update`, `upsert`).
+  - Descriptografia computada na leitura (`result.customer.compute`), eliminando a necessidade de chamadas manuais espalhadas nos controllers.
+- **Auditoria de Banco de Dados**:
+  - Adição dos campos `criado_em` (`@default(now())`) e `atualizado_em` (`@updatedAt`) no modelo `Customer` do Prisma.
+  - Padronização do campo `data_nascimento` em formato texto claro (`YYYY-MM-DD`).
+
+---
+
 ## [v1.2.0] - 2026-08-05
 
 ### 🚀 Novidades e Funcionalidades (Features)

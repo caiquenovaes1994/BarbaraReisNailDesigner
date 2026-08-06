@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import logo from '../../assets/BRND.svg';
+import { applySpaceMonoFont, getSpaceMonoTableStyles } from '../../utils/pdfFontManager';
 
 const loadImageAsPngBase64 = (src) => {
   return new Promise((resolve, reject) => {
@@ -111,6 +112,7 @@ const AppointmentsReport = () => {
       }
 
       const doc = new jsPDF('landscape', 'mm', 'a4');
+      await applySpaceMonoFont(doc);
       
       // Logo e Nome do Estúdio (Esquerda)
       try {
@@ -122,19 +124,23 @@ const AppointmentsReport = () => {
       }
 
       // Título Centralizado
-      doc.setFontSize(18);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(16);
       doc.setTextColor(40);
-      doc.text('Relatório de Atendimentos', 148.5, 22, { align: 'center' });
+      doc.text('Relatório de Atendimentos', 148.5, 20, { align: 'center' });
 
-      // Data de emissão à direita
+      // Data e Hora de emissão à direita (2 linhas)
       const now = new Date();
       const emissaoDate = now.toLocaleDateString('pt-BR');
       const emissaoTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      doc.setFontSize(10);
-      doc.setTextColor(150);
-      doc.text(`${emissaoDate} - ${emissaoTime}`, 283, 22, { align: 'right' });
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(140);
+      doc.text(emissaoDate, 283, 19, { align: 'right' });
+      doc.text(emissaoTime, 283, 24, { align: 'right' });
       
-      doc.setFontSize(10);
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(9.5);
       doc.setTextColor(100);
       
       // Formatting date range for header
@@ -158,7 +164,9 @@ const AppointmentsReport = () => {
         filterText += `Status: ${form.status}`;
       }
       if (filterText) {
-        doc.text(filterText, 14, 36);
+        doc.setFont('SpaceMono', 'normal');
+        doc.setFontSize(8.5);
+        doc.text(filterText, 14, 34);
       }
 
       const getVal = (appt, type) => {
@@ -219,7 +227,7 @@ const AppointmentsReport = () => {
                 { 
                   content: `${form.groupBy}: ${groupVal}`, 
                   colSpan: 5, 
-                  styles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' } 
+                  styles: { font: 'SpaceMono', fontStyle: 'bold', fillColor: [240, 240, 240], textColor: [0, 0, 0] } 
                 }
               ]);
            }
@@ -235,56 +243,94 @@ const AppointmentsReport = () => {
         tableRows.push(apptData);
       });
 
+      const baseTableStyles = getSpaceMonoTableStyles();
+
       autoTable(doc, {
         head: [tableColumn],
         body: tableRows,
-        startY: filterText ? 42 : 36,
-        theme: 'striped',
-        headStyles: { fillColor: [217, 70, 239] }, // Cor primária (Pink/Purple)
-        alternateRowStyles: { fillColor: [250, 250, 250] },
-        didDrawCell: (data) => {
-          if (data.section === 'body') {
-            doc.setDrawColor(180, 180, 180); // Darker gray to ensure visibility
-            doc.setLineWidth(0.5); // Thicker line so it doesn't disappear
-            doc.line(
-              data.cell.x, 
-              data.cell.y + data.cell.height, 
-              data.cell.x + data.cell.width, 
-              data.cell.y + data.cell.height
-            );
-          }
+        startY: filterText ? 38 : 34,
+        ...baseTableStyles,
+        columnStyles: {
+          0: { cellWidth: 70 },
+          1: { cellWidth: 75 },
+          2: { cellWidth: 45, halign: 'center' },
+          3: { cellWidth: 40, halign: 'center' },
+          4: { cellWidth: 39, halign: 'right' }
         },
-        margin: { top: 10, bottom: 20 }
+        margin: { top: 10, bottom: 45, left: 14, right: 14 }
       });
 
-      // Total summary at the end
-      const finalY = doc.lastAutoTable.finalY || 42;
-      doc.setFontSize(6);
-      doc.setTextColor(0);
-      
-      // Draw totals if there's space, else add a new page
-      if (finalY > 170) {
-        doc.addPage();
-        doc.text(`Total Faturado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor)}`, 14, 20);
-        doc.text(`Total Pendente: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPendente)}`, 14, 23);
-        doc.text(`Faturamento Potencial: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor + totalPendente)}`, 14, 26);
-        doc.text(`Total de Registros: ${data.length}`, 14, 29);
-      } else {
-        doc.text(`Total Faturado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor)}`, 14, finalY + 6);
-        doc.text(`Total Pendente: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPendente)}`, 14, finalY + 9);
-        doc.text(`Faturamento Potencial: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor + totalPendente)}`, 14, finalY + 12);
-        doc.text(`Total de Registros: ${data.length}`, 14, finalY + 15);
-      }
+      // Painel de Estatísticas Fixo no Fim da Página (Landscape A4: altura 210mm, largura 297mm)
+      const boxY = 168;
+      const boxWidth = 269;
+      const boxHeight = 25;
+
+      // Fundo e borda do card de estatísticas
+      doc.setFillColor(250, 248, 252);
+      doc.setDrawColor(217, 70, 239);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(14, boxY, boxWidth, boxHeight, 2, 2, 'FD');
+
+      // Título do card de resumo
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(157, 23, 77); // Deep Pink
+      doc.text('RESUMO FINANCEIRO & OPERACIONAL', 18, boxY + 6);
+
+      // Linha separadora interna
+      doc.setDrawColor(230, 220, 240);
+      doc.setLineWidth(0.2);
+      doc.line(18, boxY + 8.5, 14 + boxWidth - 4, boxY + 8.5);
+
+      // Coluna 1: Total Faturado
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('TOTAL FATURADO', 18, boxY + 14);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(22, 101, 52); // Green
+      doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor), 18, boxY + 20);
+
+      // Coluna 2: Total Pendente
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('TOTAL PENDENTE', 85, boxY + 14);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(180, 83, 9); // Amber
+      doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPendente), 85, boxY + 20);
+
+      // Coluna 3: Faturamento Potencial
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('FATURAMENTO POTENCIAL', 152, boxY + 14);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(147, 51, 234); // Purple
+      doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor + totalPendente), 152, boxY + 20);
+
+      // Coluna 4: Total de Registros
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('TOTAL DE REGISTROS', 225, boxY + 14);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(30, 41, 59); // Slate
+      doc.text(`${data.length} atendimentos`, 225, boxY + 20);
 
       // Add page numbers
       const pageCount = doc.internal.getNumberOfPages();
       for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        // A4 Landscape width is 297mm, center is 148.5mm
-        // Height is 210mm, placing at 200mm (near bottom)
-        doc.text(`${i}/${pageCount}`, 148.5, 200, { align: 'center' });
+        doc.setFont('SpaceMono', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(150);
+        // A4 Landscape width is 297mm, center is 148.5mm, height 210mm
+        doc.text(`Bárbara Reis Nail Designer • Página ${i} de ${pageCount}`, 148.5, 202, { align: 'center' });
       }
 
       doc.save('Relatorio_Atendimentos.pdf');

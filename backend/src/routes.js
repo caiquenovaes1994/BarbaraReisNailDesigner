@@ -39,5 +39,6 @@ router.put('/appointments/:id', AppointmentController.update);
 router.delete('/appointments/:id', AppointmentController.delete);
 
 router.get('/finance/summary', FinanceController.getSummary);
+router.get('/reports/birthdays', CustomerController.getBirthdaysReport);
 
 module.exports = router;

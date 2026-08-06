@@ -1,23 +1,22 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../utils/prisma');
+const { getStartOfDayBRT, getEndOfDayBRT } = require('../utils/dateUtils');
 
 exports.getSummary = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const now = new Date();
     
     const dateFilterEfetiva = {};
     const dateFilterPrevista = {};
 
     if (startDate && endDate) {
-      dateFilterEfetiva.gte = new Date(startDate);
+      const start = getStartOfDayBRT(startDate);
+      const end = getEndOfDayBRT(endDate);
+
+      dateFilterEfetiva.gte = start;
+      dateFilterEfetiva.lte = end;
       
-      const endDateObj = new Date(endDate);
-      endDateObj.setHours(23, 59, 59, 999);
-      dateFilterEfetiva.lte = endDateObj;
-      
-      dateFilterPrevista.gte = new Date(startDate);
-      dateFilterPrevista.lte = endDateObj;
+      dateFilterPrevista.gte = start;
+      dateFilterPrevista.lte = end;
     }
 
     // Receita Efetiva: Atendido

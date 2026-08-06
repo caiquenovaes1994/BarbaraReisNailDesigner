@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../utils/prisma');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const prisma = new PrismaClient();
 
 if (!process.env.JWT_SECRET) {
   throw new Error('ERRO CRÍTICO: JWT_SECRET não está definido nas variáveis de ambiente. Defina-o no arquivo .env.');
@@ -97,3 +95,4 @@ exports.logout = (req, res) => {
   });
   res.json({ message: 'Logout efetuado com sucesso' });
 };
+

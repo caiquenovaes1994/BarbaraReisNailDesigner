@@ -98,7 +98,7 @@ const Sidebar = ({ onLogout }) => {
           <span 
             className="mb-2 px-3 py-1 border border-primary/50 text-primary font-bold rounded-full bg-primary/10"
           >
-            v 1.2.0
+            v 1.3.0
           </span>
           <span>Desenvolvido por Caique Novaes</span>
           <span>2026</span>
