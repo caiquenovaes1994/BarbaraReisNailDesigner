@@ -19,7 +19,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.3.0-d946ef?style=flat&logo=semver&logoColor=white) — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.3.1-d946ef?style=flat&logo=semver&logoColor=white) — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 ---
 

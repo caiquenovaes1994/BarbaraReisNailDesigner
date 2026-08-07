@@ -450,7 +450,7 @@ const Clients = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-400 ml-1">Endereço (opcional)</label>
+                <label className="text-sm text-gray-400 ml-1">Endereço</label>
                 <div className="flex gap-2">
                   <GoogleAddressAutocomplete
                     placeholder="Endereço"

@@ -1,6 +1,28 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.3.1] - 2026-08-07
+
+### ⚡ Performance e Otimização de Build (Code Splitting)
+
+- **Particionamento Inteligente de Chunks (*Manual Chunks*) no Vite**:
+  - Implementação de divisão de pacotes no `vite.config.js` isolando dependências de terceiros por domínio de responsabilidade:
+    - `vendor-react`: React, ReactDOM, React Router e Axios.
+    - `vendor-pdf`: jsPDF e jsPDF-Autotable.
+    - `vendor-charts`: Recharts e helpers D3.
+    - `vendor-ui`: Lucide React, React Hot Toast e React Google Autocomplete.
+  - Redução drástica do bundle principal da aplicação de ~1.2 MB para apenas **129 kB (27.9 kB gzip)**.
+  - Otimização do tempo de carregamento inicial (*First Contentful Paint*), especialmente em dispositivos móveis.
+  - Habilitação de cache de longa duração (*Long-Term Caching*) no navegador das clientes.
+  - Eliminação completa de avisos de compilação (*chunkSizeWarningLimit*) durante o build e deploy no Render.
+
+### 🎨 Refinamentos de Interface (UI/UX)
+
+- **Padronização de Rótulos em Clientes**:
+  - Ajuste no formulário de cadastro e edição de clientes (`Clients.jsx`) padronizando a exibição do campo de endereço.
+
+---
+
 ## [v1.3.0] - 2026-08-06
 
 ### 🚀 Novidades e Funcionalidades (Features)
