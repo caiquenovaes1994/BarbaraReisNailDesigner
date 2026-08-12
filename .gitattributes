@@ -1,0 +1,21 @@
+# Comportamento padrão de finais de linha
+* text=auto
+
+# Arquivos de texto web padrão
+*.js text
+*.ts text
+*.html text
+*.css text
+*.scss text
+*.md text
+*.json text
+*.txt text
+
+# Imagens são binárias
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg text
