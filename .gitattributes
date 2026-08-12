@@ -19,3 +19,11 @@
 *.webp binary
 *.ico binary
 *.svg text
+
+# Configuração para estatísticas de linguagem do GitHub (Linguist)
+# Isso impede que o código gerado ou de dependências (como pastas build, dist e node_modules)
+# ofusque a porcentagem real do código do seu projeto (JavaScript/TypeScript).
+frontend/dist/** linguist-vendored
+**/node_modules/** linguist-vendored
+backend/backups/** linguist-vendored
+*-lock.json linguist-generated
