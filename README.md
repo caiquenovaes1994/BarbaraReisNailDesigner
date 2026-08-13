@@ -1,8 +1,12 @@
+<!-- markdownlint-disable MD033 MD041 -->
+
+<div align="center">
+
 # 💅 Bárbara Reis — Nail Designer
 
 > Sistema de gestão interna para estúdio de nail design
 >
-> Agendamentos · Clientes · Procedimentos · Financeiro · Relatórios
+> [Agendamentos](#️-agenda) · [Clientes](#-clientes) · [Procedimentos](#-procedimentos) · [Financeiro](#-financeiro) · [Relatórios](#-relatórios-pdf)
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5-000000?style=flat&logo=express&logoColor=white)
@@ -19,7 +23,9 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.3.1-d946ef?style=flat&logo=semver&logoColor=white) — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.3.2-d946ef?style=flat&logo=semver&logoColor=white) — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+
+</div>
 
 ---
 
@@ -96,11 +102,6 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 - Sidebar recolhível com transições de UI
 - Toasts estilizados via `react-hot-toast` (substitui popups nativos)
 - Instalável como aplicativo via tela inicial de dispositivos móveis
-
-### 📖 Changelog
-
-- Tela dedicada com design amigável para visualizar release notes de cada versão
-- Acesso rápido pelo botão de versão no menu lateral e cabeçalho
 
 ---
 

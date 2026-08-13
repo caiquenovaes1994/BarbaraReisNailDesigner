@@ -1,6 +1,13 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.3.2] - 2026-08-13
+
+### 🏷️ Versionamento e Suporte
+
+- **Exibição da Versão na Tela de Login (Item 3.1):**
+  - Implementação da exibição dinâmica da versão do sistema no canto inferior da tela inicial (Login), facilitando o controle de cache e diagnóstico de suporte técnico.
+
 ## [v1.3.1] - 2026-08-07
 
 ### ⚡ Performance e Otimização de Build (Code Splitting)

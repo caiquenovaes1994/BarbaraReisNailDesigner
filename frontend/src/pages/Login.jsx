@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { Sparkles, Eye, EyeOff } from 'lucide-react';
+import packageInfo from '../../package.json';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -86,6 +87,10 @@ const Login = ({ onLogin }) => {
             Entrar
           </button>
         </form>
+      </div>
+
+      <div className="absolute bottom-4 right-6 text-xs text-white/20 font-mono pointer-events-none">
+        v{packageInfo.version}
       </div>
     </div>
   );
