@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
-## [v1.4.0] - 2026-08-19
+## [v1.4.0] - 2026-08-24
 
 ### 🚀 Melhorias de Interface (UI/UX)
 
