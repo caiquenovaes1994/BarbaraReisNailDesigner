@@ -22,7 +22,7 @@ const Dashboard = () => {
   if (firstName) {
     const norm = firstName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
     if (norm === 'barbara') emoji = '💅';
-    if (norm === 'caique') emoji = '💻';
+    if (norm === 'caique') emoji = '👨‍💻';
   }
 
   const fetchAppointments = async () => {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { LogOut } from 'lucide-react';
 
-const Header = () => {
+const Header = ({ onLogout }) => {
   const [date, setDate] = useState(new Date());
 
   useEffect(() => {
@@ -17,7 +18,18 @@ const Header = () => {
 
   return (
     <div className="absolute top-4 right-4 md:top-8 md:right-8 text-right z-20 flex items-center justify-end">
-      <div className="text-gray-400 font-medium text-xs md:text-base">{displayString}</div>
+      {onLogout && (
+        <button 
+          onClick={onLogout}
+          className="flex md:hidden items-center justify-center py-2 px-4 gap-2 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-colors font-medium"
+        >
+          <LogOut size={18} className="shrink-0" />
+          <span>Sair</span>
+        </button>
+      )}
+      <div className="hidden md:block text-gray-400 font-medium text-xs md:text-base">
+        {displayString}
+      </div>
     </div>
   );
 };

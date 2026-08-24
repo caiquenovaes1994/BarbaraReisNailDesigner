@@ -46,11 +46,13 @@ exports.login = async (req, res) => {
 
     // Caso não seja o admin local, busca no banco de dados
     const user = await prisma.user.findUnique({ where: { username } });
+    
     if (!user) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
+    
     if (!validPassword) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }

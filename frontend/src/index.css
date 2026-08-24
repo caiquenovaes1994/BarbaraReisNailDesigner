@@ -86,3 +86,14 @@
   filter: invert(0.8) brightness(1.2) !important;
   margin-right: 8px !important;
 }
+
+@keyframes fade-msg {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.animate-fade-msg {
+  animation: fade-msg 5s infinite ease-in-out;
+}

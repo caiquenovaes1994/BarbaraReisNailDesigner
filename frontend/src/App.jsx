@@ -15,6 +15,7 @@ import BirthdaysReport from './pages/reports/BirthdaysReport';
 
 import Login from './pages/Login';
 import api from './utils/api';
+import packageInfo from '../package.json';
 
 const ProtectedRoute = ({ children, isAuthenticated }) => {
   if (!isAuthenticated) {
@@ -89,12 +90,12 @@ function App() {
             <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-white">
               <Sidebar onLogout={handleLogout} />
               <main className="flex-1 overflow-y-auto p-4 md:p-8 relative pb-24 md:pb-8">
-                <Header />
+                <Header onLogout={handleLogout} />
                 <div className="md:hidden absolute top-4 left-4 z-20">
                   <span 
                     className="px-3 py-1 border border-primary/50 text-primary font-bold text-xs rounded-full bg-primary/10"
                   >
-                    v 1.3.1
+                    v {packageInfo.version}
                   </span>
                 </div>
                 {/* Decorative background glow */}

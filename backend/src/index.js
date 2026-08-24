@@ -40,7 +40,14 @@ const allowedOrigins = [
 app.use(cors({
   origin: (origin, callback) => {
     // Permite requisições sem origin (ex: mobile apps, curl, Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Permite qualquer IP de rede local (192.168.*, 10.*, 172.16-31.*) para facilitar testes no celular
+    const isLocalNetwork = origin && (
+      origin.startsWith('http://192.168.') || 
+      origin.startsWith('http://10.') || 
+      origin.match(/^http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\./)
+    );
+    
+    if (!origin || allowedOrigins.includes(origin) || isLocalNetwork) {
       return callback(null, true);
     }
     callback(new Error('Bloqueado pela política CORS'));

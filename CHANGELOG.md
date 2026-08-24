@@ -1,6 +1,32 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.4.0] - 2026-08-19
+
+### 🚀 Melhorias de Interface (UI/UX)
+
+- **Login com Experiência Premium:**
+  - Carrossel dinâmico de mensagens motivacionais voltadas para a profissional (`Login.jsx`).
+  - Animações fluídas de feedback visual: botão indica sucesso ficando verde com ícone de destrancar (Unlock) ou sinaliza falha ficando vermelho com ícone de cadeado trancado (Lock) que pulsa.
+  - Delay estratégico de 0,5s após login bem-sucedido para exibição clara da animação.
+  - O número da versão do sistema na tela de login foi ajustado para usar o padrão limpo e sutil (mesma cor e tipografia da sidebar).
+  - Na versão mobile, a data/hora no cabeçalho foi substituída por um botão de "Sair" rápido e acessível, alinhado com o design do menu.
+
+- **Visualizações Dinâmicas da Agenda:**
+  - Adicionado suporte a quatro formatos de visualização da agenda: `Dia`, `Semana`, `Mês` e `Lista (Contínua)`.
+  - **Grade Mensal:** Identificação rápida de dias com maior movimento, exibindo agendamentos diretamente nos dias do calendário com cores dinâmicas sincronizadas ao seu status (Amarelo, Verde, Vermelho).
+
+### 🛠️ Atualizações Técnicas e Débito Técnico
+
+- **Prisma ORM Atualizado (v7):**
+  - O Prisma e o Prisma Client foram atualizados para a versão mais recente, utilizando o `@prisma/adapter-pg` para estabelecer conexão otimizada com o banco de dados.
+- **Sincronia de Versionamento:**
+  - Sidebar e tela de login agora leem e exibem dinamicamente a versão oficial estabelecida no `package.json`.
+- **Auditoria de Segurança (NPM Audit):**
+  - Execução de `npm audit fix` no frontend e no backend para correção de vulnerabilidades conhecidas em bibliotecas antigas, conforme previsto no Roadmap.
+
+---
+
 ## [v1.3.2] - 2026-08-13
 
 ### 🏷️ Versionamento e Suporte

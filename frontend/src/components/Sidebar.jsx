@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, User, Scissors, CalendarDays, DollarSign, Sparkles, LogOut, FileText, ChevronLeft, ChevronRight, ChevronsRight, ChevronsDown, ChevronsUp } from 'lucide-react';
+import packageInfo from '../../package.json';
 
 const Sidebar = ({ onLogout }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -98,7 +99,7 @@ const Sidebar = ({ onLogout }) => {
           <span 
             className="mb-2 px-3 py-1 border border-primary/50 text-primary font-bold rounded-full bg-primary/10"
           >
-            v 1.3.1
+            v {packageInfo.version}
           </span>
           <span>Desenvolvido por Caique Novaes</span>
           <span>2026</span>

@@ -10,7 +10,7 @@
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5-000000?style=flat&logo=express&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat&logo=prisma&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=flat&logo=prisma&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat&logo=vite&logoColor=white)
@@ -23,7 +23,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.3.2-d946ef?style=flat&logo=semver&logoColor=white) — Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.4.0-d946ef?style=flat&logo=semver&logoColor=white) - Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 </div>
 
@@ -33,7 +33,7 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 
 ### 🗓️ Agenda
 
-- Grade semanal interativa com destaque para dias passados
+- Múltiplas visualizações dinâmicas: Dia, Semana, Mês e Lista Contínua com identificadores visuais de volume de atendimentos
 - Criação, edição e exclusão de agendamentos
 - **Endereço Integrado**: Visualização do endereço do cliente no agendamento, edição inline rápida com Google Places e botão "Salvar Endereço"
 - **Navegação GPS ("Ir")**: Acesso rápido a rotas via Google Maps (desktop) ou seleção de app (Uber, Waze e Maps no mobile)
@@ -98,6 +98,9 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 
 ### 📱 PWA e Experiência de Usuário
 
+- Tela de Login com animações de feedback visual (Lock/Unlock) e carrossel de mensagens motivacionais
+- Botão "Sair" rápido integrado ao layout mobile do cabeçalho
+- Suporte a cache e modo offline proxy dinâmico para acesso responsivo
 - Layout com glassmorphism e animações suaves
 - Sidebar recolhível com transições de UI
 - Toasts estilizados via `react-hot-toast` (substitui popups nativos)
@@ -136,9 +139,9 @@ BarbaraReisNailDesigner/
 
 | Tecnologia | Uso |
 | --- | --- |
-| **Node.js** ≥ 18 | Runtime JavaScript |
+| **Node.js** >= 18 | Runtime JavaScript |
 | **Express** 5 | Framework HTTP |
-| **Prisma** 5 | ORM e migrações de schema |
+| **Prisma** 7 | ORM e migrações de schema |
 | **PostgreSQL** | Banco de dados relacional |
 | **bcryptjs** | Hash de senhas |
 | **jsonwebtoken** | Autenticação JWT |
