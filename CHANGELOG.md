@@ -1,6 +1,17 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.4.2] - 2026-08-26
+
+### 🛠️ Correções de Infraestrutura e Deploy (DevOps & Database)
+
+- **Otimização do Build no Render e Supabase Connection Pooler:**
+  - Remoção da execução síncrona do `prisma db push` no script de build do backend (`package.json`).
+  - Resolução definitiva do travamento de deploy (timeout de 2 horas) que ocorria ao tentar adquirir travas consultivas (*advisory locks*) e executar comandos DDL na porta `6543` (modo *Transaction* do Supabase Pooler).
+  - Redução do tempo de build do backend para menos de **1 segundo**, executando estritamente a compilação de runtime do `@prisma/client` (`prisma generate`).
+
+---
+
 ## [v1.4.1] - 2026-08-26
 
 ### 🐛 Correções de Bugs e Usabilidade (Bug Fixes & UX)

@@ -1,11 +1,11 @@
 {
   "name": "backend",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "build": "prisma generate && prisma db push",
+    "build": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
