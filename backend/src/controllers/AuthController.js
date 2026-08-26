@@ -71,8 +71,8 @@ exports.login = async (req, res) => {
 
     res.json({ username: user.username, nome: user.nome });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao fazer login.' });
+    console.error('[AUTH_LOGIN_ERROR]', error);
+    res.status(500).json({ error: 'Erro ao fazer login.', message: error.message, stack: error.stack });
   }
 };
 
