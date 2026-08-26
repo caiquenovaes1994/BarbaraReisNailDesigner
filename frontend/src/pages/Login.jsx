@@ -86,6 +86,7 @@ const Login = ({ onLogin }) => {
               type="text" 
               className="glass-input" 
               required 
+              autoComplete="username"
               value={username}
               onChange={e => { setUsername(e.target.value); if(error) setError(''); }}
             />
@@ -98,6 +99,7 @@ const Login = ({ onLogin }) => {
                 type={showPassword ? "text" : "password"} 
                 className="glass-input w-full pr-10" 
                 required 
+                autoComplete="current-password"
                 value={password}
                 onChange={e => { setPassword(e.target.value); if(error) setError(''); }}
               />
