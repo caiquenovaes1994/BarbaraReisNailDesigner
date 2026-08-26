@@ -213,9 +213,11 @@ appointments →  Agendamentos (cliente × procedimento × data × status × val
 
 ---
 
+<div align="center">
+
 ## Licença
 
-Este projeto é **software proprietário**. © 2026 Caique Novaes — Todos os direitos reservados.
+Este projeto é **software proprietário**. © 2026 Caique Novaes — Todos os direitos reservados.  
 Consulte o arquivo [LICENSE](./LICENSE) para os termos completos.
 
 ---
@@ -229,3 +231,6 @@ Consulte o arquivo [LICENSE](./LICENSE) para os termos completos.
 ---
 
 > *"Transformando a arte de cuidar das unhas em uma experiência única de beleza, sofisticação e autoestima."* ✨💅
+
+</div>
+
