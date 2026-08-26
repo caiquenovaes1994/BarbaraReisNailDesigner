@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlignLeft, CalendarDays, LayoutGrid } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import AppointmentModal from '../components/AppointmentModal';
 import AppointmentContextMenu from '../components/AppointmentContextMenu';
@@ -230,9 +229,15 @@ const Schedule = () => {
                     <div 
                       key={appt.id} 
                       className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${bgColor}`}
+                      title={`${appt.customer?.nome || ''} - ${appt.procedure?.nome || ''} - ${new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} (${appt.status})`}
                       onClick={() => openEditForm(appt)}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setContextMenu({ x: e.clientX, y: e.clientY, appointmentId: appt.id });
+                      }}
                     >
-                      {new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} - {appt.customer.nome}
+                      {new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} - {appt.customer?.nome || appt.customer?.name}
                     </div>
                   );
                 })}
@@ -288,6 +293,11 @@ const Schedule = () => {
                     key={appt.id} 
                     className="bg-surface-border/30 p-4 rounded-xl border border-surface-border hover:border-primary/50 transition-colors cursor-pointer"
                     onClick={() => openEditForm(appt)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setContextMenu({ x: e.clientX, y: e.clientY, appointmentId: appt.id });
+                    }}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-bold text-white">{new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>

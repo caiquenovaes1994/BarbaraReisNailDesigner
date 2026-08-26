@@ -1,6 +1,18 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.4.1] - 2026-08-26
+
+### 🐛 Correções de Bugs e Usabilidade (Bug Fixes & UX)
+
+- **Menu de Contexto na Grade Mensal e Lista Contínua (Item 3.3 do Roadmap):**
+  - Integração do evento de clique com o botão direito (`onContextMenu`) nos cards e itens de agendamento das visualizações **Mês** e **Lista (Contínua)** da Agenda (`Schedule.jsx`).
+  - Habilitada a alteração rápida e contextual do status do agendamento (**Agendado → Atendido → Cancelado**) em todas as 4 visualizações da agenda (`Dia`, `Semana`, `Mês`, `Lista`), garantindo paridade e consistência de uso.
+  - Adição de tooltip descritivo detalhado em cada agendamento na grade mensal com cliente, procedimento, horário e status atual.
+  - Sincronização e reatividade instantânea dos estados, cores e estilos (como tachado para cancelados e verde para atendidos) ao alterar status via menu de contexto.
+
+---
+
 ## [v1.4.0] - 2026-08-24
 
 ### 🚀 Melhorias de Interface (UI/UX)
