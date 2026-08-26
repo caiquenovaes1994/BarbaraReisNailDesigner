@@ -3,7 +3,20 @@ const { PrismaPg } = require('@prisma/adapter-pg');
 const { Pool } = require('pg');
 const { encrypt, decrypt } = require('./crypto');
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL || '';
+
+// Remove parâmetros de certificado locais (sslrootcert / sslmode) da URL se presentes
+try {
+  if (connectionString.startsWith('postgres://') || connectionString.startsWith('postgresql://')) {
+    const parsedUrl = new URL(connectionString);
+    parsedUrl.searchParams.delete('sslrootcert');
+    parsedUrl.searchParams.delete('sslmode');
+    connectionString = parsedUrl.toString();
+  }
+} catch (e) {
+  connectionString = connectionString.replace(/([&?]sslrootcert=[^&]*)/g, '').replace(/([&?]sslmode=[^&]*)/g, '');
+}
+
 const isLocalhost = connectionString && (connectionString.includes('localhost') || connectionString.includes('127.0.0.1'));
 
 const pool = new Pool({

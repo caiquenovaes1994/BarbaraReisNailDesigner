@@ -13,6 +13,9 @@ const routes = require('./routes');
 const backupService = require('./services/backupService');
 
 const app = express();
+// Habilita trust proxy para proxies reversos (Render, Cloudflare)
+app.set('trust proxy', 1);
+
 // Headers de segurança com CSP personalizada
 app.use(helmet({
   contentSecurityPolicy: {
