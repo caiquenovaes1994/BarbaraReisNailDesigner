@@ -4,7 +4,13 @@ const { Pool } = require('pg');
 const { encrypt, decrypt } = require('./crypto');
 
 const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
+const isLocalhost = connectionString && (connectionString.includes('localhost') || connectionString.includes('127.0.0.1'));
+
+const pool = new Pool({
+  connectionString,
+  ssl: isLocalhost ? false : { rejectUnauthorized: false }
+});
+
 const adapter = new PrismaPg(pool);
 const basePrisma = new PrismaClient({ adapter });
 

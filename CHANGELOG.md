@@ -1,6 +1,17 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.4.3] - 2026-08-26
+
+### 🔐 Segurança e Conexão de Banco de Dados (Database & Auth Fix)
+
+- **Compatibilidade SSL do Pool de Conexões (`pg.Pool` & Supabase):**
+  - Ajuste na inicialização do pool do `@prisma/adapter-pg` em `src/utils/prisma.js` com suporte a `ssl: { rejectUnauthorized: false }` para conexões remotas.
+  - Eliminação do erro `500 (Internal Server Error)` em chamadas de autenticação (`/api/login`) e consultas de banco de dados no ambiente de produção (Render / Supabase Pooler).
+  - Remoção de dependências de certificados locais (`prod-ca-2021.crt`), assegurando conexões criptografadas nativas estáveis.
+
+---
+
 ## [v1.4.2] - 2026-08-26
 
 ### 🛠️ Correções de Infraestrutura e Deploy (DevOps & Database)
@@ -16,7 +27,7 @@
 
 ### 🐛 Correções de Bugs e Usabilidade (Bug Fixes & UX)
 
-- **Menu de Contexto na Grade Mensal e Lista Contínua (Item 3.3 do Roadmap):**
+- **Menu de Contexto na Grade Mensal e Lista Contínua:**
   - Integração do evento de clique com o botão direito (`onContextMenu`) nos cards e itens de agendamento das visualizações **Mês** e **Lista (Contínua)** da Agenda (`Schedule.jsx`).
   - Habilitada a alteração rápida e contextual do status do agendamento (**Agendado → Atendido → Cancelado**) em todas as 4 visualizações da agenda (`Dia`, `Semana`, `Mês`, `Lista`), garantindo paridade e consistência de uso.
   - Adição de tooltip descritivo detalhado em cada agendamento na grade mensal com cliente, procedimento, horário e status atual.
