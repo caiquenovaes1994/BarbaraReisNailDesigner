@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 const backupService = require('./services/backupService');
+const { initCronJobs } = require('./scripts/cronJobs');
 
 const app = express();
 // Habilita trust proxy para proxies reversos (Render, Cloudflare)
@@ -77,6 +78,10 @@ app.use(backupService.backupMiddleware);
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 3001;
+
+// Inicia as rotinas automáticas de background
+initCronJobs();
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT} (TZ: ${process.env.TZ})`);
 });

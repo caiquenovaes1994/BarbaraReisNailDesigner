@@ -89,22 +89,36 @@ const Finance = () => {
         </div>
       </div>
 
-      <div className="glass-panel p-8 h-[400px]">
-        <h3 className="text-xl font-semibold mb-6">Projeção Financeira</h3>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-            <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
-            <YAxis stroke="rgba(255,255,255,0.5)" tickFormatter={(val) => `R$ ${val}`} />
-            <Tooltip 
-              cursor={{fill: 'rgba(255,255,255,0.05)'}} 
-              contentStyle={{ backgroundColor: '#18181B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} 
-              itemStyle={{ color: '#fff' }}
-              formatter={(value) => [formatCurrency(value), 'Valor']} 
-            />
-            <Bar dataKey="valor" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="glass-panel p-6 sm:p-8 h-[420px] flex flex-col">
+        <h3 className="text-xl font-semibold mb-4">Projeção Financeira</h3>
+        <div className="flex-1 w-full min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 15, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                stroke="rgba(255,255,255,0.5)" 
+                tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 13 }}
+                tickLine={false}
+                dy={8}
+              />
+              <YAxis 
+                width={95}
+                stroke="rgba(255,255,255,0.5)" 
+                tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 12 }}
+                tickLine={false}
+                tickFormatter={(val) => `R$\u00A0${Number(val).toLocaleString('pt-BR')}`}
+              />
+              <Tooltip 
+                cursor={{fill: 'rgba(255,255,255,0.05)'}} 
+                contentStyle={{ backgroundColor: '#18181B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} 
+                itemStyle={{ color: '#fff' }}
+                formatter={(value) => [formatCurrency(value), 'Valor']} 
+              />
+              <Bar dataKey="valor" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

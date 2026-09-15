@@ -8,10 +8,12 @@ const AppointmentController = require('./controllers/AppointmentController');
 const FinanceController = require('./controllers/FinanceController');
 const NotificationController = require('./controllers/NotificationController');
 const AuthController = require('./controllers/AuthController');
+const InstagramController = require('./controllers/InstagramController');
 
 // Rota pública
 router.post('/login', AuthController.login);
 router.post('/auth/logout', AuthController.logout);
+router.get('/instagram/feed', InstagramController.getFeed);
 
 // Protege todas as rotas abaixo com JWT
 router.use(authenticate);

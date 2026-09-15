@@ -1,6 +1,31 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.4.4] - 2026-09-15
+
+### 📊 Ajustes Visuais e Usabilidade (UI/UX - Módulo Financeiro)
+
+- **Gráfico de Projeção Financeira (`Finance.jsx`):**
+  - **Ajuste da Coluna de Valores (Eixo Y):** Configuração de largura fixa ampliada (`width={95}`) e espaçamento não-quebrável (`\u00A0`), garantindo que os valores monetários (ex: `R$ 1.400`) sejam renderizados estritamente em uma única linha, sem quebras indesejadas de texto.
+  - **Prevenção de Transbordamento e Borda Inferior:** Estruturação do contêiner do card em layout flexível (`flex flex-col` com `<div className="flex-1 w-full min-h-0">`), evitando que o SVG do gráfico extrapole os limites do painel ou encavale sobre a borda inferior.
+  - **Alinhamento dos Rótulos do Eixo X:** Ajuste refinado de margens e deslocamento vertical (`dy={8}`) para os rótulos de categorias (*Receita Efetiva* e *Receita Agendada*), proporcionando folga visual limpa.
+
+### 📸 Melhorias Visuais no Login (UI/UX)
+
+- **Slideshow Dinâmico no Login:**
+  - Reformulação completa da tela de login (`Login.jsx`), que agora consome a rota `/api/instagram/feed` e exibe um slideshow com imagens de alta qualidade (mocks) com transições em *fade-in/out* como plano de fundo.
+  - Implementação de um efeito *Glassmorphism* sobreposto à película escura, garantindo contraste perfeito para a legibilidade do texto e dos campos de senha independentemente do brilho das imagens de fundo.
+  - Otimização do carregamento das fontes (*Imperial Script* e *Montserrat*), que passaram a ser providas localmente (`public/fonts`) via `@font-face`, extinguindo dependências de CDN e falhas de FOUC/fallback.
+
+### ⚙️ Backend e Estrutura
+
+- **Endpoint de Feed Visual:**
+  - Criação do serviço `InstagramService` (retornando mocks estáticos do Unsplash) e do endpoint `/api/instagram/feed` para prover as imagens do plano de fundo dinamicamente para o frontend.
+- **Node Cron:**
+  - Ativação estrutural do módulo `node-cron` no arquivo de inicialização (`scripts/cronJobs.js`), preparando o terreno para as futuras automações em background (como o futuro Módulo WhatsApp).
+
+---
+
 ## [v1.4.3] - 2026-08-26
 
 ### 🔐 Segurança e Conexão de Banco de Dados (Database & Auth Fix)
