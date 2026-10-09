@@ -23,7 +23,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.4.4-d946ef?style=flat&logo=semver&logoColor=white) - Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.4.5-d946ef?style=flat&logo=semver&logoColor=white) - Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 </div>
 
@@ -34,6 +34,7 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 ### 🗓️ Agenda
 
 - Múltiplas visualizações dinâmicas: Dia, Semana, Mês e Lista Contínua com identificadores visuais de volume de atendimentos
+- **Agendamento Rápido por Clique no Horário**: Clique direto em blocos horários para abrir formulário pré-preenchido
 - Criação, edição e exclusão de agendamentos
 - **Endereço Integrado**: Visualização do endereço do cliente no agendamento, edição inline rápida com Google Places e botão "Salvar Endereço"
 - **Navegação GPS ("Ir")**: Acesso rápido a rotas via Google Maps (desktop) ou seleção de app (Uber, Waze e Maps no mobile)
@@ -98,7 +99,7 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 
 ### 📱 PWA e Experiência de Usuário
 
-- Tela de Login com animações de feedback visual (Lock/Unlock), carrossel de mensagens motivacionais e slideshow de fotos como plano de fundo
+- Tela de Login com animações de feedback visual (Lock/Unlock), carrossel de mensagens motivacionais e slideshow com fotos reais dos trabalhos da cliente
 - Suporte a cache e modo offline proxy dinâmico para acesso responsivo
 - Layout com glassmorphism e animações suaves
 - Sidebar recolhível com transições de UI
@@ -125,6 +126,7 @@ BarbaraReisNailDesigner/
 │
 └── frontend/                   SPA — React · Vite · Tailwind CSS
     └── src/
+        ├── assets/             Logos, fontes e fotografias do slideshow
         ├── components/         Header, Sidebar, Modais
         ├── pages/              Dashboard, Clients, Procedures, Schedule, Finance, Login, Changelog
         └── utils/              Axios (withCredentials), helpers
@@ -225,6 +227,7 @@ Consulte o arquivo [LICENSE](./LICENSE) para os termos completos.
 
 [![GitHub](https://img.shields.io/badge/GitHub-caiquenovaes1994-181717?style=flat&logo=github&logoColor=white)](https://github.com/caiquenovaes1994)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-caiquenovaes-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/caiquenovaes/)
+[![Telegram](https://img.shields.io/badge/Telegram-caiquenovaes1994-26A5E4?style=flat&logo=telegram&logoColor=white)](https://t.me/caiquenovaes1994)
 [![Gmail](https://img.shields.io/badge/Gmail-caiquenovaes1994%40gmail.com-EA4335?style=flat&logo=gmail&logoColor=white)](mailto:caiquenovaes1994@gmail.com)
 
 ---

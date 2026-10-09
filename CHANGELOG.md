@@ -1,6 +1,50 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.4.5] - 2026-10-09
+
+### 🗓️ Melhorias na Agenda e Agendamento Inteligente (UI/UX - Schedule)
+
+- **Abertura de Agendamento por Clique no Horário:**
+  - Habilitada a criação direta de novos agendamentos ao clicar nos marcadores de hora da barra lateral ou nos espaços vazios da grade horária nas visualizações de **Dia**, **Semana** e **Mês**.
+  - O modal de agendamento é disparado com a data selecionada e o horário já preenchidos de forma contextual.
+  - Implementação da função `formatToDateTimeLocal` no modal (`AppointmentModal.jsx`) para conversão de data/hora no fuso horário local sem desvios de UTC.
+
+- **Detecção Inteligente de Horários Quebrados (`getNextAvailableTime`):**
+  - Identificação algorítmica de atendimentos ativos (não cancelados) que finalizam em horários fracionados (ex: atendimento das 18:00 às 19:30).
+  - Ao clicar no bloco das 19:00, o sistema detecta que o início daquele horário ainda está ocupado e calcula automaticamente o próximo horário vago disponível (**19:30**).
+  - Feedback visual no hover (`+ 19:30`) e sugestão automática no formulário de agendamento.
+
+- **Padronização Visual dos Cards no Modo Lista:**
+  - Reformulação visual de todos os agendamentos na visualização de **Lista (Contínua)** (`Schedule.jsx`), aplicando o degradê lilás idêntico aos botões da barra lateral (`bg-gradient-to-r from-primary/20 to-transparent border border-primary/30 shadow-lg`).
+  - Preservação estrita das cores dos badges de status (*Atendido* em verde, *Cancelado* em vermelho tachado e *Agendado* em amarelo).
+
+- **Tratamento de Modo de Edição vs. Criação:**
+  - Refatoração no `AppointmentModal.jsx` para verificar a existência de `id`, garantindo que agendamentos abertos a partir de atalhos de data ou parâmetro de cliente exibam o título "Novo Agendamento", ocultem o botão "Excluir" e façam a requisição correta de criação via `POST`.
+
+### 🔐 Estabilidade do Login e Otimização de Assets
+
+- **Eliminação de Erros de Rede e Remoção da API do Instagram:**
+  - Remoção completa das solicitações externas à API do Instagram (`/api/instagram/feed`) na tela de login (`Login.jsx`), extinguindo erros de console `404 (Not Found)` e `Endpoint da API não encontrado`.
+  - Exclusão das rotas, controllers e serviços obsoletos no backend (`InstagramController.js` e `InstagramService.js`).
+
+- **Slideshow com Fotos Reais dos Trabalhos da Cliente:**
+  - Migração de imagens externas para **11 fotografias reais dos atendimentos e trabalhos de manicure/nail design da Bárbara Reis**.
+  - As fotos foram movidas para um diretório dedicado (`frontend/src/assets/slideshow/`) e são importadas dinamicamente via `import.meta.glob`, sendo processadas e otimizadas diretamente pelo bundler (Vite).
+  - Eliminação de qualquer dependência de CDNs externas (Unsplash/Instagram), prevenindo falhas de conexão ou bloqueios de CORS/CSP.
+  - Rotação dinâmica com intervalo de **3000ms**, carregamento randômico na inicialização e transição suave entre fotos sem repetições consecutivas.
+  - **Ajuste de Nitidez no Mobile (Redução de 50% no Blur):** Redução proporcional do efeito de desfoque nos dispositivos móveis (`backdrop-blur-[1px]` no overlay e `backdrop-blur-[6px]` no card), garantindo maior nitidez das fotos e detalhes das unhas mantendo o contraste para os formulários.
+  - **Design dos Campos de Login (Border-Radius 40px e Placeholders Inline em #fff):** Os campos de entrada de Usuário e Senha agora possuem cantos arredondados de 40px (`!rounded-[40px]`), padding interno aprimorado (`px-5`), remoção dos rótulos externos e transição dos títulos dos campos para placeholders internos na cor branca `#fff` (`placeholder-white`), proporcionando um visual contrastante, moderno e minimalista.
+  - **Eliminação de Ícone Duplicado de Revelação de Senha (`::-ms-reveal`):** Desativação do botão nativo de visualização de senha do Microsoft Edge/Windows via CSS (`input::-ms-reveal`), prevenindo a sobreposição de dois ícones de "olho" na digitação de senhas e garantindo controle exclusivo pelo botão estilizado da aplicação.
+
+### 🧹 Limpeza e Manutenção de Código
+
+- Remoção do arquivo redundante `frontend/src/App.css` (estilização centralizada via Tailwind CSS e `index.css`).
+- Remoção do diretório redundante `frontend/src/assets/fonts/` (`ImperialScript.ttf` e `font.b64`), consolidando o carregamento da fonte cursiva exclusivamente no asset otimizado em WOFF2 (`public/fonts/imperial-script-v4-latin-regular.woff2`).
+- Validação e revisão das políticas de Content-Security-Policy (CSP) no `frontend/index.html`.
+
+---
+
 ## [v1.4.4] - 2026-09-15
 
 ### 📊 Ajustes Visuais e Usabilidade (UI/UX - Módulo Financeiro)

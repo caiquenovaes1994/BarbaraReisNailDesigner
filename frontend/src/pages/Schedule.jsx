@@ -37,9 +37,57 @@ const Schedule = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  const openNewForm = () => {
-    setEditingAppointment(null);
+  const openNewForm = (initialDate = null) => {
+    if (initialDate) {
+      setEditingAppointment({
+        data_atendimento: initialDate instanceof Date ? initialDate : new Date(initialDate)
+      });
+    } else {
+      setEditingAppointment(null);
+    }
     setIsModalOpen(true);
+  };
+
+  const getNextAvailableTime = (baseDate, hour) => {
+    const candidate = new Date(baseDate);
+    candidate.setHours(hour, 0, 0, 0);
+
+    const activeAppts = appointments.filter(a => {
+      if (a.status === 'Cancelado') return false;
+      const d = new Date(a.data_atendimento);
+      return d.getFullYear() === candidate.getFullYear() &&
+             d.getMonth() === candidate.getMonth() &&
+             d.getDate() === candidate.getDate();
+    });
+
+    let candidateMs = candidate.getTime();
+    let changed = true;
+
+    // Se o horário coincide com o período de algum agendamento existente [start, end),
+    // avança para o término do agendamento (próximo horário vago disponível)
+    while (changed) {
+      changed = false;
+      const overlapping = activeAppts.find(a => {
+        const start = new Date(a.data_atendimento).getTime();
+        const durationMs = (a.duracao || 60) * 60 * 1000;
+        const end = start + durationMs;
+        return candidateMs >= start && candidateMs < end;
+      });
+
+      if (overlapping) {
+        const start = new Date(overlapping.data_atendimento).getTime();
+        const durationMs = (overlapping.duracao || 60) * 60 * 1000;
+        candidateMs = start + durationMs;
+        changed = true;
+      }
+    }
+
+    return new Date(candidateMs);
+  };
+
+  const handleSlotClick = (date, hour = 9) => {
+    const nextAvailable = getNextAvailableTime(date, hour);
+    openNewForm(nextAvailable);
   };
 
   const openEditForm = (appt) => {
@@ -96,14 +144,32 @@ const Schedule = () => {
           </div>
           
           <div className="flex-1 overflow-y-auto relative">
-            {hours.map(hour => (
-              <div key={hour} className="grid grid-cols-[60px_1fr] group">
-                <div className="p-2 text-right border-r border-b border-surface-border text-xs text-gray-500 font-medium h-[60px]">
-                  {hour.toString().padStart(2, '0')}:00
+            {hours.map(hour => {
+              const nextAvail = getNextAvailableTime(currentDate, hour);
+              const timeFormatted = nextAvail.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+              return (
+                <div key={hour} className="grid grid-cols-[60px_1fr] group">
+                  <button
+                    type="button"
+                    onClick={() => handleSlotClick(currentDate, hour)}
+                    className="p-2 text-right border-r border-b border-surface-border text-xs text-gray-500 font-medium h-[60px] cursor-pointer hover:text-primary hover:bg-primary/5 transition-colors select-none flex items-center justify-end"
+                    title={`Agendar às ${timeFormatted}`}
+                  >
+                    {hour.toString().padStart(2, '0')}:00
+                  </button>
+                  <div 
+                    onClick={() => handleSlotClick(currentDate, hour)}
+                    className="p-1 border-r border-b border-surface-border/50 h-[60px] hover:bg-primary/10 transition-colors cursor-pointer group/cell relative"
+                    title={`Agendar às ${timeFormatted}`}
+                  >
+                    <span className="opacity-0 group-hover/cell:opacity-100 text-[11px] text-primary/80 font-medium flex items-center gap-1 pl-1 pt-1 transition-opacity select-none">
+                      + {timeFormatted}
+                    </span>
+                  </div>
                 </div>
-                <div className="p-1 border-r border-b border-surface-border/50 h-[60px] group-hover:bg-white/[0.02] transition-colors" />
-              </div>
-            ))}
+              );
+            })}
             
             <div className="absolute top-0 left-[60px] right-0 bottom-0 pointer-events-none flex">
               <div className="flex-1 relative">
@@ -149,23 +215,44 @@ const Schedule = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto relative">
-            {hours.map(hour => (
-              <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] group">
-                <div className="p-2 text-right border-r border-b border-surface-border text-xs text-gray-500 font-medium h-[60px]">
-                  {hour.toString().padStart(2, '0')}:00
+            {hours.map(hour => {
+              const hourLabelFormatted = `${hour.toString().padStart(2, '0')}:00`;
+
+              return (
+                <div key={hour} className="grid grid-cols-[60px_repeat(7,1fr)] group">
+                  <button
+                    type="button"
+                    onClick={() => handleSlotClick(currentDate, hour)}
+                    className="p-2 text-right border-r border-b border-surface-border text-xs text-gray-500 font-medium h-[60px] cursor-pointer hover:text-primary hover:bg-primary/5 transition-colors select-none flex items-center justify-end"
+                    title={`Agendar às ${hourLabelFormatted}`}
+                  >
+                    {hourLabelFormatted}
+                  </button>
+                  {daysOfWeek.map((_, dayIndex) => {
+                    const date = new Date(weekStart);
+                    date.setDate(date.getDate() + dayIndex);
+                    const todayObj = new Date();
+                    todayObj.setHours(0,0,0,0);
+                    const isPast = date < todayObj;
+                    const nextAvail = getNextAvailableTime(date, hour);
+                    const timeFormatted = nextAvail.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    return (
+                      <div 
+                        key={dayIndex} 
+                        onClick={() => handleSlotClick(date, hour)}
+                        className={`p-1 border-r border-b border-surface-border/50 h-[60px] hover:bg-primary/10 transition-colors cursor-pointer group/cell relative ${isPast ? 'bg-black/20' : ''}`}
+                        title={`Agendar para ${date.toLocaleDateString('pt-BR')} às ${timeFormatted}`}
+                      >
+                        <span className="opacity-0 group-hover/cell:opacity-100 text-[11px] text-primary/80 font-medium flex items-center gap-1 pl-1 pt-1 transition-opacity select-none">
+                          + {timeFormatted}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-                {daysOfWeek.map((_, dayIndex) => {
-                  const date = new Date(weekStart);
-                  date.setDate(date.getDate() + dayIndex);
-                  const todayObj = new Date();
-                  todayObj.setHours(0,0,0,0);
-                  const isPast = date < todayObj;
-                  return (
-                    <div key={dayIndex} className={`p-1 border-r border-b border-surface-border/50 h-[60px] group-hover:bg-white/[0.02] transition-colors ${isPast ? 'bg-black/20' : ''}`} />
-                  );
-                })}
-              </div>
-            ))}
+              );
+            })}
 
             <div className="absolute top-0 left-[60px] right-0 bottom-0 pointer-events-none flex">
               {daysOfWeek.map((_, dayIndex) => {
@@ -213,9 +300,19 @@ const Schedule = () => {
             const dayAppts = appointments.filter(a => new Date(a.data_atendimento).toDateString() === dateStr).sort((a,b) => new Date(a.data_atendimento) - new Date(b.data_atendimento));
             
             return (
-              <div key={idx} className={`p-2 border-r border-b border-surface-border overflow-y-auto custom-scrollbar flex flex-col gap-1 ${isToday ? 'bg-primary/5' : ''}`}>
-                <div className={`text-right text-sm font-medium mb-1 ${isToday ? 'text-primary' : 'text-gray-400'}`}>
-                  {date.getDate()}
+              <div 
+                key={idx} 
+                onClick={() => handleSlotClick(date, 9)}
+                className={`p-2 border-r border-b border-surface-border overflow-y-auto custom-scrollbar flex flex-col gap-1 cursor-pointer hover:bg-white/[0.02] transition-colors group/monthDay ${isToday ? 'bg-primary/5' : ''}`}
+                title={`Agendar para ${date.toLocaleDateString('pt-BR')}`}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <span className="opacity-0 group-hover/monthDay:opacity-100 text-[10px] text-primary font-medium transition-opacity">
+                    + Agendar
+                  </span>
+                  <div className={`text-right text-sm font-medium ${isToday ? 'text-primary font-bold' : 'text-gray-400'}`}>
+                    {date.getDate()}
+                  </div>
                 </div>
                 {dayAppts.map(appt => {
                   let bgColor = 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30';
@@ -230,7 +327,10 @@ const Schedule = () => {
                       key={appt.id} 
                       className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${bgColor}`}
                       title={`${appt.customer?.nome || ''} - ${appt.procedure?.nome || ''} - ${new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} (${appt.status})`}
-                      onClick={() => openEditForm(appt)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditForm(appt);
+                      }}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -291,7 +391,7 @@ const Schedule = () => {
                 {list.map(appt => (
                   <div 
                     key={appt.id} 
-                    className="bg-surface-border/30 p-4 rounded-xl border border-surface-border hover:border-primary/50 transition-colors cursor-pointer"
+                    className="bg-gradient-to-r from-primary/20 to-transparent p-4 rounded-xl border border-primary/30 shadow-lg hover:border-primary/60 hover:from-primary/25 transition-all cursor-pointer"
                     onClick={() => openEditForm(appt)}
                     onContextMenu={(e) => {
                       e.preventDefault();
@@ -300,13 +400,13 @@ const Schedule = () => {
                     }}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <span className="font-bold text-white">{new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${appt.status === 'Atendido' ? 'bg-green-500/20 text-green-400' : appt.status === 'Cancelado' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                      <span className="font-bold text-white text-base">{new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${appt.status === 'Atendido' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : appt.status === 'Cancelado' ? 'bg-red-500/20 text-red-400 border border-red-500/30 line-through' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}>
                         {appt.status}
                       </span>
                     </div>
-                    <div className="font-medium text-gray-200">{appt.customer.nome}</div>
-                    <div className="text-sm text-gray-400 mt-1">{appt.procedure.nome}</div>
+                    <div className="font-medium text-white">{appt.customer?.nome || appt.customer?.name}</div>
+                    <div className="text-sm text-gray-300 mt-1">{appt.procedure?.nome || appt.procedure?.name}</div>
                   </div>
                 ))}
               </div>

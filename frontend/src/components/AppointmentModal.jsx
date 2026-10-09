@@ -46,20 +46,36 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
     }
   }, [isOpen]);
 
+const formatToDateTimeLocal = (date) => {
+  if (!date) return '';
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return '';
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
   useEffect(() => {
     if (isOpen && editingAppointment) {
-      const dateObj = new Date(editingAppointment.data_atendimento);
-      const tzOffset = dateObj.getTimezoneOffset() * 60000;
-      const localISOTime = (new Date(dateObj - tzOffset)).toISOString().slice(0, 16);
+      let localISOTime = '';
+      if (editingAppointment.data_atendimento) {
+        localISOTime = formatToDateTimeLocal(editingAppointment.data_atendimento);
+      }
       
-      const h = Math.floor(editingAppointment.duracao / 60).toString().padStart(2, '0');
-      const m = (editingAppointment.duracao % 60).toString().padStart(2, '0');
+      const duracao = editingAppointment.duracao || 60;
+      const h = Math.floor(duracao / 60).toString().padStart(2, '0');
+      const m = (duracao % 60).toString().padStart(2, '0');
       
-      const formattedPreco = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(editingAppointment.valor_cobrado);
+      const formattedPreco = (editingAppointment.valor_cobrado !== undefined && editingAppointment.valor_cobrado !== null && editingAppointment.valor_cobrado !== '')
+        ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(editingAppointment.valor_cobrado)
+        : '';
       
       setForm({
-        customerId: editingAppointment.customerId,
-        procedureId: editingAppointment.procedureId,
+        customerId: editingAppointment.customerId || '',
+        procedureId: editingAppointment.procedureId || '',
         data_atendimento: localISOTime,
         valorStr: formattedPreco,
         dias_para_retorno: editingAppointment.dias_para_retorno || '',
@@ -272,7 +288,7 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
         }
       }
 
-      if (editingAppointment) {
+      if (editingAppointment && editingAppointment.id) {
         await api.put(`/appointments/${editingAppointment.id}`, payload);
         toast.success('Agendamento atualizado com sucesso!');
       } else {
@@ -319,7 +335,7 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
           </button>
           
           <h3 className="text-2xl font-semibold border-b border-surface-border pb-4 mb-6">
-            {editingAppointment ? 'Editar Agendamento' : 'Novo Agendamento'}
+            {editingAppointment?.id ? 'Editar Agendamento' : 'Novo Agendamento'}
           </h3>
           
           <form onSubmit={saveAppointment} className="flex flex-col gap-4">
@@ -510,7 +526,7 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
               <button type="submit" disabled={isSavingAppointment} className="btn-primary flex-1 flex items-center justify-center gap-2">
                 {isSavingAppointment ? <><Loader2 size={18} className="animate-spin" /> Salvando...</> : 'Salvar Agendamento'}
               </button>
-              {editingAppointment && (
+              {editingAppointment?.id && (
                 <button 
                   type="button" 
                   onClick={() => setShowDeleteConfirm(true)} 

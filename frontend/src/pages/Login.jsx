@@ -17,6 +17,13 @@ const motivationalMessages = [
   "Construa mais um dia de sucesso e clientes apaixonadas. 🥂"
 ];
 
+// Carrega dinamicamente as fotos reais dos trabalhos da cliente salvas em assets/slideshow
+const slideshowModules = import.meta.glob('../assets/slideshow/*.{jpeg,jpg,png,webp}', {
+  eager: true,
+  import: 'default'
+});
+const MOCKUP_IMAGES = Object.values(slideshowModules);
+
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -24,24 +31,10 @@ const Login = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [msgIndex, setMsgIndex] = useState(0);
-  const [instagramFeed, setInstagramFeed] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(() =>
+    Math.floor(Math.random() * MOCKUP_IMAGES.length)
+  );
   const navigate = useNavigate();
-
-  // Fetch Instagram Feed
-  useEffect(() => {
-    const fetchInstagramFeed = async () => {
-      try {
-        const response = await api.get('/instagram/feed');
-        if (response.data && response.data.success && response.data.data.length > 0) {
-          setInstagramFeed(response.data.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch Instagram feed', err);
-      }
-    };
-    fetchInstagramFeed();
-  }, []);
 
   // Motivational Messages Interval
   useEffect(() => {
@@ -51,15 +44,22 @@ const Login = ({ onLogin }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Instagram Slideshow Interval
+  // Slideshow Interval (Mockup Images com ordem aleatória)
   useEffect(() => {
-    if (instagramFeed.length <= 1) return;
-    
+    if (MOCKUP_IMAGES.length <= 1) return;
+
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % instagramFeed.length);
-    }, 6000); // Muda a cada 6 segundos
+      setCurrentImageIndex((prev) => {
+        let nextIndex;
+        do {
+          nextIndex = Math.floor(Math.random() * MOCKUP_IMAGES.length);
+        } while (nextIndex === prev);
+        return nextIndex;
+      });
+    }, 3000);
+
     return () => clearInterval(interval);
-  }, [instagramFeed]);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -84,35 +84,24 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
+      {/* Background Slideshow (Mockup Images Estáticas) */}
+      <div className="absolute inset-0 z-0">
+        {MOCKUP_IMAGES.map((imgUrl, idx) => (
+          <img
+            key={idx}
+            src={imgUrl}
+            alt="Nail art background"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
+        {/* Dark Overlay para contraste e legibilidade (blur reduzido em 50% no mobile: 1px vs 2px) */}
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] md:backdrop-blur-[2px]"></div>
+      </div>
       
-      {/* Background Slideshow (Instagram Feed) */}
-      {instagramFeed.length > 0 && (
-        <div className="absolute inset-0 z-0">
-          {instagramFeed.map((imgUrl, idx) => (
-            <img
-              key={idx}
-              src={imgUrl}
-              alt="Nail art background"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
-          ))}
-          {/* Dark Overlay for better contrast and readability */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
-        </div>
-      )}
-
-      {/* Decorative background glow (fallback se não houver feed ou se demorar) */}
-      {instagramFeed.length === 0 && (
-        <>
-          <div className="absolute top-[20%] left-[20%] w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
-          <div className="absolute bottom-[20%] right-[20%] w-96 h-96 bg-secondary/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
-        </>
-      )}
-      
-      {/* Login Box */}
-      <div className={`glass-panel p-8 w-full max-w-md relative z-10 transition-all duration-500 ${isSuccess ? 'opacity-0 scale-95 delay-500' : 'opacity-100'}`}>
+      {/* Login Box (blur reduzido em 50% no mobile: 6px vs 12px) */}
+      <div className={`glass-panel backdrop-blur-[6px] md:backdrop-blur-glass p-8 w-full max-w-md relative z-10 transition-all duration-500 ${isSuccess ? 'opacity-0 scale-95 delay-500' : 'opacity-100'}`}>
         <div className="flex flex-col items-center gap-1 mb-6 text-primary drop-shadow-md text-center">
           <Sparkles size={32} className="mb-2 text-white" />
           <h1 className="text-4xl font-imperial text-white drop-shadow-lg">Bárbara Reis</h1>
@@ -133,10 +122,11 @@ const Login = ({ onLogin }) => {
           )}
           
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-300 ml-1 font-medium drop-shadow-md">Usuário</label>
             <input 
               type="text" 
-              className="glass-input bg-black/30 placeholder-gray-400" 
+              placeholder="Usuário"
+              aria-label="Usuário"
+              className="glass-input bg-black/30 w-full placeholder-white !rounded-[40px] px-5" 
               required 
               autoComplete="username"
               value={username}
@@ -145,11 +135,12 @@ const Login = ({ onLogin }) => {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm text-gray-300 ml-1 font-medium drop-shadow-md">Senha</label>
             <div className="relative">
               <input 
                 type={showPassword ? "text" : "password"} 
-                className="glass-input bg-black/30 w-full pr-10 placeholder-gray-400" 
+                placeholder="Senha"
+                aria-label="Senha"
+                className="glass-input bg-black/30 w-full pl-5 pr-12 placeholder-white !rounded-[40px]" 
                 required 
                 autoComplete="current-password"
                 value={password}
@@ -158,7 +149,8 @@ const Login = ({ onLogin }) => {
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>

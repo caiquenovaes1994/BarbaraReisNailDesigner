@@ -65,6 +65,14 @@
     cursor: pointer;
     opacity: 1;
   }
+
+  /* Oculta o botão nativo do Edge/Windows de revelar senha e limpar campo */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
+  }
   
   .btn-primary {
     @apply bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-secondary text-white font-medium py-2 px-6 rounded-lg transition-all shadow-lg hover:shadow-primary/25 active:scale-95 cursor-pointer;
