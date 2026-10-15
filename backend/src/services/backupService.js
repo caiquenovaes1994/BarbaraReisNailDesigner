@@ -1,80 +1,114 @@
 const fs = require('fs');
 const path = require('path');
+const prisma = require('../utils/prisma');
+const logger = require('../utils/logger');
 
-const DB_PATH = path.join(__dirname, '../../prisma/dev.db');
 const BACKUP_DIR = path.join(__dirname, '../../backups');
 const MAX_BACKUPS = 10;
 
-function performBackup() {
-  console.log('[Backup] Iniciando backup do banco de dados...');
-
-  if (!fs.existsSync(DB_PATH)) {
-    console.error('[Backup] Erro: Banco de dados não encontrado em', DB_PATH);
-    return;
-  }
-
-  // Cria a pasta de backups se não existir
-  if (!fs.existsSync(BACKUP_DIR)) {
-    fs.mkdirSync(BACKUP_DIR, { recursive: true });
-  }
-
-  // Formata o timestamp (ex: 2026-07-14_12-00-00)
-  const now = new Date();
-  const timestamp = now.getFullYear() + '-' +
-    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-    String(now.getDate()).padStart(2, '0') + '_' +
-    String(now.getHours()).padStart(2, '0') + '-' +
-    String(now.getMinutes()).padStart(2, '0') + '-' +
-    String(now.getSeconds()).padStart(2, '0');
-
-  const backupFileName = `dev_${timestamp}.db`;
-  const backupFilePath = path.join(BACKUP_DIR, backupFileName);
+/**
+ * Executa o backup lógico completo do banco de dados PostgreSQL.
+ * Exporta clientes (com dados sensíveis criptografados preservados),
+ * procedimentos, agendamentos e metadados de usuários para um arquivo JSON estruturado.
+ */
+async function performBackup() {
+  const startTime = Date.now();
+  logger.info('[Backup] Iniciando backup lógico do banco de dados (PostgreSQL)...');
 
   try {
-    // Copia o arquivo do banco de dados
-    fs.copyFileSync(DB_PATH, backupFilePath);
-    console.log(`[Backup] Backup concluído com sucesso: ${backupFileName}`);
+    if (!fs.existsSync(BACKUP_DIR)) {
+      fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    }
 
-    // Gerencia a quantidade de backups para manter apenas os últimos MAX_BACKUPS
+    const client = prisma.basePrisma || prisma;
+
+    const [customers, procedures, appointments, users] = await Promise.all([
+      client.customer.findMany({ orderBy: { id: 'asc' } }),
+      client.procedure.findMany({ orderBy: { id: 'asc' } }),
+      client.appointment.findMany({ orderBy: { id: 'asc' } }),
+      client.user.findMany({
+        select: {
+          id: true,
+          username: true,
+          nome: true,
+          criado_em: true,
+          atualizado_em: true,
+        },
+        orderBy: { id: 'asc' },
+      }),
+    ]);
+
+    const now = new Date();
+    const timestamp = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('-') + '_' + [
+      String(now.getHours()).padStart(2, '0'),
+      String(now.getMinutes()).padStart(2, '0'),
+      String(now.getSeconds()).padStart(2, '0'),
+    ].join('-');
+
+    const backupPayload = {
+      metadata: {
+        version: '1.0',
+        engine: 'postgresql',
+        createdAt: now.toISOString(),
+        durationMs: Date.now() - startTime,
+        counts: {
+          customers: customers.length,
+          procedures: procedures.length,
+          appointments: appointments.length,
+          users: users.length,
+        },
+      },
+      data: {
+        customers,
+        procedures,
+        appointments,
+        users,
+      },
+    };
+
+    const backupFileName = `pg_backup_${timestamp}.json`;
+    const backupFilePath = path.join(BACKUP_DIR, backupFileName);
+
+    fs.writeFileSync(backupFilePath, JSON.stringify(backupPayload, null, 2), 'utf-8');
+    logger.info(`[Backup] Backup concluído com sucesso: ${backupFileName}`, backupPayload.metadata.counts);
+
+    // Rotação dos arquivos para manter apenas os últimos MAX_BACKUPS
     const files = fs.readdirSync(BACKUP_DIR)
-      .filter(file => file.startsWith('dev_') && file.endsWith('.db'))
+      .filter(file => file.startsWith('pg_backup_') && file.endsWith('.json'))
       .map(file => ({
         name: file,
         path: path.join(BACKUP_DIR, file),
-        time: fs.statSync(path.join(BACKUP_DIR, file)).mtime.getTime()
+        time: fs.statSync(path.join(BACKUP_DIR, file)).mtime.getTime(),
       }))
-      .sort((a, b) => b.time - a.time); // Ordena do mais recente para o mais antigo
+      .sort((a, b) => b.time - a.time);
 
     if (files.length > MAX_BACKUPS) {
       const filesToDelete = files.slice(MAX_BACKUPS);
-      filesToDelete.forEach(file => {
+      for (const file of filesToDelete) {
         fs.unlinkSync(file.path);
-        console.log(`[Backup] Arquivo antigo removido: ${file.name}`);
-      });
-    }
-
-  } catch (error) {
-    console.error('[Backup] Erro ao realizar o backup:', error);
-  }
-}
-
-function backupMiddleware(req, res, next) {
-  res.on('finish', () => {
-    // Verifica se a requisição foi bem sucedida
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      // Verifica se é uma requisição que altera dados
-      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-        // Ignora rotas de login/logout, se desejado
-        if (!req.path.includes('/login') && !req.path.includes('/logout')) {
-          performBackup();
-        }
+        logger.info(`[Backup] Arquivo antigo removido na rotação: ${file.name}`);
       }
     }
-  });
-  next();
+
+    return {
+      success: true,
+      fileName: backupFileName,
+      filePath: backupFilePath,
+      metadata: backupPayload.metadata,
+    };
+  } catch (error) {
+    logger.error('[Backup] Erro ao realizar o backup do banco de dados:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
 
 module.exports = {
   performBackup,
-  backupMiddleware
 };

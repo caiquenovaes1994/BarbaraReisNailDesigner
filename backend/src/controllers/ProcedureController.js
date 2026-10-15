@@ -5,7 +5,17 @@ exports.getAll = async (req, res) => {
     const { includeInactive } = req.query;
     const filter = includeInactive === 'true' ? {} : { ativo: true };
     const procedures = await prisma.procedure.findMany({
-      where: filter
+      where: filter,
+      select: {
+        id: true,
+        nome: true,
+        preco: true,
+        duracao: true,
+        ativo: true,
+        criado_em: true,
+        atualizado_em: true
+      },
+      orderBy: { nome: 'asc' }
     });
     res.json(procedures);
   } catch (error) {
@@ -50,7 +60,8 @@ exports.delete = async (req, res) => {
     
     // Check for appointments
     const appointments = await prisma.appointment.findFirst({
-      where: { procedureId: parseInt(id) }
+      where: { procedureId: parseInt(id) },
+      select: { id: true }
     });
 
     if (appointments) {

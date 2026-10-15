@@ -1,6 +1,123 @@
 <!-- markdownlint-disable MD024 -->
 # Release Notes - Bárbara Reis Nail Designer
 
+## [v1.5.0] - 2026-10-14
+
+### 💅 Agendamentos com Múltiplos Procedimentos
+
+- **Adição Dinâmica de Procedimentos no Mesmo Agendamento:**
+  - Redefinição do botão "+" ao lado de procedimento no `AppointmentModal.jsx` para adicionar múltiplos procedimentos no mesmo atendimento.
+  - O primeiro procedimento é gravado como principal (`procedureId`) e os demais são persistidos de forma estruturada no campo `extra_procedure_ids` (JSON) do PostgreSQL.
+- **Cálculo Automático de Valor e Duração:**
+  - Soma automática dos preços e tempos pré-definidos de todos os procedimentos selecionados.
+  - Preservada a possibilidade total de edição manual dos campos de valor cobrado e duração a qualquer momento.
+
+### 🔔 Notificações Integradas de Aniversariantes
+
+- **Notificação Prévia e no Dia do Aniversário:**
+  - Inclusão de aniversariantes no painel de notificações do sistema (`NotificationController.js`), consultando clientes ativos no fuso horário de Brasília (`America/Sao_Paulo`).
+  - **Aviso de 7 dias antes**: Notifica a antecedência com contagem regressiva para incentivar o agendamento prévio com a cliente.
+  - **Aviso no dia do aniversário**: Destaque prioritário no topo da lista com badge comemorativa especial (`🎂 Aniversário Hoje! 🎉`).
+  - Tratamento resiliente para viradas de ano (dezembro para janeiro) e anos bissextos.
+- **Painel de Notificações Glassmorphism (`Dashboard.jsx`):**
+  - Design atualizado com a classe `.glass-dropdown-panel`, gradiente lilás para preto diagonal e `.custom-scrollbar`.
+  - Badges visuais diferenciadas: Rosa para aniversários hoje, Lilás para aniversários futuros e Âmbar para retornos pendentes.
+  - Ação rápida de envio de mensagem de felicitação ou agendamento via WhatsApp direto com o primeiro nome da cliente.
+  - Opção de dispensar notificação individualmente (`X`), persistida em `localStorage`.
+
+### 🎨 Componentes Personalizados (Degradê Lilás para Preto Diagonal)
+
+- **Novo Calendário Customizado (`CustomDatePicker.jsx`):**
+  - Desenvolvido do zero com o tema visual oficial da aplicação (`glass-dropdown-panel`).
+  - **Edição Manual Direta**: O campo agora é um `<input>` interativo com máscara automática (`DD/MM/AAAA` e `DD/MM/AAAA às HH:mm`), validação instantânea e sincronização de mês/ano.
+  - **Redução de 10% no Tamanho**: Dimensões otimizadas e compactas (265px–280px), ajustando-se com perfeição a modais e telas mobile.
+  - **Posicionamento Inteligente (Anti-Overflow)**: Detecção automática de espaço em tela para abrir para cima (`bottom-full`) quando próximo ao rodapé ou em modais, eliminando cortes de visualização.
+  - Aplicado em Agendamentos, Relatório de Atendimentos, Relatório Estatístico, Financeiro e Cadastro de Clientes (Data de Nascimento).
+- **Novo Seletor de Tempo e Duração (`CustomTimePicker.jsx`):**
+  - **Edição Manual Direta**: Permite digitação livre com normalização inteligente de horas e minutos (ex.: digitar `90` converte para `01:30`, `45` para `00:45`, `2` para `02:00`).
+  - Lista suspensa com chips de duração rápida (`30 min`, `45 min`, `1h 00`, `1h 15`, `1h 30`, `1h 45`, `2h 00`, etc.) e colunas de rolagem de horas e minutos.
+  - Aplicado nos formulários de Procedimentos e Agendamentos.
+- **Novo Seletor de Opções (`CustomSelect.jsx`):**
+  - Substituição dos selects nativos do navegador nos filtros de paginação ("Mostrar" 10, 20, 50, 100 itens) e seletores de mês/ano nos relatórios.
+  - Correção de camadas e empilhamento (`z-index: 20` nas barras de ferramentas e `z-[60]`/`z-[100]` no seletor) com fundo 100% opaco para eliminar cliques vazando para as tabelas.
+
+### 📐 Polimento de UI, Navegação e Responsividade
+
+- **Card "Clientes Previstos" no Dashboard:**
+  - Remoção de posicionamento absoluto no ícone de calendário, corrigindo sobreposição sobre as setas de navegação de data em dispositivos móveis.
+- **Reposicionamento na Sidebar:**
+  - Botão "Financeiro" realocado para entre "Procedimentos" e "Relatórios", otimizando o fluxo de navegação da profissional.
+- **Limpeza no Mobile:**
+  - Remoção do botão flutuante (FAB) redundante de novo agendamento na visualização mobile da Agenda (`Schedule.jsx`).
+- **Harmonização de Relatórios:**
+  - Padronização do botão "Retornar" no Relatório de Aniversariantes com o mesmo estilo dos demais relatórios.
+  - No Relatório Estatístico: consolidação em card único de TOTAL e remoção de linhas intermediárias de subtotal por agrupamento.
+- **Scrollbars Escuras Personalizadas:**
+  - Estilização completa de barras de rolagem (`.custom-scrollbar`) em painéis, tabelas e listas suspensas.
+
+### 🛡️ Auditoria Geral e Blindagem de Segurança
+
+- **Backup Lógico Automatizado do PostgreSQL:**
+  - Reestruturação completa do serviço de backup (`backupService.js`) com exportação lógica direta do banco PostgreSQL Supabase via Prisma Client.
+  - Dados sensíveis de clientes permanecem criptografados (AES-256) e senhas/hashes de usuários são omitidos da exportação.
+  - Configuração de agendamento automático diário às 03:00 da madrugada (Horário de Brasília) via `node-cron` (`cronJobs.js`).
+  - Adicionado comando CLI `npm run backup` (`backend/src/scripts/backup.js`) com rotação automática para reter os 10 snapshots JSON mais recentes.
+  - Eliminação definitiva de overhead e concorrência por requisição HTTP.
+
+- **Proteção Estrita contra Falhas de Criptografia:**
+  - Correção do método `encrypt` em `backend/src/utils/crypto.js` para disparar erro fatal (`throw new Error`) caso ocorra qualquer falha no cipher ou na geração do IV/RNG.
+  - Prevenção garantida contra gravação acidental de dados em texto puro no banco de dados.
+
+- **Blindagem do Repositório contra Vazamento de Variáveis (.gitignore):**
+  - Atualização do `.gitignore` raiz com regras de exclusão para `.env`, `.env.*`, `!.env.example`, `*.local`, `node_modules/`, `dist/`, `backups/` e `logs/`.
+
+- **Correção de Vulnerabilidades Críticas em Dependências:**
+  - **Backend:** Atualização de `proxy-addr` para `2.0.8`, neutralizando vulnerabilidade crítica CVSS 9.1 de falsificação de IP / subnet bypass; 13 dependências do backend atualizadas via `npm audit fix`.
+  - **Frontend:** Atualização do `axios` para a versão segura `1.20.0` (eliminando vulnerabilidades de prototype pollution, DoS e SSRF), além de `dompurify`, `source-map-js`, `browserslist` e `baseline-browser-mapping`. Configuração de `overrides` para `postcss-selector-parser: ^7.1.6`.
+
+- **Tratamento Centralizado de Erros e Estabilidade do Processo:**
+  - Implementado middleware global de tratamento de erro no Express com respostas padronizadas em JSON (`{ error: '...' }`).
+  - Em produção (`NODE_ENV === 'production'`), mensagens internas de erro 500 e stack traces são estritamente ocultados para prevenir exposição de infraestrutura.
+  - Handler 404 padronizado em JSON e listeners de processo para `uncaughtException` e `unhandledRejection`.
+
+- **Restrição Estrita de Rede Local no CORS:**
+  - Permissão de acesso por faixas de IP locais (`192.168.*`, `10.*`) condicionada exclusivamente a ambiente de desenvolvimento (`NODE_ENV !== 'production'`).
+  - Origens não autorizadas agora são rejeitadas de forma limpa via `callback(null, false)`, extinguindo exceções 500 no Express.
+
+- **Validação de Schemas e Rate Limiting Global:**
+  - Criação do middleware `backend/src/middleware/validator.js` com validação de parâmetros numéricos `:id`, limites de caracteres e campos obrigatórios para clientes, procedimentos e agendamentos.
+  - Implementação de Rate Limiting global no Express (`apiLimiter`: 300 req/15min por IP), além do limite restrito de 20 req/15min em `/api/login`.
+
+- **Restrição da Google Maps API Key no GCP Console:**
+  - Confirmação das restrições ativas de HTTP Referrers (`localhost`, `*.onrender.com`) e escopo restrito unicamente às APIs necessárias (Places e Maps JS).
+
+- **Otimização de Banco de Dados com Índices:**
+  - Criação de índices estratégicos de busca no PostgreSQL do Supabase e declaração via `@@index` no `schema.prisma`:
+    - `appointments`: `data_atendimento` e composto `[status, data_atendimento]`.
+    - `customers`: `ativo` e `nome`.
+    - `procedures`: `ativo`.
+
+- **Eliminação de Over-Fetching com Projeções `select` Explícitas:**
+  - Substituição de consultas abertas (`findMany` / `include`) por cláusulas `select: { ... }` granulares em todos os controllers (`AuthController`, `CustomerController`, `AppointmentController`, `ProcedureController` e `NotificationController`).
+  - Redução substancial de transferência de dados e proteção preventiva de colunas de clientes e usuários.
+
+- **Modularização de Componentes Monolíticos no Frontend:**
+  - Criação do componente reutilizável `CustomerHistoryModal.jsx` para exibição de histórico de atendimentos de clientes.
+  - Criação do componente genérico `ConfirmModal.jsx` compartilhado entre `Clients.jsx` e `Procedures.jsx` para confirmações seguras de exclusão/inativação.
+
+- **Feedback Visual com Notificações Toast em Falhas de Conexão:**
+  - Eliminação de blocos `catch` silenciosos no frontend: integradas notificações `toast.error` do `react-hot-toast` em `Dashboard.jsx`, `Finance.jsx`, `Clients.jsx`, `Schedule.jsx`, `Procedures.jsx`, `AppointmentsReport.jsx` e `AppointmentModal.jsx`.
+
+- **Documentação de Administrador e Script de Seed Seguro:**
+  - Documentadas as variáveis `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` e variáveis opcionais de seed no `backend/.env.example`, incluindo comando CLI para geração de hash bcrypt com salt rounds 10.
+  - Criação do script utilitário `backend/prisma/seed.js` e comando `npm run db:seed`.
+
+- **Sistema Centralizado de Logs Estruturados com Persistência em Disco:**
+  - Criação do utilitário `backend/src/utils/logger.js` com timestamps ISO, níveis de severidade (`INFO`, `WARN`, `ERROR`, `DEBUG`) e sanitização automática de segredos (`[REDACTED]`).
+  - Gravação automática em disco nos arquivos `backend/logs/app.log` (completo) e `backend/logs/error.log` (erros), com rotação automática de 5 MB e regras de proteção no `.gitignore`.
+
+---
+
 ## [v1.4.5] - 2026-10-09
 
 ### 🗓️ Melhorias na Agenda e Agendamento Inteligente (UI/UX - Schedule)

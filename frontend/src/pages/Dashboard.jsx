@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Bell, X, CalendarPlus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Bell, X, CalendarPlus, ChevronLeft, ChevronRight, Cake, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import AppointmentModal from '../components/AppointmentModal';
 import AppointmentContextMenu from '../components/AppointmentContextMenu';
@@ -14,6 +15,8 @@ const Dashboard = () => {
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const notificationsRef = useRef(null);
+  const bellButtonRef = useRef(null);
   const navigate = useNavigate();
 
   const firstName = userName ? userName.split(' ')[0] : '';
@@ -31,15 +34,24 @@ const Dashboard = () => {
       setAppointments(res.data);
     } catch (e) {
       console.error(e);
+      toast.error('Erro ao carregar agendamentos.');
     }
   };
 
   const fetchNotifications = async () => {
     try {
       const res = await api.get('/notifications');
-      setNotifications(res.data);
+      const dismissedBirthdays = JSON.parse(localStorage.getItem('dismissed_birthday_notifs') || '[]');
+      const filtered = (res.data || []).filter(n => {
+        if (n.type === 'birthday') {
+          return !dismissedBirthdays.includes(n.id);
+        }
+        return true;
+      });
+      setNotifications(filtered);
     } catch (e) {
       console.error(e);
+      toast.error('Erro ao carregar notificações.');
     }
   };
 
@@ -58,14 +70,72 @@ const Dashboard = () => {
     fetchNotifications();
   }, []);
 
-  const dismissNotification = async (e, id) => {
+  // Fechar popover de notificações ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showNotifications &&
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target) &&
+        bellButtonRef.current &&
+        !bellButtonRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showNotifications]);
+
+  const dismissNotification = async (e, notif) => {
     e.stopPropagation();
+    if (notif.type === 'birthday') {
+      try {
+        const stored = JSON.parse(localStorage.getItem('dismissed_birthday_notifs') || '[]');
+        if (!stored.includes(notif.id)) {
+          stored.push(notif.id);
+          localStorage.setItem('dismissed_birthday_notifs', JSON.stringify(stored));
+        }
+        setNotifications(prev => prev.filter(n => n.id !== notif.id));
+        toast.success('Notificação ignorada.');
+      } catch (err) {
+        console.error(err);
+      }
+      return;
+    }
     try {
-      await api.patch(`/appointments/${id}/dismiss-notification`);
+      await api.patch(`/appointments/${notif.appointmentId}/dismiss-notification`);
       fetchNotifications();
+      toast.success('Notificação dispensada.');
     } catch (err) {
       console.error(err);
+      toast.error('Erro ao dispensar notificação.');
     }
+  };
+
+  const handleBirthdayWhatsApp = (e, notif) => {
+    e.stopPropagation();
+    if (!notif.customerPhone) {
+      toast.error('Cliente não possui telefone cadastrado.');
+      return;
+    }
+    const cleanPhone = notif.customerPhone.replace(/\D/g, '');
+    const ddi = notif.customerDdi || '55';
+    const party = '\u{1F389}'; // 🎉
+    const sparkles = '\u{2728}'; // ✨
+    const cake = '\u{1F382}'; // 🎂
+    const nail = '\u{1F485}'; // 💅
+    const firstName = (notif.customerName || '').trim().split(/\s+/)[0] || 'Cliente';
+
+    let message = '';
+    if (notif.isToday) {
+      message = `Olá, ${firstName}! ${party}\nDesejamos a você um Feliz Aniversário repleto de realizações, saúde e beleza!\nBárbara Reis Nail Designer agradece seu carinho e presença! ${sparkles}${cake}`;
+    } else {
+      message = `Olá, ${firstName}! ${cake}\nSeu aniversário está chegando (${notif.formattedBirthDate})! Que tal agendar um horário para ficar ainda mais maravilhosa para o seu dia especial? ${nail}${sparkles}`;
+    }
+
+    const encoded = encodeURIComponent(message);
+    window.open(`https://api.whatsapp.com/send?phone=${ddi}${cleanPhone}&text=${encoded}`, '_blank', 'noopener,noreferrer');
   };
 
   const openEditForm = (appt) => {
@@ -168,8 +238,10 @@ const Dashboard = () => {
         
         <div className="relative">
           <button 
+            ref={bellButtonRef}
             onClick={() => setShowNotifications(!showNotifications)}
             className="p-3 bg-surface border border-surface-border rounded-full hover:bg-surface-border transition-colors relative"
+            title="Notificações"
           >
             <Bell size={20} className="text-gray-300" />
             {notifications.length > 0 && (
@@ -178,38 +250,111 @@ const Dashboard = () => {
           </button>
           
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:w-80 bg-[#1e1e24] border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col max-h-[400px] overflow-hidden">
-              <div className="p-4 border-b border-surface-border font-semibold text-white flex justify-between items-center bg-surface/50">
-                <span>Notificações ({notifications.length})</span>
+            <div 
+              ref={notificationsRef}
+              className="absolute right-0 mt-2 w-88 max-w-[calc(100vw-2rem)] sm:w-96 glass-dropdown-panel rounded-2xl shadow-2xl z-50 flex flex-col max-h-[440px] overflow-hidden border border-[#9b87f5]/30 animate-in fade-in zoom-in-95 duration-150"
+            >
+              <div className="p-3.5 border-b border-[#9b87f5]/20 font-semibold text-white flex justify-between items-center bg-[#1e1e24]/70 backdrop-blur-md">
+                <span className="flex items-center gap-2 text-sm">
+                  <Bell size={16} className="text-[#9b87f5]" />
+                  Notificações ({notifications.length})
+                </span>
+                {notifications.length > 0 && (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#9b87f5]/20 text-[#c4b5fd] border border-[#9b87f5]/30">
+                    {notifications.some(n => n.type === 'birthday') && notifications.some(n => n.type === 'return')
+                      ? 'Retornos & Aniversários'
+                      : notifications.some(n => n.type === 'birthday')
+                      ? 'Aniversariantes'
+                      : 'Retornos'}
+                  </span>
+                )}
               </div>
               <div className="overflow-y-auto custom-scrollbar">
                 {notifications.length === 0 ? (
-                  <p className="p-4 text-center text-gray-400 text-sm">Nenhuma notificação.</p>
+                  <p className="p-5 text-center text-gray-400 text-sm">Nenhuma notificação pendente.</p>
                 ) : (
-                  notifications.map(notif => (
-                    <div 
-                      key={notif.appointmentId} 
-                      onClick={() => handleNotificationClick(notif.customerId)}
-                      className="p-4 border-b border-surface-border/50 hover:bg-white/5 transition-colors cursor-pointer group relative"
-                    >
-                      <button 
-                        onClick={(e) => dismissNotification(e, notif.appointmentId)}
-                        className="absolute top-2 right-2 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Ignorar"
+                  notifications.map(notif => {
+                    const isBday = notif.type === 'birthday';
+                    return (
+                      <div 
+                        key={notif.id || notif.appointmentId} 
+                        className="p-4 border-b border-surface-border/50 hover:bg-white/5 transition-colors group relative"
                       >
-                        <X size={16} />
-                      </button>
-                      <p className="text-sm text-gray-200">
-                        <span className="font-semibold text-white">{notif.customerName}</span> está pendente para retorno de {notif.procedureName}.
-                      </p>
-                      <p className={`text-xs mt-2 ${notif.daysLeft <= 0 ? 'text-red-400' : 'text-yellow-400'}`}>
-                        {notif.daysLeft <= 0 ? 'Atrasado' : `Faltam ${notif.daysLeft} dias`}
-                      </p>
-                      <div className="mt-3 flex items-center gap-1 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        <CalendarPlus size={14} /> Agendar Agora
+                        <button 
+                          onClick={(e) => dismissNotification(e, notif)}
+                          className="absolute top-2.5 right-2.5 text-gray-400 hover:text-red-400 opacity-60 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-white/10"
+                          title="Ignorar notificação"
+                        >
+                          <X size={15} />
+                        </button>
+
+                        {isBday ? (
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              {notif.isToday ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                                  <Cake size={12} className="text-pink-400" /> Aniversário Hoje! 🎉
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                  <Cake size={12} className="text-purple-400" /> Aniversário em {notif.daysLeft} {notif.daysLeft === 1 ? 'dia' : 'dias'} ({notif.formattedBirthDate})
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-200 pr-6">
+                              <span className="font-semibold text-white">{notif.customerName}</span>{' '}
+                              {notif.isToday 
+                                ? 'está comemorando aniversário hoje! Deseje os parabéns.' 
+                                : `faz aniversário em ${notif.daysLeft} ${notif.daysLeft === 1 ? 'dia' : 'dias'} (${notif.formattedBirthDate}). Agende para a comemoração.`}
+                            </p>
+                            <div className="mt-3 flex items-center gap-2">
+                              {notif.customerPhone && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleBirthdayWhatsApp(e, notif)}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-green-500/20 text-green-300 hover:bg-green-500/30 border border-green-500/40 text-xs font-medium transition-colors"
+                                  title="Enviar mensagem no WhatsApp"
+                                >
+                                  <MessageCircle size={13} />
+                                  {notif.isToday ? 'Felicitar' : 'WhatsApp'}
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleNotificationClick(notif.customerId)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 border border-primary/40 text-xs font-medium transition-colors"
+                              >
+                                <CalendarPlus size={13} /> Agendar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-1.5">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                Retorno Pendente
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-200 pr-6">
+                              <span className="font-semibold text-white">{notif.customerName}</span> está pendente para retorno de {notif.procedureName}.
+                            </p>
+                            <p className={`text-xs mt-2 font-medium ${notif.daysLeft <= 0 ? 'text-red-400' : 'text-yellow-400'}`}>
+                              {notif.daysLeft <= 0 ? 'Atrasado' : `Faltam ${notif.daysLeft} dias`}
+                            </p>
+                            <div className="mt-3 flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleNotificationClick(notif.customerId)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 border border-primary/40 text-xs font-medium transition-colors"
+                              >
+                                <CalendarPlus size={13} /> Agendar Agora
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -219,34 +364,34 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="glass-panel p-6 flex flex-col justify-between relative group">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <p className="text-gray-400 text-sm font-medium flex items-center gap-2">
               Clientes Previstos {getDateLabel()}
             </p>
-            <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 absolute top-6 right-6">
-              <CalendarPlus size={24} />
+            <div className="w-11 h-11 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500 shrink-0">
+              <CalendarPlus size={22} />
             </div>
           </div>
-          <div className="flex items-end justify-between mt-2">
+          <div className="flex items-end justify-between mt-3">
             <h3 className="text-4xl font-bold text-white">{todaysAppointments.length}</h3>
             <div className="flex items-center gap-1 bg-surface-border rounded-lg p-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={prevDate} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white transition-colors" title="Dia anterior">
+              <button onClick={prevDate} className="p-1.5 hover:bg-white/10 rounded text-gray-300 hover:text-white transition-colors" title="Dia anterior">
                 <ChevronLeft size={16} />
               </button>
-              <button onClick={nextDate} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white transition-colors" title="Próximo dia">
+              <button onClick={nextDate} className="p-1.5 hover:bg-white/10 rounded text-gray-300 hover:text-white transition-colors" title="Próximo dia">
                 <ChevronRight size={16} />
               </button>
             </div>
           </div>
         </div>
         <div className="glass-panel p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <p className="text-gray-400 text-sm font-medium">Clientes Atendidos {getDateLabel()}</p>
-            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
-              <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+            <div className="w-11 h-11 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 shrink-0">
+              <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-3">
             <h3 className="text-4xl font-bold text-white">{atendidosHoje.length}</h3>
           </div>
         </div>

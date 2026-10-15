@@ -1,8 +1,28 @@
+# ─── Variáveis de Ambiente (NUNCA versionar) ──────────────────────────────────
+.env
+.env.*
+!.env.example
+*.local
+
 # ─── Certificados SSL/TLS ─────────────────────────────────────────────────────
 *.crt
 *.pem
 *.key
 
-# ─── Documentação de Planejamento Local ───────────────────────────────────────
-ROADMAP_MELHORIAS.md
-GUIA_HOSPEDAGEM_PRIVADA.md
+# ─── Dependências e Builds ────────────────────────────────────────────────────
+node_modules/
+dist/
+build/
+*.log
+
+# ─── Backups e Logs Locais ────────────────────────────────────────────────────
+backups/
+logs/
+*.db
+
+# ─── Sistema Operacional e Editores ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

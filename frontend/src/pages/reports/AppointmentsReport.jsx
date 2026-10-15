@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import logo from '../../assets/BRND.svg';
 import { applySpaceMonoFont, getSpaceMonoTableStyles } from '../../utils/pdfFontManager';
+import CustomDatePicker from '../../components/CustomDatePicker';
+import CustomSelect from '../../components/CustomSelect';
 
 const loadImageAsPngBase64 = (src) => {
   return new Promise((resolve, reject) => {
@@ -74,6 +76,7 @@ const AppointmentsReport = () => {
         setProcedures(sortedProcedures);
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
+        toast.error('Erro ao carregar clientes e procedimentos.');
       }
     };
     fetchSelectData();
@@ -367,13 +370,11 @@ const AppointmentsReport = () => {
               <label className="text-sm font-bold text-white">
                 Data Inicial <span className="text-red-500">*</span>
               </label>
-              <input 
-                type="date" 
-                name="startDate"
-                required
+              <CustomDatePicker
                 value={form.startDate}
-                onChange={handleChange}
-                className="glass-input" 
+                onChange={(val) => setForm(prev => ({ ...prev, startDate: val }))}
+                placeholder="Selecione a data inicial"
+                required
               />
             </div>
             
@@ -381,13 +382,11 @@ const AppointmentsReport = () => {
               <label className="text-sm font-bold text-white">
                 Data Final <span className="text-red-500">*</span>
               </label>
-              <input 
-                type="date" 
-                name="endDate"
-                required
+              <CustomDatePicker
                 value={form.endDate}
-                onChange={handleChange}
-                className="glass-input" 
+                onChange={(val) => setForm(prev => ({ ...prev, endDate: val }))}
+                placeholder="Selecione a data final"
+                required
               />
             </div>
           </div>
@@ -411,11 +410,11 @@ const AppointmentsReport = () => {
                 />
                 {showCustomerDropdown && (
                   <div 
-                    className="absolute top-full left-0 right-0 mt-1 bg-[#1e1e24] border border-surface-border rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto custom-scrollbar"
+                    className="absolute top-full left-0 right-0 mt-1 glass-dropdown-panel rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto custom-scrollbar"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div 
-                      className="p-3 hover:bg-white/5 cursor-pointer text-sm text-gray-300 transition-colors border-b border-surface-border/50"
+                      className="p-3 glass-dropdown-item cursor-pointer text-sm text-gray-300 transition-colors border-b border-surface-border/50"
                       onClick={() => {
                         setForm({...form, customerId: ''});
                         setCustomerSearch('');
@@ -430,7 +429,7 @@ const AppointmentsReport = () => {
                       customers.filter(c => normalizeString(c.nome).includes(normalizeString(customerSearch))).map(c => (
                         <div 
                           key={c.id} 
-                          className="p-3 hover:bg-white/5 cursor-pointer text-sm text-white transition-colors"
+                          className="p-3 glass-dropdown-item cursor-pointer text-sm transition-colors"
                           onClick={() => {
                             setForm({...form, customerId: c.id});
                             setCustomerSearch(c.nome);
@@ -448,50 +447,59 @@ const AppointmentsReport = () => {
 
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-400">Procedimento</label>
-              <select 
-                name="procedureId" 
-                value={form.procedureId} 
-                onChange={handleChange} 
-                className="glass-input bg-background/90"
-              >
-                <option value="">Todos os Procedimentos</option>
-                {procedures.map(p => (
-                  <option key={p.id} value={p.id}>{p.nome}</option>
-                ))}
-              </select>
+              <CustomSelect
+                value={form.procedureId}
+                onChange={(val) => setForm(prev => ({ ...prev, procedureId: val }))}
+                options={[
+                  { value: '', label: 'Todos os Procedimentos' },
+                  ...procedures.map(p => ({ value: p.id, label: p.nome }))
+                ]}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-400">Status</label>
-              <select name="status" value={form.status} onChange={handleChange} className="glass-input bg-background/90">
-                <option value="">Todos</option>
-                <option value="Agendado">Agendado</option>
-                <option value="Atendido">Atendido</option>
-                <option value="Cancelado">Cancelado</option>
-              </select>
+              <CustomSelect
+                value={form.status}
+                onChange={(val) => setForm(prev => ({ ...prev, status: val }))}
+                options={[
+                  { value: '', label: 'Todos' },
+                  { value: 'Agendado', label: 'Agendado' },
+                  { value: 'Atendido', label: 'Atendido' },
+                  { value: 'Cancelado', label: 'Cancelado' }
+                ]}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-400">Agrupar por</label>
-              <select name="groupBy" value={form.groupBy} onChange={handleChange} className="glass-input bg-background/90">
-                <option value="Nenhum">Nenhum</option>
-                <option value="Cliente">Cliente</option>
-                <option value="Data">Data</option>
-                <option value="Procedimento">Procedimento</option>
-                <option value="Status">Status</option>
-              </select>
+              <CustomSelect
+                value={form.groupBy}
+                onChange={(val) => setForm(prev => ({ ...prev, groupBy: val }))}
+                options={[
+                  { value: 'Nenhum', label: 'Nenhum' },
+                  { value: 'Cliente', label: 'Cliente' },
+                  { value: 'Data', label: 'Data' },
+                  { value: 'Procedimento', label: 'Procedimento' },
+                  { value: 'Status', label: 'Status' }
+                ]}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-400">Ordenar por</label>
-              <select name="orderBy" value={form.orderBy} onChange={handleChange} className="glass-input bg-background/90">
-                <option value="Data">Data</option>
-                <option value="Nome">Nome</option>
-                <option value="Procedimento">Procedimento</option>
-                <option value="Valor">Valor</option>
-              </select>
+              <CustomSelect
+                value={form.orderBy}
+                onChange={(val) => setForm(prev => ({ ...prev, orderBy: val }))}
+                options={[
+                  { value: 'Data', label: 'Data' },
+                  { value: 'Nome', label: 'Nome' },
+                  { value: 'Procedimento', label: 'Procedimento' },
+                  { value: 'Valor', label: 'Valor' }
+                ]}
+              />
             </div>
           </div>
 

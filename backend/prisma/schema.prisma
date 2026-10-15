@@ -19,6 +19,7 @@ model Procedure {
   atualizado_em DateTime      @default(now()) @updatedAt @map("atualizado_em")
   appointments  Appointment[]
 
+  @@index([ativo])
   @@map("procedures")
 }
 
@@ -34,6 +35,8 @@ model Customer {
   atualizado_em   DateTime      @default(now()) @updatedAt @map("atualizado_em")
   appointments    Appointment[]
 
+  @@index([ativo])
+  @@index([nome])
   @@map("customers")
 }
 
@@ -47,6 +50,7 @@ model Appointment {
   dias_para_retorno  Int
   duracao            Int       @default(60)
   retorno_dispensado Boolean   @default(false)
+  extra_procedure_ids Json?    @default("[]")
   criado_em          DateTime  @default(now()) @map("criado_em")
   atualizado_em      DateTime  @default(now()) @updatedAt @map("atualizado_em")
 
@@ -55,8 +59,11 @@ model Appointment {
 
   @@index([customerId])
   @@index([procedureId])
+  @@index([data_atendimento])
+  @@index([status, data_atendimento])
   @@map("appointments")
 }
+
 
 model User {
   id            Int      @id @default(autoincrement())

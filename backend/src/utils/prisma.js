@@ -75,4 +75,6 @@ const prisma = basePrisma.$extends({
   }
 });
 
+prisma.basePrisma = basePrisma;
+
 module.exports = prisma;

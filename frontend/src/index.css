@@ -53,17 +53,72 @@
     @apply bg-surface backdrop-blur-glass border border-surface-border rounded-2xl shadow-xl;
   }
   
-  .glass-input {
+  .glass-input,
+  .glass-select {
     @apply bg-black/20 border border-surface-border rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all [color-scheme:dark];
   }
 
-  /* Ícone do relógio / calendário sempre branco */
+  /* Opções internas de seletores nativos */
+  select.glass-input option,
+  select.glass-select option,
+  .glass-select option {
+    background-color: #171124 !important;
+    color: #f8fafc !important;
+    padding: 10px 14px !important;
+  }
+
+  /* Scrollbar customizada elegante lilás/escura */
+  .custom-scrollbar::-webkit-scrollbar,
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-track {
+    background: rgba(20, 15, 30, 0.6);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb,
+  ::-webkit-scrollbar-thumb {
+    background: rgba(217, 70, 239, 0.4);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(217, 70, 239, 0.7);
+  }
+
+  /* Painel de lista suspensa personalizada (busca de clientes, procedimentos, países) */
+  .glass-dropdown-panel {
+    background: linear-gradient(135deg, rgba(46, 20, 68, 0.98) 0%, rgba(24, 16, 36, 0.98) 50%, rgba(12, 10, 16, 0.99) 100%) !important;
+    border: 1px solid rgba(217, 70, 239, 0.35) !important;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.75), 0 0 20px rgba(139, 92, 246, 0.15) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+
+  .glass-dropdown-item {
+    color: #e2e8f0;
+    transition: all 0.2s ease;
+  }
+
+  .glass-dropdown-item:hover {
+    background: linear-gradient(90deg, rgba(217, 70, 239, 0.25) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+    color: #ffffff !important;
+  }
+
+  /* Ícone do relógio / calendário sempre lilás / branco com transição */
   input[type="time"]::-webkit-calendar-picker-indicator,
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    filter: brightness(0) invert(1);
+    filter: invert(0.85) sepia(100%) saturate(300%) hue-rotate(245deg);
     cursor: pointer;
-    opacity: 1;
+    opacity: 0.95;
+    transition: transform 0.2s;
+  }
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    transform: scale(1.15);
   }
 
   /* Oculta o botão nativo do Edge/Windows de revelar senha e limpar campo */
@@ -95,12 +150,12 @@
   }
 }
 
-/* Google Places Autocomplete Styling (Dark Theme & High Z-Index) */
+/* Google Places Autocomplete Styling com gradiente lilás para preto */
 .pac-container {
-  background-color: #1e1e24 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: linear-gradient(135deg, rgba(46, 20, 68, 0.98) 0%, rgba(24, 16, 36, 0.98) 50%, rgba(12, 10, 16, 0.99) 100%) !important;
+  border: 1px solid rgba(217, 70, 239, 0.35) !important;
   border-radius: 0.75rem !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.15) !important;
   font-family: inherit !important;
   z-index: 99999 !important;
   margin-top: 4px !important;

@@ -1,6 +1,7 @@
 const prisma = require('../utils/prisma');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
 
 if (!process.env.JWT_SECRET) {
   throw new Error('ERRO CRÍTICO: JWT_SECRET não está definido nas variáveis de ambiente. Defina-o no arquivo .env.');
@@ -45,7 +46,15 @@ exports.login = async (req, res) => {
     }
 
     // Caso não seja o admin local, busca no banco de dados
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        nome: true
+      }
+    });
     
     if (!user) {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
@@ -71,7 +80,7 @@ exports.login = async (req, res) => {
 
     res.json({ username: user.username, nome: user.nome });
   } catch (error) {
-    console.error('[AUTH_LOGIN_ERROR]', error);
+    logger.error('[AUTH_LOGIN_ERROR]', error);
     res.status(500).json({ error: 'Erro ao fazer login.' });
   }
 };

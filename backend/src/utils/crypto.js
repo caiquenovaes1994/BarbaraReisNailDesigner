@@ -18,14 +18,14 @@ const IV_LENGTH = 16; // AES blocksize
 function encrypt(text) {
   if (!text) return text;
   try {
-    let iv = crypto.randomBytes(IV_LENGTH);
-    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-    let encrypted = cipher.update(text);
+    const iv = crypto.randomBytes(IV_LENGTH);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+    let encrypted = cipher.update(text, 'utf-8');
     encrypted = Buffer.concat([encrypted, cipher.final()]);
     return iv.toString('hex') + ':' + encrypted.toString('hex');
   } catch (err) {
-    console.error('Erro na criptografia:', err);
-    return text;
+    console.error('Erro crítico na criptografia de dados sensíveis:', err);
+    throw new Error('Falha na criptografia de dados sensíveis. Operação abortada por segurança.');
   }
 }
 

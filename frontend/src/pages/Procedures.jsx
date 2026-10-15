@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
+import CustomTimePicker from '../components/CustomTimePicker';
+import CustomSelect from '../components/CustomSelect';
 import api from '../utils/api';
 
 const Procedures = () => {
@@ -37,6 +40,7 @@ const Procedures = () => {
       setProcedures(sorted);
     } catch (e) {
       console.error(e);
+      toast.error('Erro ao carregar procedimentos.');
     }
   };
 
@@ -150,7 +154,7 @@ const Procedures = () => {
       <div className="glass-panel p-6 relative overflow-hidden">
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl"></div>
         
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 relative z-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 relative z-20">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input 
@@ -161,20 +165,15 @@ const Procedures = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-4">
-            <label className="text-sm text-gray-400 flex items-center gap-2">
-              Mostrar
-              <select 
-                className="bg-surface border border-surface-border rounded-lg px-2 py-1 text-white outline-none"
-                value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              >
-                <option value={10} className="bg-[#1e1e24]">10</option>
-                <option value={20} className="bg-[#1e1e24]">20</option>
-                <option value={50} className="bg-[#1e1e24]">50</option>
-                <option value={100} className="bg-[#1e1e24]">100</option>
-              </select>
-            </label>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Mostrar</span>
+            <CustomSelect 
+              value={itemsPerPage}
+              onChange={(val) => setItemsPerPage(Number(val))}
+              options={[10, 20, 50, 100]}
+              className="w-20"
+              align="right"
+            />
           </div>
         </div>
 
@@ -305,13 +304,10 @@ const Procedures = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400 ml-1">Duração (HH:mm)</label>
-                <input
-                  type="time"
-                  className="glass-input"
-                  required
+                <CustomTimePicker
                   value={procedureForm.duracao_hhmm}
-                  onChange={(e) =>
-                    setProcedureForm({ ...procedureForm, duracao_hhmm: e.target.value })
+                  onChange={(val) =>
+                    setProcedureForm({ ...procedureForm, duracao_hhmm: val })
                   }
                 />
               </div>
@@ -330,31 +326,17 @@ const Procedures = () => {
       >
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
-          <div className="glass-panel p-6 w-full max-w-sm text-center shadow-2xl border border-red-500/20">
-            <h3 className="text-xl font-bold text-white mb-2">Excluir Procedimento</h3>
-            <p className="text-gray-300 text-sm mb-6">
-              Tem certeza que deseja remover este procedimento? Se houver agendamentos, será inativado.
-            </p>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => setDeleteConfirmId(null)} 
-                className="flex-1 py-2 rounded-lg bg-surface border border-surface-border text-white hover:bg-white/10 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={confirmDelete} 
-                disabled={isDeleting}
-                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 font-medium disabled:opacity-50"
-              >
-                {isDeleting ? <><Loader2 size={18} className="animate-spin" /> Excluindo...</> : 'Sim, Excluir'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal for Delete Confirmation */}
+      <ConfirmModal
+        isOpen={Boolean(deleteConfirmId)}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={confirmDelete}
+        title="Excluir Procedimento"
+        message="Tem certeza que deseja remover este procedimento? Se houver agendamentos, será inativado."
+        confirmText="Sim, Excluir"
+        cancelText="Cancelar"
+        isLoading={isDeleting}
+      />
 
     </div>
   );

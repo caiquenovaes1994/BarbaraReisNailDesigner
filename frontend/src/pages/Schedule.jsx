@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlignLeft, CalendarDays, LayoutGrid } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
 import AppointmentModal from '../components/AppointmentModal';
 import AppointmentContextMenu from '../components/AppointmentContextMenu';
@@ -32,7 +33,10 @@ const Schedule = () => {
         setIsModalOpen(true);
         setSearchParams({});
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao carregar agendamentos.');
+    }
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -46,6 +50,16 @@ const Schedule = () => {
       setEditingAppointment(null);
     }
     setIsModalOpen(true);
+  };
+
+  const getProcedureNames = (appt) => {
+    if (!appt) return '';
+    const primary = appt.procedure?.nome || appt.procedure?.name || '';
+    if (appt.extra_procedures && appt.extra_procedures.length > 0) {
+      const extras = appt.extra_procedures.map(p => p.nome).join(' + ');
+      return `${primary} + ${extras}`;
+    }
+    return primary;
   };
 
   const getNextAvailableTime = (baseDate, hour) => {
@@ -326,7 +340,7 @@ const Schedule = () => {
                     <div 
                       key={appt.id} 
                       className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${bgColor}`}
-                      title={`${appt.customer?.nome || ''} - ${appt.procedure?.nome || ''} - ${new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} (${appt.status})`}
+                      title={`${appt.customer?.nome || ''} - ${getProcedureNames(appt)} - ${new Date(appt.data_atendimento).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} (${appt.status})`}
                       onClick={(e) => {
                         e.stopPropagation();
                         openEditForm(appt);
@@ -406,7 +420,7 @@ const Schedule = () => {
                       </span>
                     </div>
                     <div className="font-medium text-white">{appt.customer?.nome || appt.customer?.name}</div>
-                    <div className="text-sm text-gray-300 mt-1">{appt.procedure?.nome || appt.procedure?.name}</div>
+                    <div className="text-sm text-gray-300 mt-1">{getProcedureNames(appt)}</div>
                   </div>
                 ))}
               </div>
@@ -440,7 +454,7 @@ const Schedule = () => {
         key={appt.id} 
         className={`absolute left-1 right-1 p-2 rounded-lg text-xs overflow-hidden cursor-pointer pointer-events-auto transition-transform hover:scale-[1.02] z-10 ${bgColor}`}
         style={{ top: `${top}px`, height: `${height}px` }}
-        title={`${appt.customer.nome} - ${appt.procedure.nome} - ${d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`}
+        title={`${appt.customer.nome} - ${getProcedureNames(appt)} - ${d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`}
         onClick={(e) => { e.stopPropagation(); openEditForm(appt); }}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -448,7 +462,7 @@ const Schedule = () => {
         }}
       >
         <div className={`font-bold ${textColor}`}>{appt.customer.nome}</div>
-        <div className={`mt-0.5 opacity-90 ${textColor}`}>{appt.procedure.nome}</div>
+        <div className={`mt-0.5 opacity-90 ${textColor}`}>{getProcedureNames(appt)}</div>
         <div className={`mt-1 font-medium opacity-80 ${textColor}`}>{d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})} - {appt.status}</div>
       </div>
     );
@@ -529,7 +543,7 @@ const Schedule = () => {
 
       <button
         onClick={openNewForm}
-        className="fixed bottom-10 right-10 bg-primary hover:bg-primary-hover text-white rounded-full p-4 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-110 z-40 flex items-center justify-center group"
+        className="hidden md:flex fixed bottom-10 right-10 bg-primary hover:bg-primary-hover text-white rounded-full p-4 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-110 z-40 items-center justify-center group"
       >
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>

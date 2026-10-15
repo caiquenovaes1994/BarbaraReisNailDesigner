@@ -23,7 +23,7 @@
 
 Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara Reis Nail Designer**. Centraliza o controle de agendamentos, histórico de clientes, catálogo de procedimentos e resumo financeiro em uma interface moderna com glassmorphism, totalmente responsiva e instalável como **PWA**.
 
-> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.4.5-d946ef?style=flat&logo=semver&logoColor=white) - Consulte o [Changelog](./CHANGELOG.md) para detalhes.
+> **Versão atual:** ![Versão](https://img.shields.io/badge/versão-v1.5.0-d946ef?style=flat&logo=semver&logoColor=white) - Consulte o [Changelog](./CHANGELOG.md) para detalhes.
 
 </div>
 
@@ -35,12 +35,14 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 
 - Múltiplas visualizações dinâmicas: Dia, Semana, Mês e Lista Contínua com identificadores visuais de volume de atendimentos
 - **Agendamento Rápido por Clique no Horário**: Clique direto em blocos horários para abrir formulário pré-preenchido
+- **Múltiplos Procedimentos**: Inclusão de múltiplos procedimentos no mesmo atendimento com cálculo automático da soma de preços e tempo (com edição manual preservada)
 - Criação, edição e exclusão de agendamentos
 - **Endereço Integrado**: Visualização do endereço do cliente no agendamento, edição inline rápida com Google Places e botão "Salvar Endereço"
 - **Navegação GPS ("Ir")**: Acesso rápido a rotas via Google Maps (desktop) ou seleção de app (Uber, Waze e Maps no mobile)
 - Alteração de status via menu de contexto: **Agendado → Atendido → Cancelado**
 - Navegação entre semanas com retorno rápido ao dia atual
 - Busca de cliente por nome (com suporte a acentuação)
+- **Componentes Customizados**: Calendários (`CustomDatePicker`) e seletores de tempo (`CustomTimePicker`) no design oficial lilás e degradê diagonal preto, com suporte a digitação manual direta e proteção contra overflow
 
 ### 👥 Clientes
 
@@ -90,12 +92,14 @@ Aplicação **full-stack** desenvolvida sob demanda para o estúdio **Bárbara R
 - Painel de estatísticas e faturamento fixado com precisão no rodapé da página
 - Data e hora de emissão estruturadas em 2 linhas alinhadas à direita superior
 
-### 🔔 Notificações de Retorno
+### 🔔 Notificações (Retornos e Aniversariantes)
 
-- Alerta automático quando um cliente está ≤ 5 dias da data de retorno
-- Indicação de urgência com diferença de dias
-- Opção de dispensar notificação individualmente
-- Clique direto abre formulário de agendamento pré-preenchido
+- **Retorno de Atendimento**: Alerta automático quando uma cliente está ≤ 5 dias da data prevista de retorno, com contagem de dias restantes ou status de atraso
+- **Aniversariantes**: Notificação automática com 7 dias de antecedência (aviso prévio para agendamento) e destaque prioritário no dia do aniversário com badge comemorativa
+- **Ações Rápidas no Painel**:
+  - Envio direto de felicitação ou convite via WhatsApp com mensagem personalizada contendo o primeiro nome da cliente
+  - Clique direto para agendar horário com formulário pré-preenchido
+  - Opção de dispensar notificação individualmente com persistência em armazenamento local
 
 ### 📱 PWA e Experiência de Usuário
 
@@ -180,22 +184,24 @@ A aplicação opera em um ambiente distribuído na nuvem:
 
 ---
 
-## Segurança
+## Segurança e Confiabilidade
 
 | Medida | Detalhes |
 | --- | --- |
-| **Autenticação** | JWT armazenado em Cookie HTTP-Only (`sameSite: lax`, `secure: true` em produção, expiração de 24h) |
+| **Autenticação** | JWT armazenado em Cookie HTTP-Only (`sameSite: lax` em dev / `none` em prod, `secure: true`, expiração de 24h) |
 | **Proteção XSS** | Sem tokens no `localStorage`/`sessionStorage`; cookies inacessíveis via JavaScript |
-| **Criptografia de Dados** | AES-256-CBC com chave derivada via `scrypt` e salt configurável; telefone, data de nascimento e endereço criptografados em repouso |
-| **Hashing de Senhas** | bcrypt com salt rounds padrão; limite de 128 caracteres |
-| **Rate Limiting** | 20 requisições / 15 min na rota de autenticação |
-| **CORS** | Whitelist restrita ao domínio de produção e localhost; `origin: true` eliminado |
-| **CSP** | Content Security Policy personalizada via Helmet (backend) e meta tag (frontend) |
-| **Headers HTTP** | Gerenciados pelo Helmet (CSP, HSTS, X-Frame-Options, CORP, COEP, etc.) |
+| **Criptografia de Dados** | AES-256-CBC com chave derivada via `scrypt` e salt configurável; telefone e endereço criptografados em repouso com aborto fatal em falhas |
+| **Hashing de Senhas** | bcrypt com salt rounds padrão (10); limite de 128 caracteres contra DoS; seed utilitário documentado |
+| **Rate Limiting** | 20 requisições / 15 min em `/api/login` e limite global de 300 requisições / 15 min em `/api` |
+| **Validação de Schemas** | Middleware dedicado (`validator.js`) para validação de integridade de parâmetros numéricos `:id` e payloads de entrada |
+| **CORS** | Whitelist estrita ao domínio de produção e localhost; bypass de IP local condicionado a ambiente de desenvolvimento |
+| **CSP & Headers HTTP** | Content Security Policy e headers defensivos configurados via Helmet (backend) e meta tags (frontend) |
+| **Tratamento Centralizado de Erros** | Middleware global JSON capturando 404/500 com omissão rigorosa de stack traces em produção |
+| **Logging e Auditoria** | Logger estruturado com timestamps ISO, sanitização automática de segredos (`[REDACTED]`), console streaming e persistência local (`backend/logs/`) com rotação de 5MB |
+| **Backups Automatizados** | Backup lógico do PostgreSQL via Prisma com retenção dos últimos 10 snapshots JSON e cron diário às 03:00 |
+| **Otimização de Banco de Dados** | Índices estratégicos criados em `data_atendimento`, `status`, `ativo` e `nome` no PostgreSQL; consultas projetadas via `select` explícito |
 | **Sourcemaps** | Desabilitados explicitamente no build de produção (`sourcemap: false`) |
-| **Variáveis Sensíveis** | Isoladas em `.env`, nunca versionadas; certificados SSL no `.gitignore` |
-| **Sessão Expirada** | Redirecionamento automático ao login em respostas 401/403 |
-| **Validação Automatizada** | Script `validate-security.js` com 20 verificações de conformidade |
+| **Variáveis Sensíveis** | Isoladas em `.env`, blindadas no `.gitignore` em todos os níveis do repositório |
 
 ---
 

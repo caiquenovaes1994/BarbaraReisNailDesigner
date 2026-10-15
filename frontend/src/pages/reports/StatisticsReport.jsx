@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import logo from '../../assets/BRND.svg';
 import { applySpaceMonoFont, getSpaceMonoTableStyles } from '../../utils/pdfFontManager';
+import CustomDatePicker from '../../components/CustomDatePicker';
+import CustomSelect from '../../components/CustomSelect';
 
 const loadImageAsPngBase64 = (src) => {
   return new Promise((resolve, reject) => {
@@ -165,7 +167,7 @@ const StatisticsReport = () => {
           revenue: custStats[name].revenue
         })).sort((a, b) => b.count - a.count);
 
-        // Top 20 clients
+        // Top clients
         const topCustomers = custArray.slice(0, 20);
 
         doc.setFont('SpaceMono', 'bold');
@@ -190,7 +192,66 @@ const StatisticsReport = () => {
           },
           margin: { top: 10, bottom: 20, left: 14, right: 14 }
         });
+        currentY = doc.lastAutoTable.finalY + 12;
       }
+
+      // Card Consolidado TOTAL
+      let boxY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : currentY) + 8;
+      if (boxY > 250) {
+        doc.addPage();
+        boxY = 20;
+      }
+      const boxWidth = 182;
+      const boxHeight = 24;
+
+      // Fundo e borda do card totalizador
+      doc.setFillColor(250, 248, 252);
+      doc.setDrawColor(217, 70, 239);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(14, boxY, boxWidth, boxHeight, 2, 2, 'FD');
+
+      // Título do card de resumo
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(157, 23, 77); // Deep Pink
+      doc.text('TOTAL CONSOLIDADO', 18, boxY + 6);
+
+      // Linha separadora interna
+      doc.setDrawColor(230, 220, 240);
+      doc.setLineWidth(0.2);
+      doc.line(18, boxY + 8.5, 14 + boxWidth - 4, boxY + 8.5);
+
+      // Coluna 1: Total de Atendimentos
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('TOTAL DE ATENDIMENTOS', 18, boxY + 13.5);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(30, 41, 59);
+      doc.text(String(data.length), 18, boxY + 19);
+
+      // Coluna 2: Receita Total
+      const totalGeralRevenue = data.reduce((acc, curr) => acc + (curr.valor_cobrado || 0), 0);
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('RECEITA TOTAL REALIZADA', 80, boxY + 13.5);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(22, 101, 52); // Green
+      doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalGeralRevenue), 80, boxY + 19);
+
+      // Coluna 3: Ticket Médio
+      doc.setFont('SpaceMono', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('TICKET MÉDIO', 142, boxY + 13.5);
+      doc.setFont('SpaceMono', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(147, 51, 234); // Purple
+      const ticketMedio = data.length > 0 ? totalGeralRevenue / data.length : 0;
+      doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(ticketMedio), 142, boxY + 19);
 
       // Add page numbers
       const pageCount = doc.internal.getNumberOfPages();
@@ -236,13 +297,11 @@ const StatisticsReport = () => {
               <label className="text-sm font-bold text-white">
                 Data Inicial <span className="text-red-500">*</span>
               </label>
-              <input 
-                type="date" 
-                name="startDate"
-                required
+              <CustomDatePicker
                 value={form.startDate}
-                onChange={handleChange}
-                className="glass-input" 
+                onChange={(val) => setForm(prev => ({ ...prev, startDate: val }))}
+                placeholder="Selecione a data inicial"
+                required
               />
             </div>
             
@@ -250,13 +309,11 @@ const StatisticsReport = () => {
               <label className="text-sm font-bold text-white">
                 Data Final <span className="text-red-500">*</span>
               </label>
-              <input 
-                type="date" 
-                name="endDate"
-                required
+              <CustomDatePicker
                 value={form.endDate}
-                onChange={handleChange}
-                className="glass-input" 
+                onChange={(val) => setForm(prev => ({ ...prev, endDate: val }))}
+                placeholder="Selecione a data final"
+                required
               />
             </div>
           </div>
@@ -264,11 +321,15 @@ const StatisticsReport = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-sm text-gray-400">Tipo de Estatística</label>
-              <select name="type" value={form.type} onChange={handleChange} className="glass-input bg-background/90">
-                <option value="Todos">Todas (Procedimentos e Clientes)</option>
-                <option value="Procedimentos">Procedimentos Mais Realizados</option>
-                <option value="Clientes">Clientes Mais Atendidos</option>
-              </select>
+              <CustomSelect
+                value={form.type}
+                onChange={(val) => setForm(prev => ({ ...prev, type: val }))}
+                options={[
+                  { value: 'Todos', label: 'Todas (Procedimentos e Clientes)' },
+                  { value: 'Procedimentos', label: 'Procedimentos Mais Realizados' },
+                  { value: 'Clientes', label: 'Clientes Mais Atendidos' }
+                ]}
+              />
             </div>
           </div>
 

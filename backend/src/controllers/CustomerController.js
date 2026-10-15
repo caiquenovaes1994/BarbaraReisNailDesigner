@@ -6,7 +6,19 @@ exports.getAll = async (req, res) => {
     const { includeInactive } = req.query;
     const filter = includeInactive === 'true' ? {} : { ativo: true };
     const customers = await prisma.customer.findMany({
-      where: filter
+      where: filter,
+      select: {
+        id: true,
+        nome: true,
+        ddi: true,
+        telefone: true,
+        data_nascimento: true,
+        endereco: true,
+        ativo: true,
+        criado_em: true,
+        atualizado_em: true
+      },
+      orderBy: { nome: 'asc' }
     });
     res.json(customers);
   } catch (error) {
@@ -26,6 +38,13 @@ exports.getBirthdaysReport = async (req, res) => {
       where: {
         ativo: true,
         data_nascimento: { not: null }
+      },
+      select: {
+        id: true,
+        nome: true,
+        ddi: true,
+        telefone: true,
+        data_nascimento: true
       }
     });
 
@@ -70,8 +89,19 @@ exports.getBirthdaysReport = async (req, res) => {
         },
         status: { not: 'Cancelado' }
       },
-      include: {
-        procedure: true
+      select: {
+        id: true,
+        customerId: true,
+        data_atendimento: true,
+        status: true,
+        duracao: true,
+        valor_cobrado: true,
+        procedure: {
+          select: {
+            id: true,
+            nome: true
+          }
+        }
       },
       orderBy: {
         data_atendimento: 'asc'
@@ -166,7 +196,8 @@ exports.delete = async (req, res) => {
     
     // Check for appointments
     const appointments = await prisma.appointment.findFirst({
-      where: { customerId: parseInt(id) }
+      where: { customerId: parseInt(id) },
+      select: { id: true }
     });
 
     if (appointments) {
@@ -193,7 +224,22 @@ exports.getHistory = async (req, res) => {
     const { id } = req.params;
     const history = await prisma.appointment.findMany({
       where: { customerId: parseInt(id) },
-      include: { procedure: true },
+      select: {
+        id: true,
+        customerId: true,
+        procedureId: true,
+        extra_procedure_ids: true,
+        data_atendimento: true,
+        status: true,
+        valor_cobrado: true,
+        duracao: true,
+        procedure: {
+          select: {
+            id: true,
+            nome: true
+          }
+        }
+      },
       orderBy: { data_atendimento: 'desc' }
     });
     res.json(history);

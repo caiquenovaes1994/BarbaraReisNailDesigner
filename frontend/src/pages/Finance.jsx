@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { DollarSign, TrendingUp, CalendarCheck, Filter } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../utils/api';
+import CustomDatePicker from '../components/CustomDatePicker';
 
 const Finance = () => {
   const [summary, setSummary] = useState({ receita_efetiva: 0, receita_prevista: 0 });
@@ -20,6 +22,7 @@ const Finance = () => {
       setSummary(res.data);
     } catch (e) {
       console.error(e);
+      toast.error('Erro ao carregar dados financeiros.');
     }
   };
 
@@ -48,19 +51,17 @@ const Finance = () => {
           <div className="flex items-center gap-2 text-gray-400 w-full sm:w-auto justify-center sm:justify-start">
             <Filter size={18} />
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-            <input 
-              type="date" 
-              className="bg-transparent border-none text-sm text-gray-300 focus:outline-none focus:ring-0 cursor-pointer"
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto justify-center">
+            <CustomDatePicker 
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(val) => setStartDate(val)}
+              className="w-36"
             />
-            <span className="text-gray-500">até</span>
-            <input 
-              type="date" 
-              className="bg-transparent border-none text-sm text-gray-300 focus:outline-none focus:ring-0 cursor-pointer"
+            <span className="text-gray-500 text-xs">até</span>
+            <CustomDatePicker 
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(val) => setEndDate(val)}
+              className="w-36"
             />
           </div>
         </div>

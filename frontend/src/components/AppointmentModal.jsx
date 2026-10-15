@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Check, Loader2, Pencil, CornerUpRight, MapPin, Navigation, Car } from 'lucide-react';
+import { Plus, X, Check, Loader2, Pencil, CornerUpRight, MapPin, Navigation, Car, ChevronDown } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import GoogleAddressAutocomplete from './GoogleAddressAutocomplete';
+import CustomDatePicker from './CustomDatePicker';
+import CustomTimePicker from './CustomTimePicker';
 import api from '../utils/api';
 import { countries } from '../utils/countries';
 
@@ -17,6 +19,8 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
   
   const [customers, setCustomers] = useState([]);
   const [procedures, setProcedures] = useState([]);
+  const [selectedProcedureIds, setSelectedProcedureIds] = useState(['']);
+  const [openProcDropdownIdx, setOpenProcDropdownIdx] = useState(null);
   
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
@@ -31,7 +35,7 @@ const AppointmentModal = ({ isOpen, onClose, editingAppointment, onSave }) => {
   const [countrySearch, setCountrySearch] = useState('');
 
   const [isNewProcedureModalOpen, setIsNewProcedureModalOpen] = useState(false);
-  const [newProcedureForm, setNewProcedureForm] = useState({ nome: '', precoStr: '', duracao: '', dias_retorno: '' });
+  const [newProcedureForm, setNewProcedureForm] = useState({ nome: '', precoStr: '', duracao_hhmm: '01:00', dias_retorno: '' });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -82,11 +86,29 @@ const formatToDateTimeLocal = (date) => {
         duracao_hhmm: `${h}:${m}`
       });
       
+      let extraIds = [];
+      if (editingAppointment.extra_procedure_ids) {
+        if (Array.isArray(editingAppointment.extra_procedure_ids)) {
+          extraIds = editingAppointment.extra_procedure_ids.map(String);
+        } else {
+          try {
+            extraIds = JSON.parse(editingAppointment.extra_procedure_ids).map(String);
+          } catch(e) {
+            extraIds = [];
+          }
+        }
+      }
+      const initialProcs = editingAppointment.procedureId 
+        ? [String(editingAppointment.procedureId), ...extraIds] 
+        : [''];
+      setSelectedProcedureIds(initialProcs);
+
       setCustomerSearch(editingAppointment.customer?.nome || '');
       setClientAddress(editingAppointment.customer?.endereco || '');
       setIsEditingAddress(false);
     } else if (isOpen) {
       setForm({ customerId: '', procedureId: '', data_atendimento: '', valorStr: '', dias_para_retorno: '', duracao_hhmm: '01:00' });
+      setSelectedProcedureIds(['']);
       setCustomerSearch('');
       setClientAddress('');
       setIsEditingAddress(false);
@@ -113,6 +135,7 @@ const formatToDateTimeLocal = (date) => {
       }
     } catch (error) {
       console.error(error);
+      toast.error('Erro ao carregar clientes e procedimentos.');
     }
   };
 
@@ -153,17 +176,56 @@ const formatToDateTimeLocal = (date) => {
     setShowCountryDropdown(false);
   };
 
-  const handleProcedureChange = (e, customProc = null) => {
-    const procId = customProc ? customProc.id : parseInt(e.target.value);
-    const proc = customProc || procedures.find(p => p.id === procId);
-    if (proc) {
-      const formatted = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proc.preco);
-      const h = Math.floor(proc.duracao / 60).toString().padStart(2, '0');
-      const m = (proc.duracao % 60).toString().padStart(2, '0');
-      setForm({ ...form, procedureId: proc.id, valorStr: formatted, duracao_hhmm: `${h}:${m}` });
-    } else {
-      setForm({ ...form, procedureId: procId });
-    }
+  const recalculateFromProcedures = (procIds) => {
+    let totalDuracao = 0;
+    let totalPrice = 0;
+    let maxDiasRetorno = 0;
+
+    procIds.forEach(id => {
+      if (!id) return;
+      const numId = parseInt(id, 10);
+      const proc = procedures.find(p => p.id === numId);
+      if (proc) {
+        totalDuracao += (proc.duracao || 60);
+        totalPrice += (proc.preco || 0);
+        if (proc.dias_retorno && proc.dias_retorno > maxDiasRetorno) {
+          maxDiasRetorno = proc.dias_retorno;
+        }
+      }
+    });
+
+    const h = Math.floor(totalDuracao / 60).toString().padStart(2, '0');
+    const m = (totalDuracao % 60).toString().padStart(2, '0');
+    const formattedPreco = totalDuracao > 0 || totalPrice > 0
+      ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)
+      : '';
+
+    setForm(prev => ({
+      ...prev,
+      procedureId: procIds[0] || '',
+      duracao_hhmm: totalDuracao > 0 ? `${h}:${m}` : prev.duracao_hhmm,
+      valorStr: formattedPreco || prev.valorStr,
+      dias_para_retorno: maxDiasRetorno > 0 ? String(maxDiasRetorno) : prev.dias_para_retorno
+    }));
+  };
+
+  const handleProcedureChangeAtIndex = (index, value) => {
+    const nextProcs = [...selectedProcedureIds];
+    nextProcs[index] = value;
+    setSelectedProcedureIds(nextProcs);
+    recalculateFromProcedures(nextProcs);
+  };
+
+  const handleAddProcedureSlot = () => {
+    const nextProcs = [...selectedProcedureIds, ''];
+    setSelectedProcedureIds(nextProcs);
+  };
+
+  const handleRemoveProcedureSlot = (index) => {
+    const nextProcs = selectedProcedureIds.filter((_, i) => i !== index);
+    const finalProcs = nextProcs.length === 0 ? [''] : nextProcs;
+    setSelectedProcedureIds(finalProcs);
+    recalculateFromProcedures(finalProcs);
   };
 
   const handleNavigate = () => {
@@ -238,16 +300,23 @@ const formatToDateTimeLocal = (date) => {
   const saveNewProcedure = async (e) => {
     e.preventDefault();
     setIsSavingProcedure(true);
-    const precoValue = parseFloat(newProcedureForm.precoStr.replace(/[^\d,-]/g, '').replace(',', '.'));
-    const payload = { ...newProcedureForm, preco: precoValue, ativo: true };
-    if (!payload.preco) payload.preco = 0;
+    const [h, m] = (newProcedureForm.duracao_hhmm || '01:00').split(':');
+    const duracao = parseInt(h, 10) * 60 + parseInt(m, 10);
+    const precoValue = parseFloat((newProcedureForm.precoStr || '').replace(/[^\d,-]/g, '').replace(',', '.'));
+    const payload = {
+      nome: newProcedureForm.nome,
+      preco: isNaN(precoValue) ? 0 : precoValue,
+      duracao: isNaN(duracao) ? 60 : duracao,
+      dias_retorno: parseInt(newProcedureForm.dias_retorno, 10) || 0,
+      ativo: true
+    };
     try {
       const res = await api.post('/procedures', payload);
       const sortedProcedures = [...procedures, res.data].sort((a, b) => a.nome.localeCompare(b.nome));
       setProcedures(sortedProcedures);
       handleProcedureChange({ target: { value: res.data.id } }, res.data);
       setIsNewProcedureModalOpen(false);
-      setNewProcedureForm({ nome: '', precoStr: '', duracao: '', dias_retorno: '' });
+      setNewProcedureForm({ nome: '', precoStr: '', duracao_hhmm: '01:00', dias_retorno: '' });
       toast.success('Procedimento criado com sucesso!');
     } catch (err) {
       console.error(err);
@@ -263,11 +332,42 @@ const formatToDateTimeLocal = (date) => {
       toast.error('Por favor, pesquise e selecione um cliente da lista.');
       return;
     }
+
+    const validProcIds = selectedProcedureIds
+      .map(id => parseInt(id, 10))
+      .filter(id => !isNaN(id) && id > 0);
+
+    if (validProcIds.length === 0) {
+      toast.error('Por favor, selecione ao menos um procedimento.');
+      return;
+    }
+
+    if (!form.data_atendimento) {
+      toast.error('Por favor, selecione a data e o horário do atendimento.');
+      return;
+    }
+
     setIsSavingAppointment(true);
-    const [h, m] = form.duracao_hhmm.split(':');
-    const duracao = parseInt(h) * 60 + parseInt(m);
-    const precoValue = parseFloat(form.valorStr.replace(/[^\d,-]/g, '').replace(',', '.'));
-    const payload = { ...form, duracao, valor_cobrado: precoValue };
+    const [h, m] = (form.duracao_hhmm || '01:00').split(':');
+    const duracao = parseInt(h, 10) * 60 + parseInt(m, 10);
+    const precoValue = parseFloat((form.valorStr || '').replace(/[^\d,-]/g, '').replace(',', '.'));
+    const diasRetorno = (form.dias_para_retorno !== '' && form.dias_para_retorno !== null && form.dias_para_retorno !== undefined)
+      ? parseInt(form.dias_para_retorno, 10)
+      : 0;
+
+    const payload = { 
+      customerId: parseInt(form.customerId, 10),
+      procedureId: validProcIds[0],
+      extra_procedure_ids: validProcIds.slice(1),
+      data_atendimento: form.data_atendimento,
+      duracao: isNaN(duracao) || duracao <= 0 ? 60 : duracao, 
+      valor_cobrado: isNaN(precoValue) || precoValue < 0 ? 0 : precoValue,
+      dias_para_retorno: isNaN(diasRetorno) ? 0 : diasRetorno
+    };
+
+    if (editingAppointment && editingAppointment.status) {
+      payload.status = editingAppointment.status;
+    }
     
     try {
       // Se o endereço foi editado e não foi salvo individualmente, sincroniza com o cadastro do cliente
@@ -325,7 +425,7 @@ const formatToDateTimeLocal = (date) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4" onClick={() => {setShowCustomerDropdown(false); setShowCountryDropdown(false)}}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4" onClick={() => {setShowCustomerDropdown(false); setShowCountryDropdown(false); setOpenProcDropdownIdx(null);}}>
         <div className="glass-panel p-6 sm:p-8 w-full max-w-md relative" onClick={(e) => e.stopPropagation()}>
           <button 
             onClick={onClose}
@@ -357,14 +457,14 @@ const formatToDateTimeLocal = (date) => {
                   }}
                 />
                 {showCustomerDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-[#1e1e24] border border-surface-border rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto custom-scrollbar">
+                  <div className="absolute top-full left-0 right-0 mt-1 glass-dropdown-panel rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto custom-scrollbar">
                     {customers.filter(c => normalizeString(c.nome).includes(normalizeString(customerSearch))).length === 0 ? (
                       <div className="p-3 text-sm text-gray-400 text-center">Nenhum cliente encontrado</div>
                     ) : (
                       customers.filter(c => normalizeString(c.nome).includes(normalizeString(customerSearch))).map(c => (
                         <div 
                           key={c.id} 
-                          className="p-3 hover:bg-white/5 cursor-pointer text-sm text-white transition-colors"
+                          className="p-3 glass-dropdown-item cursor-pointer text-sm text-white transition-colors border-b border-white/5 last:border-b-0"
                           onClick={() => {
                             setForm({...form, customerId: c.id});
                             setCustomerSearch(c.nome);
@@ -472,29 +572,101 @@ const formatToDateTimeLocal = (date) => {
               </button>
             </div>
             
-            <div className="flex gap-2">
-              <select className="glass-input bg-background/90 flex-1" required value={form.procedureId} onChange={handleProcedureChange}>
-                <option value="" disabled className="bg-[#1e1e24] text-white">Selecione o Procedimento</option>
-                {procedures.map(p => <option key={p.id} value={p.id} className="bg-[#1e1e24] text-white">{p.nome}</option>)}
-              </select>
-              <button 
-                type="button" 
-                onClick={() => setIsNewProcedureModalOpen(true)}
-                className="px-3 flex items-center justify-center rounded-lg bg-primary/20 text-primary hover:bg-primary/30 hover:text-white transition-colors border border-primary/30 backdrop-blur-sm"
-                title="Novo Procedimento"
-              >
-                <Plus size={20} />
-              </button>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <label className="text-xs text-gray-400 ml-1">Procedimento(s)</label>
+                {selectedProcedureIds.length > 1 && (
+                  <span className="text-xs text-primary font-medium">
+                    {selectedProcedureIds.filter(Boolean).length} selecionado(s)
+                  </span>
+                )}
+              </div>
+              {selectedProcedureIds.map((procId, idx) => (
+                <div key={idx} className="flex gap-2 items-center relative">
+                  <div className="flex-1 relative">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenProcDropdownIdx(openProcDropdownIdx === idx ? null : idx);
+                      }}
+                      className="glass-input w-full flex justify-between items-center text-left text-sm py-2 cursor-pointer"
+                    >
+                      <span className={procId ? "text-white truncate" : "text-gray-400 truncate"}>
+                        {procId
+                          ? procedures.find(p => p.id === parseInt(procId, 10))?.nome
+                          : (idx === 0 ? "Selecione o Procedimento" : "Adicionar outro procedimento...")}
+                      </span>
+                      <ChevronDown
+                        size={16}
+                        className={`text-gray-400 shrink-0 ml-2 transition-transform duration-200 ${openProcDropdownIdx === idx ? 'rotate-180 text-primary' : ''}`}
+                      />
+                    </button>
+
+                    {openProcDropdownIdx === idx && (
+                      <div
+                        className="absolute top-full left-0 right-0 mt-1 glass-dropdown-panel rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto custom-scrollbar"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {procedures.map(p => (
+                          <div
+                            key={p.id}
+                            onClick={() => {
+                              handleProcedureChangeAtIndex(idx, String(p.id));
+                              setOpenProcDropdownIdx(null);
+                            }}
+                            className={`p-3 glass-dropdown-item cursor-pointer text-sm text-white transition-colors border-b border-white/5 last:border-b-0 flex justify-between items-center ${String(procId) === String(p.id) ? 'bg-primary/20 text-primary font-medium' : ''}`}
+                          >
+                            <span>{p.nome}</span>
+                            <span className="text-xs text-primary/90 font-medium shrink-0 ml-2">
+                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.preco || 0)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {idx === 0 ? (
+                    <button 
+                      type="button" 
+                      onClick={handleAddProcedureSlot}
+                      className="px-3 py-2 flex items-center justify-center rounded-lg bg-primary/20 text-primary hover:bg-primary/30 hover:text-white transition-colors border border-primary/30 backdrop-blur-sm shadow-md"
+                      title="Adicionar outro procedimento neste agendamento"
+                    >
+                      <Plus size={20} />
+                    </button>
+                  ) : (
+                    <button 
+                      type="button" 
+                      onClick={() => handleRemoveProcedureSlot(idx)}
+                      className="px-3 py-2 flex items-center justify-center rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-colors border border-red-500/30 shadow-md"
+                      title="Remover procedimento"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
 
             <div className="flex gap-4">
               <div className="flex flex-col gap-1 w-[60%]">
                 <label className="text-xs text-gray-400 ml-1">Data e Hora</label>
-                <input type="datetime-local" className="glass-input" required value={form.data_atendimento} onChange={e => setForm({...form, data_atendimento: e.target.value})} />
+                <CustomDatePicker
+                  withTime={true}
+                  required
+                  value={form.data_atendimento}
+                  onChange={(val) => setForm(prev => ({ ...prev, data_atendimento: val }))}
+                  placeholder="Selecione data e hora"
+                />
               </div>
               <div className="flex flex-col gap-1 w-[40%]">
                 <label className="text-xs text-gray-400 ml-1">Tempo (HH:mm)</label>
-                <input type="time" className="glass-input" required value={form.duracao_hhmm} onChange={e => setForm({...form, duracao_hhmm: e.target.value})} />
+                <CustomTimePicker
+                  value={form.duracao_hhmm}
+                  onChange={(val) => setForm(prev => ({ ...prev, duracao_hhmm: val }))}
+                />
               </div>
             </div>
             
@@ -586,11 +758,10 @@ const formatToDateTimeLocal = (date) => {
               />
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-400 ml-1">Data de Nascimento (opcional)</label>
-                <input
-                  type="date"
-                  className="glass-input"
+                <CustomDatePicker
                   value={newCustomerForm.data_nascimento || ''}
-                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, data_nascimento: e.target.value })}
+                  onChange={(val) => setNewCustomerForm(prev => ({ ...prev, data_nascimento: val }))}
+                  placeholder="DD/MM/AAAA"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -616,7 +787,7 @@ const formatToDateTimeLocal = (date) => {
                     </button>
                     {showCountryDropdown && (
                       <div 
-                        className="absolute top-full left-0 mt-2 w-64 bg-[#1e1e24] border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col max-h-[200px] overflow-hidden"
+                        className="absolute top-full left-0 mt-2 w-64 glass-dropdown-panel rounded-xl shadow-2xl z-50 flex flex-col max-h-[200px] overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="p-3 border-b border-surface-border">
@@ -636,7 +807,7 @@ const formatToDateTimeLocal = (date) => {
                               type="button"
                               key={c.code}
                               onClick={() => handleCountrySelect(c)}
-                              className="w-full text-left p-3 flex items-center gap-3 border-b border-surface-border/30 hover:bg-white/10 transition-colors"
+                              className="w-full text-left p-3 flex items-center gap-3 border-b border-surface-border/30 glass-dropdown-item transition-colors"
                             >
                               <img src={`/flags/${c.code}.svg`} alt={c.name} className="w-5 h-auto rounded-sm object-cover" onError={(e) => { e.target.style.display='none'; }} />
                               <div className="flex flex-col flex-1">
@@ -716,14 +887,10 @@ const formatToDateTimeLocal = (date) => {
               </div>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 flex-1">
-                  <label className="text-xs text-gray-400 ml-1">Duração (Minutos)</label>
-                  <input
-                    type="number"
-                    placeholder="Minutos"
-                    className="glass-input"
-                    required
-                    value={newProcedureForm.duracao}
-                    onChange={(e) => setNewProcedureForm({ ...newProcedureForm, duracao: e.target.value })}
+                  <label className="text-xs text-gray-400 ml-1">Duração (HH:mm)</label>
+                  <CustomTimePicker
+                    value={newProcedureForm.duracao_hhmm || '01:00'}
+                    onChange={(val) => setNewProcedureForm(prev => ({ ...prev, duracao_hhmm: val }))}
                   />
                 </div>
                 <div className="flex flex-col gap-1 flex-1">

@@ -7,6 +7,7 @@ import autoTable from 'jspdf-autotable';
 import api from '../../utils/api';
 import logo from '../../assets/BRND.svg';
 import { applySpaceMonoFont, getSpaceMonoTableStyles } from '../../utils/pdfFontManager';
+import CustomSelect from '../../components/CustomSelect';
 
 const MONTHS = [
   { value: 1, name: 'Janeiro' },
@@ -206,13 +207,9 @@ const BirthdaysReport = () => {
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <Link
-            to="/reports"
-            className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-2 cursor-pointer"
-          >
-            <ArrowLeft size={16} />
-            Voltar para Relatórios
+        <div className="flex items-center gap-4">
+          <Link to="/reports" className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white" title="Voltar para Relatórios">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Link>
           <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary flex items-center gap-3">
             <Cake size={32} className="text-primary" />
@@ -223,30 +220,20 @@ const BirthdaysReport = () => {
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Seletor de Mês */}
-          <select
+          <CustomSelect
             value={selectedMonth}
-            onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="bg-surface border border-white/10 rounded-xl px-4 py-2.5 text-white font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer text-sm"
-          >
-            {MONTHS.map(m => (
-              <option key={m.value} value={m.value} className="bg-[#1e1e24] text-white">
-                {m.name}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setSelectedMonth(Number(val))}
+            options={MONTHS.map(m => ({ value: m.value, label: m.name }))}
+            className="w-40"
+          />
 
           {/* Seletor de Ano */}
-          <select
+          <CustomSelect
             value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="bg-surface border border-white/10 rounded-xl px-3 py-2.5 text-white font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer text-sm"
-          >
-            {[currentYear - 1, currentYear, currentYear + 1].map(y => (
-              <option key={y} value={y} className="bg-[#1e1e24] text-white">
-                {y}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setSelectedYear(Number(val))}
+            options={[currentYear - 1, currentYear, currentYear + 1].map(y => ({ value: y, label: String(y) }))}
+            className="w-28"
+          />
 
           {/* Botão Exportar PDF */}
           <button

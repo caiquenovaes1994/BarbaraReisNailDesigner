@@ -9,9 +9,9 @@ const Sidebar = ({ onLogout }) => {
   const links = [
     { to: '/dashboard', icon: <Home className="w-6 h-6 md:w-5 md:h-5" />, label: 'Início' },
     { to: '/schedule', icon: <CalendarDays className="w-6 h-6 md:w-5 md:h-5" />, label: 'Agenda' },
-    { to: '/finance', icon: <DollarSign className="w-6 h-6 md:w-5 md:h-5" />, label: 'Financeiro' },
     { to: '/clients', icon: <User className="w-6 h-6 md:w-5 md:h-5" />, label: 'Clientes' },
     { to: '/procedures', icon: <Scissors className="w-6 h-6 md:w-5 md:h-5" />, label: 'Procedimentos' },
+    { to: '/finance', icon: <DollarSign className="w-6 h-6 md:w-5 md:h-5" />, label: 'Financeiro' },
     { to: '/reports', icon: <FileText className="w-6 h-6 md:w-5 md:h-5" />, label: 'Relatórios' },
   ];
 

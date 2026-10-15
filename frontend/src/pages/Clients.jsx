@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { Plus, X, Pencil, Trash2, Search, ChevronLeft, ChevronRight, Check, Loader2, CornerUpRight, MapPin, Navigation, Car } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import GoogleAddressAutocomplete from '../components/GoogleAddressAutocomplete';
+import CustomerHistoryModal from '../components/CustomerHistoryModal';
+import ConfirmModal from '../components/ConfirmModal';
+import CustomDatePicker from '../components/CustomDatePicker';
+import CustomSelect from '../components/CustomSelect';
 import { countries } from '../utils/countries';
 import api from '../utils/api';
 
@@ -86,6 +90,7 @@ const Clients = () => {
       setCustomers(sorted);
     } catch (e) {
       console.error(e);
+      toast.error('Erro ao carregar lista de clientes.');
     }
   };
 
@@ -205,7 +210,7 @@ const Clients = () => {
       <div className="glass-panel p-6 relative overflow-hidden">
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-secondary/10 rounded-full blur-2xl"></div>
         
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 relative z-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 relative z-20">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input 
@@ -216,20 +221,15 @@ const Clients = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-4">
-            <label className="text-sm text-gray-400 flex items-center gap-2">
-              Mostrar
-              <select 
-                className="bg-surface border border-surface-border rounded-lg px-2 py-1 text-white outline-none"
-                value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              >
-                <option value={10} className="bg-[#1e1e24]">10</option>
-                <option value={20} className="bg-[#1e1e24]">20</option>
-                <option value={50} className="bg-[#1e1e24]">50</option>
-                <option value={100} className="bg-[#1e1e24]">100</option>
-              </select>
-            </label>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Mostrar</span>
+            <CustomSelect 
+              value={itemsPerPage}
+              onChange={(val) => setItemsPerPage(Number(val))}
+              options={[10, 20, 50, 100]}
+              className="w-20"
+              align="right"
+            />
           </div>
         </div>
 
@@ -366,13 +366,12 @@ const Clients = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-gray-400 ml-1">Data de Nascimento</label>
-                <input
-                  type="date"
-                  className="glass-input"
+                <CustomDatePicker
                   value={customerForm.data_nascimento || ''}
-                  onChange={(e) =>
-                    setCustomerForm({ ...customerForm, data_nascimento: e.target.value })
+                  onChange={(val) =>
+                    setCustomerForm({ ...customerForm, data_nascimento: val })
                   }
+                  placeholder="DD/MM/AAAA"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -401,10 +400,10 @@ const Clients = () => {
                     
                     {showCountryDropdown && (
                       <div 
-                        className="absolute top-full left-0 mt-2 w-64 bg-[#1e1e24] border border-surface-border rounded-xl shadow-2xl z-50 flex flex-col max-h-[300px] overflow-hidden"
+                        className="absolute top-full left-0 mt-2 w-64 glass-dropdown-panel rounded-xl shadow-2xl z-50 flex flex-col max-h-[280px] overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="p-3 border-b border-surface-border">
+                        <div className="p-3 border-b border-white/10">
                           <input 
                             type="text" 
                             className="glass-input w-full py-2 px-3 text-sm"
@@ -421,7 +420,7 @@ const Clients = () => {
                               type="button"
                               key={c.code}
                               onClick={() => handleCountrySelect(c)}
-                              className="w-full text-left p-3 flex items-center gap-3 border-b border-surface-border/30 hover:bg-white/10 transition-colors"
+                              className="w-full text-left p-3 flex items-center gap-3 border-b border-surface-border/30 glass-dropdown-item transition-colors"
                             >
                               <img 
                                 src={`/flags/${c.code}.svg`} 
@@ -484,63 +483,12 @@ const Clients = () => {
       )}
 
       {/* Modal for Client History */}
-      {historyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
-          <div className="glass-panel p-6 sm:p-8 w-full max-w-3xl relative max-h-[90vh] flex flex-col">
-            <button 
-              onClick={() => setHistoryModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-            >
-              <X size={24} />
-            </button>
-            
-            <h3 className="text-2xl font-semibold border-b border-surface-border pb-4 mb-6">
-              Histórico de Atendimentos: {selectedCustomer?.nome}
-            </h3>
-            
-            <div className="overflow-y-auto custom-scrollbar flex-1">
-              {customerHistory.length === 0 ? (
-                <p className="text-gray-400 text-center py-8">Nenhum atendimento registrado.</p>
-              ) : (
-                <table className="glass-table w-full">
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Horário</th>
-                      <th>Procedimento</th>
-                      <th>Status</th>
-                      <th>Valor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customerHistory.map(appt => {
-                      const dateObj = new Date(appt.data_atendimento);
-                      return (
-                        <tr key={appt.id}>
-                          <td>{dateObj.toLocaleDateString('pt-BR')}</td>
-                          <td>{dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
-                          <td>{appt.procedure?.nome}</td>
-                          <td>
-                            <span className={`px-2 py-1 rounded text-xs font-medium border
-                              ${appt.status === 'Atendido' ? 'bg-green-500/20 text-green-400' : 
-                                appt.status === 'Agendado' ? 'bg-yellow-500/20 text-yellow-400' : 
-                                'bg-red-500/20 text-red-400'}`}>
-                              {appt.status}
-                            </span>
-                          </td>
-                          <td>
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(appt.valor_cobrado)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <CustomerHistoryModal
+        isOpen={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        customer={selectedCustomer}
+        history={customerHistory}
+      />
 
       {/* Floating Action Button */}
       <button
@@ -549,31 +497,18 @@ const Clients = () => {
       >
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
-          <div className="glass-panel p-6 w-full max-w-sm text-center shadow-2xl border border-red-500/20">
-            <h3 className="text-xl font-bold text-white mb-2">Excluir Cliente</h3>
-            <p className="text-gray-300 text-sm mb-6">
-              Tem certeza que deseja remover este cliente? Se ele possuir agendamentos, será inativado.
-            </p>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => setDeleteConfirmId(null)} 
-                className="flex-1 py-2 rounded-lg bg-surface border border-surface-border text-white hover:bg-white/10 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={confirmDelete} 
-                disabled={isDeleting}
-                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 font-medium disabled:opacity-50"
-              >
-                {isDeleting ? <><Loader2 size={18} className="animate-spin" /> Excluindo...</> : 'Sim, Excluir'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
+      {/* Modal for Delete Confirmation */}
+      <ConfirmModal
+        isOpen={Boolean(deleteConfirmId)}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={confirmDelete}
+        title="Excluir Cliente"
+        message="Tem certeza que deseja remover este cliente? Se ele possuir agendamentos, será inativado."
+        confirmText="Sim, Excluir"
+        cancelText="Cancelar"
+        isLoading={isDeleting}
+      />
 
       {/* Navigation App Chooser Modal */}
       {navModalOpen && (
