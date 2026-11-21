@@ -1,18 +1,4 @@
-/**
- * Script de migração para re-criptografar dados existentes.
- * 
- * Quando o salt de derivação de chave é alterado (de 'salt' hardcoded para um 
- * valor via variável de ambiente), todos os dados criptografados com a chave 
- * antiga precisam ser descriptografados e re-criptografados com a nova chave.
- * 
- * USO:
- *   node backend/src/scripts/migrate-encryption.js
- * 
- * IMPORTANTE: 
- *   - Faça backup do banco de dados ANTES de executar
- *   - Execute apenas UMA VEZ após alterar o salt
- *   - O .env deve conter JWT_SECRET e o novo ENCRYPTION_SALT
- */
+// Script de migração de criptografia de clientes
 
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 
@@ -22,7 +8,7 @@ const prisma = new PrismaClient();
 
 const IV_LENGTH = 16;
 
-// ── Chave ANTIGA (com salt hardcoded 'salt') ──────────────────────────────────
+// Configura chave antiga
 const oldSecret = process.env.ENCRYPTION_KEY || process.env.JWT_SECRET;
 if (!oldSecret) {
   console.error('❌ ENCRYPTION_KEY ou JWT_SECRET não definido no .env');
@@ -30,7 +16,7 @@ if (!oldSecret) {
 }
 const OLD_KEY = crypto.scryptSync(oldSecret, 'salt', 32);
 
-// ── Chave NOVA (com salt da variável de ambiente) ─────────────────────────────
+// Configura chave nova
 const newSalt = process.env.ENCRYPTION_SALT;
 if (!newSalt) {
   console.error('❌ ENCRYPTION_SALT não definido no .env');
@@ -51,7 +37,7 @@ function decryptWithKey(text, key) {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   } catch (err) {
-    // Não é um texto criptografado ou chave errada
+    // Retorna texto original em caso de erro
     return text;
   }
 }
@@ -89,7 +75,7 @@ async function migrate() {
       const data_nascimento = decryptWithKey(customer.data_nascimento, OLD_KEY);
       const endereco = decryptWithKey(customer.endereco, OLD_KEY);
 
-      // Re-criptografa com a chave nova
+      // Criptografa com a chave nova
       const newTelefone = encryptWithKey(telefone, NEW_KEY);
       const newDataNascimento = encryptWithKey(data_nascimento, NEW_KEY);
       const newEndereco = encryptWithKey(endereco, NEW_KEY);

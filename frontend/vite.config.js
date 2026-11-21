@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+// Configuração do Vite
 export default defineConfig({
   plugins: [react()],
   build: {
-    sourcemap: false, // Nunca gerar sourcemaps em produção
+    sourcemap: false, // Desabilita sourcemap
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {

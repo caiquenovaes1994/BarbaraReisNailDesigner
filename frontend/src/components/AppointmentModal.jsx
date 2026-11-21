@@ -125,7 +125,7 @@ const formatToDateTimeLocal = (date) => {
       setCustomers(cust.data);
       setProcedures(sortedProcedures);
       
-      // Se houver um agendamento em edição, atualiza a pesquisa com o nome correto caso a lista carregue depois
+      // Sincroniza busca com agendamento em edição
       if (editingAppointment && cust.data) {
         const c = cust.data.find(c => c.id === editingAppointment.customerId);
         if (c) {
@@ -370,7 +370,7 @@ const formatToDateTimeLocal = (date) => {
     }
     
     try {
-      // Se o endereço foi editado e não foi salvo individualmente, sincroniza com o cadastro do cliente
+      // Atualiza endereço do cliente
       const currentCustomer = customers.find(c => c.id === form.customerId);
       if (currentCustomer && (currentCustomer.endereco || '') !== clientAddress) {
         try {
@@ -490,7 +490,7 @@ const formatToDateTimeLocal = (date) => {
               </button>
             </div>
 
-            {/* Campo de Endereço do Cliente */}
+            {/* Endereço do cliente */}
             <div className="flex gap-2 items-center">
               <div className="relative flex-1 flex items-center">
                 {isEditingAddress ? (
@@ -912,7 +912,7 @@ const formatToDateTimeLocal = (date) => {
         </div>
       )}
 
-      {/* Navigation App Chooser Modal */}
+      {/* Modal de escolha de app de navegação */}
       {navModalOpen && (
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-0 sm:p-4" onClick={() => setNavModalOpen(false)}>
           <div className="glass-panel p-6 w-full max-w-sm bg-[#1e1e24] sm:rounded-2xl rounded-t-3xl rounded-b-none border-b-0 sm:border-b animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" onClick={e => e.stopPropagation()}>

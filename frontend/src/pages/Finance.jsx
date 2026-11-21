@@ -8,7 +8,7 @@ import CustomDatePicker from '../components/CustomDatePicker';
 const Finance = () => {
   const [summary, setSummary] = useState({ receita_efetiva: 0, receita_prevista: 0 });
   
-  // Default to current month
+  // Mês atual como padrão
   const today = new Date();
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];

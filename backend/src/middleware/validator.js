@@ -1,9 +1,6 @@
-/**
- * Middlewares de validação de parâmetros e payloads da API.
- * Impede que dados inválidos ou malformados cheguem à camada de persistência.
- */
+// Validações de entrada da API
 
-// Valida que req.params.id seja um número inteiro positivo
+// Valida parâmetro ID
 exports.validateId = (req, res, next) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id) || id <= 0 || String(id) !== String(req.params.id).trim()) {
@@ -13,7 +10,7 @@ exports.validateId = (req, res, next) => {
   next();
 };
 
-// Validação de dados de Cliente
+// Valida dados de cliente
 exports.validateCustomer = (req, res, next) => {
   const { nome, telefone, ddi, data_nascimento, endereco } = req.body;
 
@@ -39,7 +36,7 @@ exports.validateCustomer = (req, res, next) => {
   }
 
   if (data_nascimento && typeof data_nascimento === 'string') {
-    // Permite formato YYYY-MM-DD
+    // Valida formato YYYY-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data_nascimento)) {
       return res.status(400).json({ error: 'Data de nascimento deve estar no formato AAAA-MM-DD.' });
     }
@@ -52,7 +49,7 @@ exports.validateCustomer = (req, res, next) => {
   next();
 };
 
-// Validação de dados de Procedimento
+// Valida dados de procedimento
 exports.validateProcedure = (req, res, next) => {
   const { nome, preco, duracao, ativo } = req.body;
 
@@ -84,7 +81,7 @@ exports.validateProcedure = (req, res, next) => {
   next();
 };
 
-// Validação de dados de Agendamento
+// Valida dados de agendamento
 exports.validateAppointment = (req, res, next) => {
   const { customerId, procedureId, data_atendimento, status, valor_cobrado, dias_para_retorno, duracao } = req.body;
 
@@ -124,7 +121,7 @@ exports.validateAppointment = (req, res, next) => {
   next();
 };
 
-// Validação de alteração de status de agendamento
+// Valida status de agendamento
 exports.validateAppointmentStatus = (req, res, next) => {
   const { status } = req.body;
   const validStatuses = ['Agendado', 'Atendido', 'Cancelado'];

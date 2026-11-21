@@ -33,7 +33,7 @@ exports.getBirthdaysReport = async (req, res) => {
     const targetYear = parseInt(req.query.year) || new Date().getFullYear();
     const padMonth = String(targetMonth).padStart(2, '0');
 
-    // 1. Buscar todos os clientes ativos com data de nascimento cadastrada
+    // Busca clientes ativos com data de nascimento
     const allCustomers = await prisma.customer.findMany({
       where: {
         ativo: true,
@@ -48,13 +48,13 @@ exports.getBirthdaysReport = async (req, res) => {
       }
     });
 
-    // 2. Filtrar apenas os aniversariantes do mês selecionado (ignora o ano)
+    // Filtra aniversariantes do mês
     const birthdayCustomers = allCustomers
       .filter(c => {
         if (!c.data_nascimento) return false;
         const parts = c.data_nascimento.split('-');
         if (parts.length >= 2) {
-          // Formato YYYY-MM-DD -> parts[1] é o mês
+          // Extrai mês da data
           return parts[1] === padMonth;
         }
         return false;
@@ -69,14 +69,14 @@ exports.getBirthdaysReport = async (req, res) => {
         };
       });
 
-    // Ordenar pelo dia do aniversário (crescente)
+    // Ordena por dia do aniversário
     birthdayCustomers.sort((a, b) => a.dia_aniversario - b.dia_aniversario);
 
     if (birthdayCustomers.length === 0) {
       return res.json([]);
     }
 
-    // 3. Buscar agendamentos desses clientes no mês e ano selecionados
+    // Busca agendamentos do período
     const { start, end } = getMonthRangeBRT(targetYear, targetMonth);
     const customerIds = birthdayCustomers.map(c => c.id);
 
@@ -108,7 +108,7 @@ exports.getBirthdaysReport = async (req, res) => {
       }
     });
 
-    // 4. Mapear agendamentos por cliente
+    // Agrupa agendamentos por cliente
     const apptsByCustomer = {};
     for (const appt of appointments) {
       if (!apptsByCustomer[appt.customerId]) {
@@ -194,14 +194,14 @@ exports.delete = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Check for appointments
+    // Verifica agendamentos vinculados
     const appointments = await prisma.appointment.findFirst({
       where: { customerId: parseInt(id) },
       select: { id: true }
     });
 
     if (appointments) {
-      // Has appointments, so we inactivate (soft delete)
+      // Inativação lógica
       const customer = await prisma.customer.update({
         where: { id: parseInt(id) },
         data: { ativo: false }
@@ -209,7 +209,7 @@ exports.delete = async (req, res) => {
       return res.json({ message: 'Cliente inativado pois possui agendamentos vinculados.', customer, softDeleted: true });
     }
 
-    // No appointments, physically delete
+    // Exclusão física
     await prisma.customer.delete({
       where: { id: parseInt(id) }
     });

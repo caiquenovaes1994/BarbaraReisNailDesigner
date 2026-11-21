@@ -1,11 +1,7 @@
 let regularBase64Cache = null;
 let boldBase64Cache = null;
 
-/**
- * Carrega um arquivo de fonte TTF via fetch e converte para Base64
- * @param {string} url 
- * @returns {Promise<string>}
- */
+// Converte arquivo de fonte para Base64
 async function loadFontAsBase64(url) {
   const response = await fetch(url);
   if (!response.ok) {
@@ -21,11 +17,7 @@ async function loadFontAsBase64(url) {
   return window.btoa(binary);
 }
 
-/**
- * Registra e ativa a família tipográfica TrueType Space Mono (Regular e Bold) na instância do jsPDF
- * @param {import('jspdf').jsPDF} doc
- * @returns {Promise<boolean>}
- */
+// Registra fonte Space Mono no jsPDF
 export async function applySpaceMonoFont(doc) {
   try {
     if (!regularBase64Cache) {
@@ -49,14 +41,12 @@ export async function applySpaceMonoFont(doc) {
   }
 }
 
-/**
- * Retorna as configurações de estilo padronizadas para jspdf-autotable utilizando Space Mono
- */
+// Retorna estilos de tabela para jsPDF
 export function getSpaceMonoTableStyles() {
   return {
     theme: 'striped',
     headStyles: {
-      fillColor: [217, 70, 239], // Primary (#d946ef)
+      fillColor: [217, 70, 239], // Cor primária
       textColor: [255, 255, 255],
       font: 'SpaceMono',
       fontStyle: 'bold',

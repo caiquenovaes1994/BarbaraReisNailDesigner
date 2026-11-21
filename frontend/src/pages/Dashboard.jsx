@@ -70,7 +70,7 @@ const Dashboard = () => {
     fetchNotifications();
   }, []);
 
-  // Fechar popover de notificações ao clicar fora
+  // Fecha popover ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -121,10 +121,10 @@ const Dashboard = () => {
     }
     const cleanPhone = notif.customerPhone.replace(/\D/g, '');
     const ddi = notif.customerDdi || '55';
-    const party = '\u{1F389}'; // 🎉
-    const sparkles = '\u{2728}'; // ✨
-    const cake = '\u{1F382}'; // 🎂
-    const nail = '\u{1F485}'; // 💅
+    const party = '\u{1F389}'; // Emoji festa
+    const sparkles = '\u{2728}'; // Emoji brilho
+    const cake = '\u{1F382}'; // Emoji bolo
+    const nail = '\u{1F485}'; // Emoji unhas
     const firstName = (notif.customerName || '').trim().split(/\s+/)[0] || 'Cliente';
 
     let message = '';
@@ -157,11 +157,11 @@ const Dashboard = () => {
     if (appt.status === 'Agendado') {
       return { label: appt.status, color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' };
     }
-    // Agendado (padrão)
+    // Status padrão
     return { label: appt.status, color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' };
   };
 
-  // Filtrar todos os agendamentos da data selecionada
+  // Filtra agendamentos da data selecionada
   const todaysAllAppointments = appointments.filter(a => {
     const apptDate = new Date(a.data_atendimento);
     return (
@@ -179,7 +179,7 @@ const Dashboard = () => {
     a.status === 'Atendido'
   );
 
-  // Ordenar pelo horário
+  // Ordena por horário
   const sortedAppointments = todaysAppointments.sort((a, b) => {
     return new Date(a.data_atendimento) - new Date(b.data_atendimento);
   });

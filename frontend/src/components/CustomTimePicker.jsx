@@ -1,19 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock } from 'lucide-react';
 
-/**
- * CustomTimePicker
- * Seletor de tempo / duração estilizado com o tema Lilás/Preto em degradê diagonal (glass-dropdown-panel).
- * Permite edição manual direta via digitação no campo e seleção por presets/rolagem.
- * 
- * Props:
- * - value: string no formato "HH:mm" (ex: "01:00", "01:30")
- * - onChange: (newValue: string) => void
- * - placeholder: string
- * - disabled: boolean
- * - maxHours: number (padrão 12 para procedimentos ou 23 para horários do dia)
- * - className: string
- */
+// Componente seletor de tempo
 const CustomTimePicker = ({
   value = '01:00',
   onChange,
@@ -27,7 +15,7 @@ const CustomTimePicker = ({
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Valor de texto para edição manual direta
+  // Estado do input de texto
   const [inputValue, setInputValue] = useState(value || '01:00');
 
   const [hours, setHours] = useState(() => {
@@ -44,7 +32,7 @@ const CustomTimePicker = ({
     return '00';
   });
 
-  // Sincroniza estado interno quando a prop externa muda
+  // Sincroniza valor externo
   useEffect(() => {
     if (value && value.includes(':')) {
       const [h, m] = value.split(':');
@@ -89,7 +77,7 @@ const CustomTimePicker = ({
     };
   }, [isOpen]);
 
-  // Normaliza string para o formato HH:mm
+  // Normaliza formato HH:mm
   const normalizeTime = (input) => {
     if (!input || typeof input !== 'string') return '01:00';
     const clean = input.trim().replace(/[^\d:]/g, '');
@@ -119,14 +107,14 @@ const CustomTimePicker = ({
     let val = e.target.value.replace(/[^\d:]/g, '');
     if (val.length > 5) val = val.slice(0, 5);
 
-    // Auto-insere ":" se o usuário digitar 2 dígitos seguidos sem ":"
+    // Insere separador de hora
     if (val.length === 2 && !val.includes(':') && !inputValue.endsWith(':')) {
       val = val + ':';
     }
 
     setInputValue(val);
 
-    // Se completou HH:mm válido, atualiza imediatamente
+    // Atualiza ao completar formato válido
     if (/^\d{2}:\d{2}$/.test(val)) {
       const [h, m] = val.split(':');
       setHours(h);
@@ -178,7 +166,7 @@ const CustomTimePicker = ({
 
   return (
     <div className={`relative ${isOpen ? 'z-[70]' : 'z-10'} ${className}`} ref={containerRef}>
-      {/* Campo Inicial editável manualmente com botão de relógio */}
+      {/* Campo de entrada e botão */}
       <div
         className={`glass-input w-full flex items-center justify-between p-0 transition-all ${
           disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50'
@@ -207,7 +195,7 @@ const CustomTimePicker = ({
         </button>
       </div>
 
-      {/* Dropdown compacto com degradê diagonal lilás para preto */}
+      {/* Painel de seleção de horário */}
       {isOpen && (
         <div
           className={`absolute glass-dropdown-panel rounded-xl p-3 shadow-2xl z-[100] w-64 max-w-[calc(100vw-1.5rem)] select-none animate-in fade-in zoom-in-95 duration-150 right-0 sm:right-0 ${
@@ -216,7 +204,7 @@ const CustomTimePicker = ({
           style={{ backgroundColor: '#181126' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Presets Rápidos */}
+          {/* Presets de duração */}
           <div className="mb-2.5 pb-2 border-b border-white/10">
             <span className="text-[10px] font-semibold text-primary/90 uppercase tracking-wider block mb-1.5">
               Durações Sugeridas
@@ -245,9 +233,9 @@ const CustomTimePicker = ({
             </div>
           </div>
 
-          {/* Seletores de Horas e Minutos */}
+          {/* Colunas de horas e minutos */}
           <div className="grid grid-cols-2 gap-2 mb-2.5">
-            {/* Coluna Horas */}
+            {/* Coluna de horas */}
             <div>
               <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block text-center mb-1">
                 Horas
@@ -273,7 +261,7 @@ const CustomTimePicker = ({
               </div>
             </div>
 
-            {/* Coluna Minutos */}
+            {/* Coluna de minutos */}
             <div>
               <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block text-center mb-1">
                 Minutos
@@ -300,7 +288,7 @@ const CustomTimePicker = ({
             </div>
           </div>
 
-          {/* Rodapé */}
+          {/* Rodapé com ação de conclusão */}
           <div className="pt-2 border-t border-white/10 flex items-center justify-between">
             <span className="text-xs text-primary font-bold">
               {hours}:{minutes}

@@ -34,7 +34,7 @@ const AppointmentContextMenu = ({ contextMenu, setContextMenu, onChangeStatus })
       }
     };
 
-    // Auto focus first button on open
+    // Foca primeiro item ao abrir
     const timer = setTimeout(() => {
       const firstBtn = menuRef.current?.querySelector('button[role="menuitem"]');
       firstBtn?.focus();
@@ -64,7 +64,7 @@ const AppointmentContextMenu = ({ contextMenu, setContextMenu, onChangeStatus })
 
   if (!contextMenu) return null;
 
-  // Viewport boundary collision protection
+  // Limita posição aos limites da tela
   const menuWidth = 200;
   const menuHeight = 150;
   const clampedX = Math.max(10, Math.min(contextMenu.x, (window.innerWidth || 320) - menuWidth - 10));

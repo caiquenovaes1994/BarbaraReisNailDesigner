@@ -58,14 +58,14 @@ exports.delete = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Check for appointments
+    // Verifica agendamentos vinculados
     const appointments = await prisma.appointment.findFirst({
       where: { procedureId: parseInt(id) },
       select: { id: true }
     });
 
     if (appointments) {
-      // Has appointments, so we inactivate (soft delete)
+      // Inativação lógica
       const procedure = await prisma.procedure.update({
         where: { id: parseInt(id) },
         data: { ativo: false }
@@ -73,7 +73,7 @@ exports.delete = async (req, res) => {
       return res.json({ message: 'Procedimento inativado pois possui agendamentos vinculados.', procedure, softDeleted: true });
     }
 
-    // No appointments, physically delete
+    // Exclusão física
     await prisma.procedure.delete({
       where: { id: parseInt(id) }
     });

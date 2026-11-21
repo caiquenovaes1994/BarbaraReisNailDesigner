@@ -1,19 +1,19 @@
 const crypto = require('crypto');
 
-// Valida que uma chave de criptografia está definida — sem fallbacks inseguros
+// Valida chave de criptografia
 if (!process.env.ENCRYPTION_KEY && !process.env.JWT_SECRET) {
   throw new Error('ERRO CRÍTICO: ENCRYPTION_KEY ou JWT_SECRET não definido no .env');
 }
 const secret = process.env.ENCRYPTION_KEY || process.env.JWT_SECRET;
 
-// Valida que o salt de derivação está definido — sem valores hardcoded
+// Valida salt de criptografia
 if (!process.env.ENCRYPTION_SALT) {
   throw new Error('ERRO CRÍTICO: ENCRYPTION_SALT não definido no .env');
 }
 
-// Deriva uma chave de 32 bytes (256 bits) para o AES-256-CBC
+// Deriva chave para AES-256-CBC
 const ENCRYPTION_KEY = crypto.scryptSync(secret, process.env.ENCRYPTION_SALT, 32);
-const IV_LENGTH = 16; // AES blocksize
+const IV_LENGTH = 16; // Tamanho do IV
 
 function encrypt(text) {
   if (!text) return text;
@@ -33,11 +33,11 @@ function decrypt(text) {
   if (!text) return text;
   try {
     let textParts = text.split(':');
-    // Se não tiver duas partes, não é um texto criptografado por nós, retorna original
+    // Valida formato do texto criptografado
     if (textParts.length !== 2) return text;
     
     let iv = Buffer.from(textParts[0], 'hex');
-    // Se o IV não tiver 16 bytes, provavelmente não foi criptografado
+    // Valida tamanho do IV
     if (iv.length !== 16) return text;
     
     let encryptedText = Buffer.from(textParts[1], 'hex');
@@ -46,7 +46,7 @@ function decrypt(text) {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   } catch (err) {
-    // Se falhar (por exemplo, texto legado que não é criptografado) ou chave errada, retornamos o texto original.
+    // Fallback para texto original em caso de erro
     console.error('Erro na descriptografia:', err);
     return text;
   }

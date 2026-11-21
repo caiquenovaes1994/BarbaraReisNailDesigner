@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-// Singleton para carregar o script do Google Maps Places apenas uma vez
+// Carrega script do Google Places
 let googleMapsPromise = null;
 
 const loadGoogleMapsScript = (apiKey) => {
@@ -12,7 +12,7 @@ const loadGoogleMapsScript = (apiKey) => {
   }
   if (!googleMapsPromise) {
     googleMapsPromise = new Promise((resolve, reject) => {
-      // Registrar listener para falhas de autenticação do Google Maps
+      // Trata falha de autenticação da API
       window.gm_authFailure = () => {
         console.error(
           '❌ [Google Maps Auth Error] A chave de API foi recusada pelo Google. ' +
@@ -36,7 +36,7 @@ const loadGoogleMapsScript = (apiKey) => {
       script.defer = true;
       script.onload = () => resolve(window.google);
       script.onerror = (e) => {
-        googleMapsPromise = null; // permite retentar se o usuário corrigir as configurações
+        googleMapsPromise = null; // Permite nova tentativa
         reject(e);
       };
       document.head.appendChild(script);

@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+// Configuração do Tailwind
 export default {
   content: [
     "./index.html",
@@ -10,9 +10,9 @@ export default {
         background: '#0F0F13',
         surface: 'rgba(255, 255, 255, 0.03)',
         'surface-border': 'rgba(255, 255, 255, 0.08)',
-        primary: '#D946EF', // Fuchsia
+        primary: '#D946EF', // Cor primária
         'primary-hover': '#C026D3',
-        secondary: '#8B5CF6', // Violet
+        secondary: '#8B5CF6', // Cor secundária
       },
       backdropBlur: {
         'glass': '12px',

@@ -5,7 +5,7 @@ const { encrypt, decrypt } = require('./crypto');
 
 let connectionString = process.env.DATABASE_URL || '';
 
-// Remove parâmetros de certificado locais (sslrootcert / sslmode) da URL se presentes
+// Remove parâmetros SSL locais da URL
 try {
   if (connectionString.startsWith('postgres://') || connectionString.startsWith('postgresql://')) {
     const parsedUrl = new URL(connectionString);

@@ -24,21 +24,7 @@ const applyDateTimeMask = (val) => {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)} às ${digits.slice(8, 10)}:${digits.slice(10)}`;
 };
 
-/**
- * CustomDatePicker
- * Calendário personalizado com o tema Lilás/Preto em degradê diagonal (glass-dropdown-panel).
- * Permite digitação manual direta no campo e seleção interativa pelo calendário.
- * 
- * Props:
- * - value: string no formato "YYYY-MM-DD" ou "YYYY-MM-DDTHH:mm"
- * - onChange: (newValue: string) => void
- * - withTime: boolean (opcional, ativa seleção de horário)
- * - placeholder: string
- * - required: boolean
- * - disabled: boolean
- * - align: 'left' | 'right' | 'auto'
- * - className: string
- */
+// Componente de seleção de data
 const CustomDatePicker = ({
   value,
   onChange,
@@ -54,7 +40,7 @@ const CustomDatePicker = ({
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Parse inicial do valor para objeto Date
+  // Converte valor para objeto Date
   const parseValue = (val) => {
     if (!val) return null;
     try {
@@ -76,7 +62,7 @@ const CustomDatePicker = ({
 
   const selectedDate = parseValue(value);
 
-  // Formatação de exibição no campo de texto
+  // Formata data para exibição
   const getDisplayText = (dObj) => {
     const target = dObj !== undefined ? dObj : selectedDate;
     if (!target) return '';
@@ -91,15 +77,15 @@ const CustomDatePicker = ({
     return `${d}/${m}/${y}`;
   };
 
-  // Valor digitado manualmente pelo usuário
+  // Estado do input de texto
   const [inputValue, setInputValue] = useState(() => getDisplayText(selectedDate));
 
-  // Mês e ano atualmente exibidos no calendário
+  // Data exibida no calendário
   const [viewDate, setViewDate] = useState(() => {
     return selectedDate ? new Date(selectedDate) : new Date();
   });
 
-  // Horários quando withTime é true
+  // Estado de horário
   const [time, setTime] = useState(() => {
     if (selectedDate && withTime) {
       const hh = String(selectedDate.getHours()).padStart(2, '0');
@@ -109,7 +95,7 @@ const CustomDatePicker = ({
     return { hours: '09', minutes: '00' };
   });
 
-  // Sincroniza quando selectedDate muda externamente
+  // Sincroniza data externa
   useEffect(() => {
     if (selectedDate) {
       setViewDate(new Date(selectedDate));
@@ -131,14 +117,14 @@ const CustomDatePicker = ({
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
     
-    // Altura compactada do calendário: ~295px com horário, ~255px sem horário
+    // Dimensões do calendário
     const calendarHeight = withTime ? 295 : 255;
     const calendarWidth = 275;
     
     const spaceBelow = viewportHeight - rect.bottom;
     const spaceAbove = rect.top;
 
-    // Se o espaço abaixo for insuficiente e houver mais espaço acima, abre para cima
+    // Ajusta abertura vertical
     const vertical = (spaceBelow < calendarHeight && spaceAbove > spaceBelow) ? 'top' : 'bottom';
     
     let horizontal = 'left';
@@ -155,7 +141,7 @@ const CustomDatePicker = ({
     setDropdownPos({ horizontal, vertical });
   };
 
-  // Fecha o dropdown ao clicar fora e gerencia posicionamento
+  // Gerencia cliques externos e posicionamento
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -245,7 +231,7 @@ const CustomDatePicker = ({
     setIsOpen(false);
   };
 
-  // Tratamento da digitação manual
+  // Trata digitação manual
   const handleInputChange = (e) => {
     if (withTime) {
       const masked = applyDateTimeMask(e.target.value);
@@ -318,7 +304,7 @@ const CustomDatePicker = ({
     }
   };
 
-  // Dias da grade do calendário
+  // Calcula dias do mês no calendário
   const firstDayOfWeek = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrevMonth = new Date(year, month, 0).getDate();
@@ -362,7 +348,7 @@ const CustomDatePicker = ({
 
   return (
     <div className={`relative ${isOpen ? 'z-[80]' : 'z-10'} ${className}`} ref={containerRef}>
-      {/* Campo Inicial editável manualmente com botão de calendário */}
+      {/* Campo de entrada e botão */}
       <div
         className={`glass-input w-full flex items-center justify-between p-0 transition-all ${
           disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50'
@@ -391,7 +377,7 @@ const CustomDatePicker = ({
         </button>
       </div>
 
-      {/* Lista suspensa do calendário (Painel compacto Lilás para Preto) */}
+      {/* Painel do calendário */}
       {isOpen && (
         <div
           className={`absolute glass-dropdown-panel rounded-xl p-3 shadow-2xl z-[100] w-[265px] sm:w-[280px] max-w-[calc(100vw-1.5rem)] select-none animate-in fade-in zoom-in-95 duration-150 ${
@@ -402,7 +388,7 @@ const CustomDatePicker = ({
           style={{ backgroundColor: '#181126' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Cabeçalho do Mês e Navegação */}
+          {/* Cabeçalho de navegação */}
           <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10">
             <button
               type="button"
@@ -425,7 +411,7 @@ const CustomDatePicker = ({
             </button>
           </div>
 
-          {/* Dias da Semana */}
+          {/* Dias da semana */}
           <div className="grid grid-cols-7 gap-0.5 text-center mb-1.5">
             {WEEKDAYS.map((w, idx) => (
               <span key={idx} className="text-[10px] font-semibold text-primary/80 uppercase">
@@ -434,7 +420,7 @@ const CustomDatePicker = ({
             ))}
           </div>
 
-          {/* Grade de Dias */}
+          {/* Grade de dias */}
           <div className="grid grid-cols-7 gap-0.5 text-center">
             {/* Dias do mês anterior */}
             {prevMonthDays.map((d) => (
@@ -485,7 +471,7 @@ const CustomDatePicker = ({
             ))}
           </div>
 
-          {/* Seleção de Horário (quando withTime = true) */}
+          {/* Seletor de horário */}
           {withTime && (
             <div className="pt-2 mt-2 border-t border-white/10 flex items-center justify-between">
               <span className="text-[11px] text-gray-300 flex items-center gap-1 font-medium">
@@ -519,7 +505,7 @@ const CustomDatePicker = ({
             </div>
           )}
 
-          {/* Rodapé com Ações */}
+          {/* Ações do rodapé */}
           <div className="pt-2 mt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
             <button
               type="button"

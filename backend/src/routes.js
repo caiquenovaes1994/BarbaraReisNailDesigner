@@ -16,11 +16,11 @@ const FinanceController = require('./controllers/FinanceController');
 const NotificationController = require('./controllers/NotificationController');
 const AuthController = require('./controllers/AuthController');
 
-// Rota pública
+// Rotas públicas
 router.post('/login', AuthController.login);
 router.post('/auth/logout', AuthController.logout);
 
-// Protege todas as rotas abaixo com JWT
+// Autenticação de rotas protegidas
 router.use(authenticate);
 
 router.get('/auth/me', AuthController.me);

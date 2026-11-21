@@ -77,14 +77,14 @@ const Login = ({ onLogin }) => {
         navigate('/dashboard');
       }, 1000);
     } catch (err) {
-      setPassword(''); // Limpa a senha se der erro
+      setPassword('');
       setError(err.response?.data?.error || 'Erro ao fazer login.');
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
-      {/* Background Slideshow (Mockup Images Estáticas) */}
+      {/* Slideshow de fundo */}
       <div className="absolute inset-0 z-0">
         {MOCKUP_IMAGES.map((imgUrl, idx) => (
           <img
@@ -96,11 +96,11 @@ const Login = ({ onLogin }) => {
             }`}
           />
         ))}
-        {/* Dark Overlay para contraste e legibilidade (blur reduzido em 50% no mobile: 1px vs 2px) */}
+        {/* Camada de sobreposição escura */}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] md:backdrop-blur-[2px]"></div>
       </div>
       
-      {/* Login Box (blur reduzido em 50% no mobile: 6px vs 12px) */}
+      {/* Formulário de login */}
       <div className={`glass-panel backdrop-blur-[6px] md:backdrop-blur-glass p-8 w-full max-w-md relative z-10 transition-all duration-500 ${isSuccess ? 'opacity-0 scale-95 delay-500' : 'opacity-100'}`}>
         <div className="flex flex-col items-center gap-1 mb-6 text-primary drop-shadow-md text-center">
           <Sparkles size={32} className="mb-2 text-white" />

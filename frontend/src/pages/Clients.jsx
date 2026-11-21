@@ -310,7 +310,7 @@ const Clients = () => {
           </table>
         </div>
 
-        {/* Pagination Controls */}
+        {/* Controles de paginação */}
         <div className="flex justify-between items-center mt-6 relative z-10">
           <span className="text-sm text-gray-400">
             Mostrando {filteredCustomers.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} a {Math.min(currentPage * itemsPerPage, filteredCustomers.length)} de {filteredCustomers.length} registros
@@ -334,7 +334,7 @@ const Clients = () => {
         </div>
       </div>
 
-      {/* Modal for new/edit registration */}
+      {/* Modal de cadastro e edição */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
           <div className="glass-panel p-6 sm:p-8 w-full max-w-md relative">
@@ -482,7 +482,7 @@ const Clients = () => {
         </div>
       )}
 
-      {/* Modal for Client History */}
+      {/* Modal de histórico do cliente */}
       <CustomerHistoryModal
         isOpen={historyModalOpen}
         onClose={() => setHistoryModalOpen(false)}
@@ -490,7 +490,7 @@ const Clients = () => {
         history={customerHistory}
       />
 
-      {/* Floating Action Button */}
+      {/* Botão de novo cliente */}
       <button
         onClick={openNewForm}
         className="fixed bottom-10 right-10 bg-primary hover:bg-primary-hover text-white rounded-full p-4 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-110 z-40 flex items-center justify-center group"
@@ -498,7 +498,7 @@ const Clients = () => {
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
-      {/* Modal for Delete Confirmation */}
+      {/* Modal de confirmação de exclusão */}
       <ConfirmModal
         isOpen={Boolean(deleteConfirmId)}
         onClose={() => setDeleteConfirmId(null)}
@@ -510,7 +510,7 @@ const Clients = () => {
         isLoading={isDeleting}
       />
 
-      {/* Navigation App Chooser Modal */}
+      {/* Modal de escolha de app de navegação */}
       {navModalOpen && (
         <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-0 sm:p-4" onClick={() => setNavModalOpen(false)}>
           <div className="glass-panel p-6 w-full max-w-sm bg-[#1e1e24] sm:rounded-2xl rounded-t-3xl rounded-b-none border-b-0 sm:border-b animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" onClick={e => e.stopPropagation()}>

@@ -1,21 +1,17 @@
 import axios from 'axios';
 
-/**
- * Instância axios centralizada.
- * Envia o cookie HTTP-Only em toda requisição com withCredentials.
- * Redireciona para /login se a sessão expirar (401/403).
- */
+// Cliente HTTP com credenciais
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : `/api`,
   withCredentials: true,
 });
 
-// Interceptor de response: redireciona ao login se token inválido/expirado
+// Intercepta erros de autenticação
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // Ignora o redirecionamento se estivermos na rota de login e o erro for de credenciais
+      // Ignora redirecionamento na tela de login
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

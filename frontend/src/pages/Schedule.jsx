@@ -15,7 +15,7 @@ const Schedule = () => {
     return d;
   });
   
-  const [view, setView] = useState('week'); // 'day', 'week', 'month', 'list'
+  const [view, setView] = useState('week'); // Modo de visualização
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
@@ -77,8 +77,7 @@ const Schedule = () => {
     let candidateMs = candidate.getTime();
     let changed = true;
 
-    // Se o horário coincide com o período de algum agendamento existente [start, end),
-    // avança para o término do agendamento (próximo horário vago disponível)
+    // Calcula próximo horário vago
     while (changed) {
       changed = false;
       const overlapping = activeAppts.find(a => {
@@ -134,7 +133,7 @@ const Schedule = () => {
   const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
   const hours = Array.from({length: 13}, (_, i) => i + 8);
 
-  // Helper function to get week start
+  // Retorna início da semana
   const getWeekStart = (date) => {
     const d = new Date(date);
     const day = d.getDay();
@@ -494,7 +493,7 @@ const Schedule = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          {/* View Selector */}
+          {/* Seletor de visualização */}
           <div className="flex items-center bg-surface-border p-1 rounded-xl w-full sm:w-auto justify-between sm:justify-start">
             <button onClick={() => setView('day')} className={`p-2 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm flex-1 sm:flex-none ${view === 'day' ? 'bg-primary text-white' : 'hover:bg-white/10 text-gray-400'}`} title="Dia">
               <CalendarDays size={18} /> <span className="hidden md:inline">Dia</span>
@@ -510,7 +509,7 @@ const Schedule = () => {
             </button>
           </div>
 
-          {/* Navigation */}
+          {/* Navegação de períodos */}
           {view !== 'list' && (
             <div className="flex items-center justify-center gap-2 bg-surface-border p-1 rounded-xl w-full sm:w-auto">
               <button onClick={prevPeriod} className="p-2 hover:bg-white/10 rounded-lg transition-colors"><ChevronLeft size={20} /></button>

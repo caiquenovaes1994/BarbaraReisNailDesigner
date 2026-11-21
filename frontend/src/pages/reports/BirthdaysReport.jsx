@@ -81,12 +81,12 @@ const BirthdaysReport = () => {
     const cleanPhone = customer.telefone.replace(/\D/g, '');
     const ddi = customer.ddi || '55';
     
-    // Emojis com escape Unicode explícito para garantir integridade UTF-8 em todos os navegadores
+    // Definição de emojis
     const party = '\u{1F389}'; // 🎉
     const sparkles = '\u{2728}'; // ✨
     const cake = '\u{1F382}'; // 🎂
     
-    // Extrai com segurança apenas o primeiro nome da cliente
+    // Extrai primeiro nome
     const firstName = (customer.nome || '').trim().split(/\s+/)[0] || 'Cliente';
 
     const message = `Olá, ${firstName}! ${party}\nDesejamos a você um Feliz Aniversário repleto de realizações, saúde e beleza!\nBárbara Reis Nail Designer agradece seu carinho e presença! ${sparkles}${cake}`;
@@ -106,7 +106,7 @@ const BirthdaysReport = () => {
       const doc = new jsPDF('portrait', 'mm', 'a4');
       await applySpaceMonoFont(doc);
 
-      // Logo
+      // Logotipo do cabeçalho
       try {
         const logoBase64 = await loadImageAsPngBase64(logo);
         doc.addImage(logoBase64, 'PNG', 14, 6, 28, 17.5);
@@ -114,7 +114,7 @@ const BirthdaysReport = () => {
         console.error('Erro ao carregar logo no PDF', e);
       }
 
-      // Cabeçalho Centralizado
+      // Cabeçalho do relatório
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(15);
       doc.setTextColor(40);
@@ -125,7 +125,7 @@ const BirthdaysReport = () => {
       doc.setTextColor(100);
       doc.text(`Mês de Referência: ${monthName} de ${selectedYear}`, 105, 24, { align: 'center' });
 
-      // Data e Hora de emissão à direita (2 linhas)
+      // Data e hora de emissão
       const now = new Date();
       const emissaoDate = now.toLocaleDateString('pt-BR');
       const emissaoTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -135,7 +135,7 @@ const BirthdaysReport = () => {
       doc.text(emissaoDate, 196, 18, { align: 'right' });
       doc.text(emissaoTime, 196, 23, { align: 'right' });
 
-      // Resumo Informativo
+      // Resumo do relatório
       doc.setFontSize(8.5);
       doc.setTextColor(80);
       doc.text(
@@ -144,7 +144,7 @@ const BirthdaysReport = () => {
         34
       );
 
-      // Tabela de Dados
+      // Tabela de aniversariantes
       const tableRows = data.map(item => {
         let apptInfo = 'Sem agendamento este mês';
         if (item.hasAppointment && item.appointments.length > 0) {
@@ -179,7 +179,7 @@ const BirthdaysReport = () => {
           3: { cellWidth: 72 }
         },
         didDrawPage: (pageData) => {
-          // Rodapé
+          // Rodapé da página
           const pageCount = doc.internal.getNumberOfPages();
           doc.setFont('SpaceMono', 'normal');
           doc.setFontSize(7.5);
@@ -205,7 +205,7 @@ const BirthdaysReport = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
-      {/* Top Header */}
+      {/* Cabeçalho da página */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link to="/reports" className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white" title="Voltar para Relatórios">
@@ -217,9 +217,9 @@ const BirthdaysReport = () => {
           </h2>
         </div>
 
-        {/* Action Controls */}
+        {/* Filtros e ações */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Seletor de Mês */}
+          {/* Seletor de mês */}
           <CustomSelect
             value={selectedMonth}
             onChange={(val) => setSelectedMonth(Number(val))}
@@ -227,7 +227,7 @@ const BirthdaysReport = () => {
             className="w-40"
           />
 
-          {/* Seletor de Ano */}
+          {/* Seletor de ano */}
           <CustomSelect
             value={selectedYear}
             onChange={(val) => setSelectedYear(Number(val))}
@@ -235,7 +235,7 @@ const BirthdaysReport = () => {
             className="w-28"
           />
 
-          {/* Botão Exportar PDF */}
+          {/* Botão de exportação */}
           <button
             onClick={handleExportPDF}
             disabled={isExporting || loading || data.length === 0}
@@ -247,9 +247,9 @@ const BirthdaysReport = () => {
         </div>
       </div>
 
-      {/* Cards de Resumo */}
+      {/* Indicadores de resumo */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Total Aniversariantes */}
+        {/* Total de aniversariantes */}
         <div className="glass-panel p-5 rounded-2xl flex items-center gap-4 relative overflow-hidden">
           <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl text-primary shrink-0">
             <Cake size={24} />
@@ -260,7 +260,7 @@ const BirthdaysReport = () => {
           </div>
         </div>
 
-        {/* Com Agendamento */}
+        {/* Clientes com agendamento */}
         <div className="glass-panel p-5 rounded-2xl flex items-center gap-4 relative overflow-hidden">
           <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 shrink-0">
             <CheckCircle2 size={24} />
@@ -271,7 +271,7 @@ const BirthdaysReport = () => {
           </div>
         </div>
 
-        {/* Sem Agendamento */}
+        {/* Clientes sem agendamento */}
         <div className="glass-panel p-5 rounded-2xl flex items-center gap-4 relative overflow-hidden">
           <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 shrink-0">
             <AlertCircle size={24} />
@@ -283,7 +283,7 @@ const BirthdaysReport = () => {
         </div>
       </div>
 
-      {/* Tabela de Clientes */}
+      {/* Listagem de clientes */}
       <div className="glass-panel rounded-2xl overflow-hidden border border-white/5">
         <div className="p-5 border-b border-white/5 flex items-center justify-between">
           <h3 className="font-bold text-white flex items-center gap-2">
@@ -327,14 +327,14 @@ const BirthdaysReport = () => {
 
                   return (
                     <tr key={customer.id} className="hover:bg-white/[0.02] transition-colors group">
-                      {/* Dia */}
+                      {/* Coluna de dia */}
                       <td className="py-4 px-4 text-center">
                         <span className="inline-flex items-center justify-center w-12 py-1 rounded-lg bg-primary/10 border border-primary/20 text-primary font-bold text-xs">
                           {customer.data_formatada}
                         </span>
                       </td>
 
-                      {/* Nome */}
+                      {/* Coluna de nome */}
                       <td className="py-4 px-4 font-medium text-white">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary/30 to-secondary/30 flex items-center justify-center text-xs font-bold text-white shrink-0 border border-white/10">
@@ -344,7 +344,7 @@ const BirthdaysReport = () => {
                         </div>
                       </td>
 
-                      {/* Contato */}
+                      {/* Coluna de contato */}
                       <td className="py-4 px-4 text-gray-300">
                         {customer.telefone ? (
                           <span className="font-mono text-xs text-gray-300">
@@ -355,7 +355,7 @@ const BirthdaysReport = () => {
                         )}
                       </td>
 
-                      {/* Status no Mês */}
+                      {/* Coluna de status */}
                       <td className="py-4 px-4">
                         {hasAppt ? (
                           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs">
@@ -373,7 +373,7 @@ const BirthdaysReport = () => {
                         )}
                       </td>
 
-                      {/* Ação WhatsApp */}
+                      {/* Coluna de ação WhatsApp */}
                       <td className="py-4 px-4 text-center">
                         <button
                           onClick={() => handleWhatsAppMessage(customer)}

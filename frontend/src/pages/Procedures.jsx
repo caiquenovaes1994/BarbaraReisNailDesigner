@@ -236,7 +236,7 @@ const Procedures = () => {
           </table>
         </div>
 
-        {/* Pagination Controls */}
+        {/* Controles de paginação */}
         <div className="flex justify-between items-center mt-6 relative z-10">
           <span className="text-sm text-gray-400">
             Mostrando {filteredProcedures.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} a {Math.min(currentPage * itemsPerPage, filteredProcedures.length)} de {filteredProcedures.length} registros
@@ -260,7 +260,7 @@ const Procedures = () => {
         </div>
       </div>
 
-      {/* Modal for new/edit registration */}
+      {/* Modal de cadastro e edição */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in p-4">
           <div className="glass-panel p-6 sm:p-8 w-full max-w-md relative">
@@ -319,14 +319,14 @@ const Procedures = () => {
         </div>
       )}
 
-      {/* Floating Action Button */}
+      {/* Botão de novo procedimento */}
       <button
         onClick={openNewForm}
         className="fixed bottom-10 right-10 bg-primary hover:bg-primary-hover text-white rounded-full p-4 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-110 z-40 flex items-center justify-center group"
       >
         <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
-      {/* Modal for Delete Confirmation */}
+      {/* Modal de confirmação de exclusão */}
       <ConfirmModal
         isOpen={Boolean(deleteConfirmId)}
         onClose={() => setDeleteConfirmId(null)}

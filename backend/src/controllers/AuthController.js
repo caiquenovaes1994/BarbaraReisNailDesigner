@@ -16,12 +16,12 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'Usuário e senha são obrigatórios.' });
     }
 
-    // Proteção contra DoS via bcrypt com senhas longas
+    // Limita tamanho da senha
     if (password.length > 128) {
       return res.status(400).json({ error: 'Credenciais inválidas.' });
     }
 
-    // Verifica primeiro se é o usuário Admin local configurado no .env
+    // Autentica admin local
     if (
       process.env.ADMIN_USERNAME && 
       process.env.ADMIN_PASSWORD_HASH && 
@@ -38,14 +38,14 @@ exports.login = async (req, res) => {
           secure: process.env.NODE_ENV === 'production',
           sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
           path: '/',
-          maxAge: 24 * 60 * 60 * 1000 // 1 dia
+          maxAge: 24 * 60 * 60 * 1000 // Expira em 1 dia
         });
 
         return res.json({ username, nome: 'Administrador (Local)' });
       }
     }
 
-    // Caso não seja o admin local, busca no banco de dados
+    // Autentica usuário no banco
     const user = await prisma.user.findUnique({
       where: { username },
       select: {
@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000 // 1 dia
+      maxAge: 24 * 60 * 60 * 1000 // Expira em 1 dia
     });
 
     res.json({ username: user.username, nome: user.nome });
@@ -86,7 +86,7 @@ exports.login = async (req, res) => {
 };
 
 exports.me = (req, res) => {
-  // req.user é populado pelo middleware de autenticação
+  // Obtém usuário autenticado
   if (!req.user) {
     return res.status(401).json({ error: 'Não autenticado' });
   }

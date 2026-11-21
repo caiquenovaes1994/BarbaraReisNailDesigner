@@ -5,7 +5,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const LOGS_DIR = path.join(__dirname, '../../logs');
 const APP_LOG_PATH = path.join(LOGS_DIR, 'app.log');
 const ERROR_LOG_PATH = path.join(LOGS_DIR, 'error.log');
-const MAX_LOG_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_LOG_SIZE = 5 * 1024 * 1024; // Tamanho máximo do arquivo
 
 function ensureLogDir() {
   try {
@@ -13,7 +13,7 @@ function ensureLogDir() {
       fs.mkdirSync(LOGS_DIR, { recursive: true });
     }
   } catch (e) {
-    // Silencioso para evitar falhas em ambientes restritos
+    // Ignora erros ao criar diretório
   }
 }
 
@@ -30,7 +30,7 @@ function rotateFileIfNeeded(filePath) {
       }
     }
   } catch (e) {
-    // Falha de rotação nunca interrompe o servidor
+    // Ignora erros na rotação
   }
 }
 
@@ -40,14 +40,11 @@ function writeToFile(filePath, line) {
     rotateFileIfNeeded(filePath);
     fs.appendFileSync(filePath, line + '\n', 'utf-8');
   } catch (e) {
-    // Fail-safe: gravação em disco nunca dispara exceção fatal
+    // Ignora erros na gravação
   }
 }
 
-/**
- * Utilitário central de logs estruturados
- * Formata saídas com timestamps ISO, severidade e saneamento de campos sensíveis.
- */
+// Formata mensagens de log
 function formatMessage(level, message, meta) {
   const timestamp = new Date().toISOString();
   let metaStr = '';

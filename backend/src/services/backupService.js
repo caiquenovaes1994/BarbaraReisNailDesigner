@@ -6,11 +6,7 @@ const logger = require('../utils/logger');
 const BACKUP_DIR = path.join(__dirname, '../../backups');
 const MAX_BACKUPS = 10;
 
-/**
- * Executa o backup lógico completo do banco de dados PostgreSQL.
- * Exporta clientes (com dados sensíveis criptografados preservados),
- * procedimentos, agendamentos e metadados de usuários para um arquivo JSON estruturado.
- */
+// Realiza backup do banco de dados
 async function performBackup() {
   const startTime = Date.now();
   logger.info('[Backup] Iniciando backup lógico do banco de dados (PostgreSQL)...');
@@ -76,7 +72,7 @@ async function performBackup() {
     fs.writeFileSync(backupFilePath, JSON.stringify(backupPayload, null, 2), 'utf-8');
     logger.info(`[Backup] Backup concluído com sucesso: ${backupFileName}`, backupPayload.metadata.counts);
 
-    // Rotação dos arquivos para manter apenas os últimos MAX_BACKUPS
+    // Limita histórico de backups
     const files = fs.readdirSync(BACKUP_DIR)
       .filter(file => file.startsWith('pg_backup_') && file.endsWith('.json'))
       .map(file => ({

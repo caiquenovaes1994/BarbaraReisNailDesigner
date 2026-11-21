@@ -1,10 +1,4 @@
-/**
- * Script de validação automatizada das correções de cibersegurança.
- * 
- * Verifica se todas as correções do relatório de auditoria foram aplicadas.
- * 
- * USO: node backend/src/scripts/validate-security.js
- */
+// Validação de conformidade de segurança
 
 const fs = require('fs');
 const path = require('path');
@@ -33,7 +27,7 @@ console.log('🔒 Validação de Cibersegurança — Barbara Reis Nail Designer'
 console.log('═══════════════════════════════════════════════════════════════');
 console.log('');
 
-// ── 1. Variáveis hardcoded ─────────────────────────────────────────────────
+// Valida segredos hardcoded
 console.log('1️⃣  Variáveis/Segredos Hardcoded');
 console.log('───────────────────────────────────────');
 
@@ -63,7 +57,7 @@ check(
   'crypto.js deve lançar erro se salt não estiver definido'
 );
 
-// Verifica .env tem ENCRYPTION_SALT
+// Verifica ENCRYPTION_SALT no .env
 const envFile = fs.readFileSync(path.join(BACKEND, '.env'), 'utf-8');
 check(
   'ENCRYPTION_SALT definido no .env',
@@ -71,7 +65,7 @@ check(
   '.env deve ter ENCRYPTION_SALT com um valor'
 );
 
-// Verifica .env.example tem ENCRYPTION_SALT
+// Verifica ENCRYPTION_SALT no .env.example
 const envExample = fs.readFileSync(path.join(BACKEND, '.env.example'), 'utf-8');
 check(
   'ENCRYPTION_SALT documentado no .env.example',
@@ -79,7 +73,7 @@ check(
   '.env.example deve documentar ENCRYPTION_SALT'
 );
 
-// Verifica certificado não está no Git
+// Verifica certificados no Git
 try {
   const trackedCerts = execSync('git ls-files -- "*.crt" "*.pem" "*.key"', { cwd: ROOT }).toString().trim();
   check(
@@ -93,7 +87,7 @@ try {
 
 console.log('');
 
-// ── 2. Variáveis públicas VITE_ ────────────────────────────────────────────
+// Valida variáveis de ambiente expostas
 console.log('2️⃣  Variáveis Públicas do Frontend (VITE_)');
 console.log('───────────────────────────────────────');
 
@@ -108,7 +102,7 @@ check(
 
 console.log('');
 
-// ── 3. Sourcemap ────────────────────────────────────────────────────────────
+// Valida sourcemaps de produção
 console.log('3️⃣  Proteção de Sourcemap');
 console.log('───────────────────────────────────────');
 
@@ -119,7 +113,7 @@ check(
   'vite.config.js deve ter sourcemap: false explícito'
 );
 
-// Verifica ausência de .map no dist
+// Verifica arquivos .map no build
 const distAssets = path.join(FRONTEND, 'dist/assets');
 if (fs.existsSync(distAssets)) {
   const mapFiles = fs.readdirSync(distAssets).filter(f => f.endsWith('.map'));
@@ -129,12 +123,12 @@ if (fs.existsSync(distAssets)) {
     `Sourcemaps encontrados: ${mapFiles.join(', ')}`
   );
 } else {
-  check('Nenhum .map no dist/assets/', true); // dist não existe, OK
+  check('Nenhum .map no dist/assets/', true); // Build ausente
 }
 
 console.log('');
 
-// ── 4. Cookies / Storage ────────────────────────────────────────────────────
+// Valida cookies e armazenamento local
 console.log('4️⃣  Cookies HTTP-Only / localStorage / sessionStorage');
 console.log('───────────────────────────────────────');
 
@@ -158,7 +152,7 @@ check(
   'sameSite deve ser "lax" ou "strict" em produção, não "none"'
 );
 
-// Verifica localStorage/sessionStorage no frontend src
+// Verifica referências a web storage
 try {
   const grepResult = execSync(
     'git grep -r -l "localStorage\\|sessionStorage" -- "frontend/src/"',
@@ -170,13 +164,13 @@ try {
     `Arquivos com storage: ${grepResult}`
   );
 } catch {
-  // git grep retorna exit code 1 quando não encontra nada — isso é o resultado positivo
+  // Sem ocorrências encontradas
   check('Zero uso de localStorage/sessionStorage no frontend', true);
 }
 
 console.log('');
 
-// ── 5. CORS e CSP ───────────────────────────────────────────────────────────
+// Valida cabeçalhos CORS e CSP
 console.log('5️⃣  CORS e CSP');
 console.log('───────────────────────────────────────');
 
@@ -222,7 +216,7 @@ check(
 
 console.log('');
 
-// ── Resumo ──────────────────────────────────────────────────────────────────
+// Exibe resumo dos testes
 console.log('═══════════════════════════════════════════════════════════════');
 console.log(`  ✅ Passed: ${passed}/${passed + failed}`);
 console.log(`  ❌ Failed: ${failed}/${passed + failed}`);

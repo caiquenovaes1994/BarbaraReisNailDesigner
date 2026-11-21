@@ -1,20 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 
-/**
- * CustomSelect
- * Seletor customizado com o design Lilás/Preto em degradê diagonal (glass-dropdown-panel).
- * Substitui o select nativo nos filtros, ordenações e opções de paginação ("Mostrar").
- * 
- * Props:
- * - value: string | number
- * - onChange: (newValue: any) => void
- * - options: Array<{ value: any, label: string }> | Array<string | number>
- * - placeholder: string
- * - disabled: boolean
- * - align: 'left' | 'right'
- * - className: string
- */
+// Componente de seleção customizado
 const CustomSelect = ({
   value,
   onChange,
@@ -60,7 +47,7 @@ const CustomSelect = ({
 
   return (
     <div className={`relative ${isOpen ? 'z-[60]' : 'z-10'} ${className}`} ref={containerRef}>
-      {/* Campo Inicial (Trigger) */}
+      {/* Botão do seletor */}
       <button
         type="button"
         disabled={disabled}
@@ -80,7 +67,7 @@ const CustomSelect = ({
         />
       </button>
 
-      {/* Painel com degradê lilás para preto 100% opaco */}
+      {/* Lista de opções */}
       {isOpen && (
         <div
           className={`absolute top-full mt-1.5 glass-dropdown-panel rounded-xl shadow-2xl z-[100] min-w-full w-24 sm:w-28 max-h-56 overflow-y-auto custom-scrollbar select-none animate-in fade-in zoom-in-95 duration-150 pointer-events-auto ${

@@ -19,7 +19,7 @@ exports.getSummary = async (req, res) => {
       dateFilterPrevista.lte = end;
     }
 
-    // Receita Efetiva: Atendido
+    // Soma atendimentos realizados
     const receitaEfetivaResult = await prisma.appointment.aggregate({
       _sum: { valor_cobrado: true },
       where: {
@@ -28,7 +28,7 @@ exports.getSummary = async (req, res) => {
       }
     });
 
-    // Receita Prevista: Agendado dentro do período do filtro (independente de ser futuro ou passado)
+    // Soma atendimentos agendados
     const receitaPrevistaResult = await prisma.appointment.aggregate({
       _sum: { valor_cobrado: true },
       where: {

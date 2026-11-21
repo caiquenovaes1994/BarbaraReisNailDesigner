@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Esquema do banco de dados
 
 generator client {
   provider = "prisma-client-js"
@@ -45,7 +44,7 @@ model Appointment {
   customerId         Int
   procedureId        Int
   data_atendimento   DateTime
-  status             String    // Valores possíveis: 'Agendado' | 'Atendido' | 'Cancelado'
+  status             String    // Status do agendamento
   valor_cobrado      Float
   dias_para_retorno  Int
   duracao            Int       @default(60)

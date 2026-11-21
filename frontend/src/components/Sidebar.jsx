@@ -19,7 +19,7 @@ const Sidebar = ({ onLogout }) => {
     <>
       <div className={`glass-panel fixed md:relative bottom-0 left-0 w-full m-0 md:m-4 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-8 z-[60] shrink-0 rounded-t-2xl rounded-b-none md:rounded-2xl border-t border-l-0 border-r-0 border-b-0 md:border pb-safe transition-all duration-500 ease-in-out ${isCollapsed ? 'md:w-20' : 'md:w-64'} ${isMobileOpen ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}`}>
         
-        {/* Mobile Toggle Button (attached to menu) */}
+        {/* Botão do menu mobile */}
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           className="md:hidden absolute -top-10 left-4 bg-[#1e1e24] text-gray-300 px-4 py-2 rounded-t-xl border border-b-0 border-surface-border shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] flex items-center justify-center transition-colors"
@@ -27,7 +27,7 @@ const Sidebar = ({ onLogout }) => {
           {isMobileOpen ? <ChevronsDown size={24} className="text-primary" /> : <ChevronsUp size={24} className="text-primary" />}
         </button>
       
-      {/* Toggle Button */}
+      {/* Botão de alternar menu */}
       <button 
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="hidden md:flex absolute -right-3.5 top-8 bg-[#1e1e24] text-gray-300 rounded-full p-1.5 border border-surface-border z-[60] hover:text-white hover:bg-white/10 transition-colors shadow-lg shadow-black/50"
@@ -35,7 +35,7 @@ const Sidebar = ({ onLogout }) => {
         {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
 
-      {/* Logo Area */}
+      {/* Logotipo */}
       <div className={`hidden md:flex flex-col items-center gap-1 text-primary drop-shadow-md text-center transition-all duration-500 overflow-hidden whitespace-nowrap ${isCollapsed ? 'mb-8 opacity-100' : 'mb-8 opacity-100'}`}>
         <Sparkles size={28} className={isCollapsed ? 'mb-0' : 'mb-2'} />
         <div className={`transition-all duration-500 flex flex-col items-center ${isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[100px] opacity-100'}`}>

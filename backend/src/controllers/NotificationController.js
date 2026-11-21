@@ -4,7 +4,7 @@ exports.getNotifications = async (req, res) => {
   try {
     const notifications = [];
 
-    // 1. NOTIFICAÇÕES DE RETORNO DE ATENDIMENTO
+    // Notificações de retorno
     try {
       const appointments = await prisma.appointment.findMany({
         where: {
@@ -36,7 +36,7 @@ exports.getNotifications = async (req, res) => {
       if (appointments.length > 0) {
         const now = new Date();
 
-        // Filtrar apenas os que estão dentro da janela de 5 dias
+        // Filtra retornos próximos (até 5 dias)
         const relevantAppts = appointments.filter(appt => {
           const targetDate = new Date(appt.data_atendimento);
           targetDate.setDate(targetDate.getDate() + appt.dias_para_retorno);
@@ -45,7 +45,7 @@ exports.getNotifications = async (req, res) => {
         });
 
         if (relevantAppts.length > 0) {
-          // Buscar o próximo agendamento de cada cliente relevante em UMA única query (evita N+1)
+          // Busca próximos agendamentos dos clientes
           const customerIds = [...new Set(relevantAppts.map(a => a.customerId))];
           const minDate = relevantAppts.reduce((min, a) => a.data_atendimento < min ? a.data_atendimento : min, relevantAppts[0].data_atendimento);
 
@@ -62,7 +62,7 @@ exports.getNotifications = async (req, res) => {
             orderBy: { data_atendimento: 'asc' }
           });
 
-          // Indexar por customerId para lookup O(1)
+          // Agrupa por cliente
           const nextApptByCustomer = {};
           for (const appt of nextAppointments) {
             if (!nextApptByCustomer[appt.customerId]) {
@@ -75,7 +75,7 @@ exports.getNotifications = async (req, res) => {
             targetDate.setDate(targetDate.getDate() + appt.dias_para_retorno);
             const diffDays = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
 
-            // Verificar se já tem agendamento posterior a este atendimento
+            // Verifica agendamento futuro existente
             const next = nextApptByCustomer[appt.customerId];
             const hasNextAppointment = next && new Date(next.data_atendimento) > new Date(appt.data_atendimento);
 
@@ -99,7 +99,7 @@ exports.getNotifications = async (req, res) => {
       console.error('Error calculating return notifications:', err);
     }
 
-    // 2. NOTIFICAÇÕES DE ANIVERSARIANTES (7 dias antes e no dia do aniversário)
+    // Notificações de aniversariantes
     try {
       const birthdayCustomers = await prisma.customer.findMany({
         where: {
@@ -116,7 +116,7 @@ exports.getNotifications = async (req, res) => {
       });
 
       if (birthdayCustomers.length > 0) {
-        // Obter data atual no fuso de Brasília (America/Sao_Paulo)
+        // Obtém data atual em Brasília
         const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
         const [tY, tM, tD] = todayStr.split('-').map(Number);
         const todayDate = new Date(tY, tM - 1, tD);
@@ -128,7 +128,7 @@ exports.getNotifications = async (req, res) => {
           if (parts.length < 3 || isNaN(parts[1]) || isNaN(parts[2])) continue;
           const [bY, bM, bD] = parts;
 
-          // Próximo aniversário
+          // Calcula próximo aniversário
           let nextBdayYear = tY;
           let nextBday = new Date(tY, bM - 1, bD);
           if (nextBday < todayDate) {
@@ -138,7 +138,7 @@ exports.getNotifications = async (req, res) => {
 
           const diffDays = Math.round((nextBday - todayDate) / msPerDay);
 
-          // Janela de 7 dias antes até o dia do aniversário (0 a 7 dias)
+          // Filtra aniversários nos próximos 7 dias
           if (diffDays >= 0 && diffDays <= 7) {
             const isToday = diffDays === 0;
             const padDay = String(bD).padStart(2, '0');
@@ -166,7 +166,7 @@ exports.getNotifications = async (req, res) => {
       console.error('Error calculating birthday notifications:', err);
     }
 
-    // Ordenar: primeiro o que for para hoje (daysLeft === 0 ou isToday), depois por dias restantes
+    // Ordena por proximidade
     notifications.sort((a, b) => {
       if (a.isToday && !b.isToday) return -1;
       if (!a.isToday && b.isToday) return 1;

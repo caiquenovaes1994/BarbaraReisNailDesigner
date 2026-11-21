@@ -78,7 +78,7 @@ const StatisticsReport = () => {
       doc.setTextColor(40);
       doc.text('Relatório Estatístico', 105, 20, { align: 'center' });
 
-      // Data e Hora de emissão à direita (2 linhas)
+      // Data e hora de emissão
       const now = new Date();
       const emissaoDate = now.toLocaleDateString('pt-BR');
       const emissaoTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -101,7 +101,7 @@ const StatisticsReport = () => {
       let currentY = 38;
       const baseTableStyles = getSpaceMonoTableStyles();
 
-      // Calculate Procedure Stats
+      // Estatísticas por procedimento
       if (form.type === 'Todos' || form.type === 'Procedimentos') {
         const procStats = {};
         data.forEach(appt => {
@@ -144,7 +144,7 @@ const StatisticsReport = () => {
         currentY = doc.lastAutoTable.finalY + 12;
       }
 
-      // Calculate Customer Stats
+      // Estatísticas por cliente
       if (form.type === 'Todos' || form.type === 'Clientes') {
         if (currentY > 230) {
           doc.addPage();
@@ -167,7 +167,7 @@ const StatisticsReport = () => {
           revenue: custStats[name].revenue
         })).sort((a, b) => b.count - a.count);
 
-        // Top clients
+        // Principais clientes
         const topCustomers = custArray.slice(0, 20);
 
         doc.setFont('SpaceMono', 'bold');
@@ -195,7 +195,7 @@ const StatisticsReport = () => {
         currentY = doc.lastAutoTable.finalY + 12;
       }
 
-      // Card Consolidado TOTAL
+      // Card consolidado
       let boxY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : currentY) + 8;
       if (boxY > 250) {
         doc.addPage();
@@ -204,24 +204,24 @@ const StatisticsReport = () => {
       const boxWidth = 182;
       const boxHeight = 24;
 
-      // Fundo e borda do card totalizador
+      // Card totalizador
       doc.setFillColor(250, 248, 252);
       doc.setDrawColor(217, 70, 239);
       doc.setLineWidth(0.4);
       doc.roundedRect(14, boxY, boxWidth, boxHeight, 2, 2, 'FD');
 
-      // Título do card de resumo
+      // Título do resumo
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(7.5);
-      doc.setTextColor(157, 23, 77); // Deep Pink
+      doc.setTextColor(157, 23, 77);
       doc.text('TOTAL CONSOLIDADO', 18, boxY + 6);
 
-      // Linha separadora interna
+      // Linha separadora
       doc.setDrawColor(230, 220, 240);
       doc.setLineWidth(0.2);
       doc.line(18, boxY + 8.5, 14 + boxWidth - 4, boxY + 8.5);
 
-      // Coluna 1: Total de Atendimentos
+      // Total de atendimentos
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
@@ -231,7 +231,7 @@ const StatisticsReport = () => {
       doc.setTextColor(30, 41, 59);
       doc.text(String(data.length), 18, boxY + 19);
 
-      // Coluna 2: Receita Total
+      // Receita total
       const totalGeralRevenue = data.reduce((acc, curr) => acc + (curr.valor_cobrado || 0), 0);
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
@@ -239,21 +239,21 @@ const StatisticsReport = () => {
       doc.text('RECEITA TOTAL REALIZADA', 80, boxY + 13.5);
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor(22, 101, 52); // Green
+      doc.setTextColor(22, 101, 52);
       doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalGeralRevenue), 80, boxY + 19);
 
-      // Coluna 3: Ticket Médio
+      // Ticket médio
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
       doc.text('TICKET MÉDIO', 142, boxY + 13.5);
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor(147, 51, 234); // Purple
+      doc.setTextColor(147, 51, 234);
       const ticketMedio = data.length > 0 ? totalGeralRevenue / data.length : 0;
       doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(ticketMedio), 142, boxY + 19);
 
-      // Add page numbers
+      // Numeração de páginas
       const pageCount = doc.internal.getNumberOfPages();
       for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);

@@ -58,7 +58,7 @@
     @apply bg-black/20 border border-surface-border rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all [color-scheme:dark];
   }
 
-  /* Opções internas de seletores nativos */
+  /* Estilo das opções de select */
   select.glass-input option,
   select.glass-select option,
   .glass-select option {
@@ -67,7 +67,7 @@
     padding: 10px 14px !important;
   }
 
-  /* Scrollbar customizada elegante lilás/escura */
+  /* Barra de rolagem personalizada */
   .custom-scrollbar::-webkit-scrollbar,
   ::-webkit-scrollbar {
     width: 6px;
@@ -88,7 +88,7 @@
     background: rgba(217, 70, 239, 0.7);
   }
 
-  /* Painel de lista suspensa personalizada (busca de clientes, procedimentos, países) */
+  /* Painel de dropdown */
   .glass-dropdown-panel {
     background: linear-gradient(135deg, rgba(46, 20, 68, 0.98) 0%, rgba(24, 16, 36, 0.98) 50%, rgba(12, 10, 16, 0.99) 100%) !important;
     border: 1px solid rgba(217, 70, 239, 0.35) !important;
@@ -106,7 +106,7 @@
     color: #ffffff !important;
   }
 
-  /* Ícone do relógio / calendário sempre lilás / branco com transição */
+  /* Ícone do seletor de data e hora */
   input[type="time"]::-webkit-calendar-picker-indicator,
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="datetime-local"]::-webkit-calendar-picker-indicator {
@@ -121,7 +121,7 @@
     transform: scale(1.15);
   }
 
-  /* Oculta o botão nativo do Edge/Windows de revelar senha e limpar campo */
+  /* Oculta botões nativos de campos de senha */
   input::-ms-reveal,
   input::-ms-clear {
     display: none;
@@ -150,7 +150,7 @@
   }
 }
 
-/* Google Places Autocomplete Styling com gradiente lilás para preto */
+/* Estilo do autocomplete do Google Places */
 .pac-container {
   background: linear-gradient(135deg, rgba(46, 20, 68, 0.98) 0%, rgba(24, 16, 36, 0.98) 50%, rgba(12, 10, 16, 0.99) 100%) !important;
   border: 1px solid rgba(217, 70, 239, 0.35) !important;

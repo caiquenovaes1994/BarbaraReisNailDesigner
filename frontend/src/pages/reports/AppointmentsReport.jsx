@@ -15,7 +15,7 @@ const loadImageAsPngBase64 = (src) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      // SVG viewBox is 400x250. Multiply by 2 for higher resolution in PDF
+      // Ajusta resolução do SVG
       canvas.width = 800;
       canvas.height = 500;
       const ctx = canvas.getContext('2d');
@@ -31,7 +31,7 @@ const AppointmentsReport = () => {
   const [customers, setCustomers] = useState([]);
   const [procedures, setProcedures] = useState([]);
   
-  // Default to current month
+  // Período padrão: mês atual
   const today = new Date();
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -96,7 +96,7 @@ const AppointmentsReport = () => {
 
     setIsLoading(true);
     try {
-      // Build query string
+      // Monta filtros da consulta
       let url = `/appointments?startDate=${form.startDate}T00:00:00.000Z&endDate=${form.endDate}T23:59:59.999Z`;
       if (form.customerId) url += `&customerId=${form.customerId}`;
       if (form.procedureId) url += `&procedureId=${form.procedureId}`;
@@ -117,22 +117,22 @@ const AppointmentsReport = () => {
       const doc = new jsPDF('landscape', 'mm', 'a4');
       await applySpaceMonoFont(doc);
       
-      // Logo e Nome do Estúdio (Esquerda)
+      // Logotipo do estúdio
       try {
         const logoBase64 = await loadImageAsPngBase64(logo);
-        // Original size ratio: 400x250. If width is 32, height is 20.
+        // Dimensões do logotipo
         doc.addImage(logoBase64, 'PNG', 14, 6, 32, 20);
       } catch (e) {
         console.error('Erro ao carregar logo no PDF', e);
       }
 
-      // Título Centralizado
+      // Título do relatório
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(16);
       doc.setTextColor(40);
       doc.text('Relatório de Atendimentos', 148.5, 20, { align: 'center' });
 
-      // Data e Hora de emissão à direita (2 linhas)
+      // Data e hora de emissão
       const now = new Date();
       const emissaoDate = now.toLocaleDateString('pt-BR');
       const emissaoTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -146,7 +146,7 @@ const AppointmentsReport = () => {
       doc.setFontSize(9.5);
       doc.setTextColor(100);
       
-      // Formatting date range for header
+      // Formata período para cabeçalho
       const formatBr = (dateString) => {
         const [y, m, d] = dateString.split('-');
         return `${d}/${m}/${y}`;
@@ -263,76 +263,76 @@ const AppointmentsReport = () => {
         margin: { top: 10, bottom: 45, left: 14, right: 14 }
       });
 
-      // Painel de Estatísticas Fixo no Fim da Página (Landscape A4: altura 210mm, largura 297mm)
+      // Painel de estatísticas
       const boxY = 168;
       const boxWidth = 269;
       const boxHeight = 25;
 
-      // Fundo e borda do card de estatísticas
+      // Card de resumo
       doc.setFillColor(250, 248, 252);
       doc.setDrawColor(217, 70, 239);
       doc.setLineWidth(0.4);
       doc.roundedRect(14, boxY, boxWidth, boxHeight, 2, 2, 'FD');
 
-      // Título do card de resumo
+      // Título do resumo
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(7.5);
-      doc.setTextColor(157, 23, 77); // Deep Pink
+      doc.setTextColor(157, 23, 77);
       doc.text('RESUMO FINANCEIRO & OPERACIONAL', 18, boxY + 6);
 
-      // Linha separadora interna
+      // Linha separadora
       doc.setDrawColor(230, 220, 240);
       doc.setLineWidth(0.2);
       doc.line(18, boxY + 8.5, 14 + boxWidth - 4, boxY + 8.5);
 
-      // Coluna 1: Total Faturado
+      // Total faturado
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
       doc.text('TOTAL FATURADO', 18, boxY + 14);
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor(22, 101, 52); // Green
+      doc.setTextColor(22, 101, 52);
       doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor), 18, boxY + 20);
 
-      // Coluna 2: Total Pendente
+      // Total pendente
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
       doc.text('TOTAL PENDENTE', 85, boxY + 14);
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor(180, 83, 9); // Amber
+      doc.setTextColor(180, 83, 9);
       doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPendente), 85, boxY + 20);
 
-      // Coluna 3: Faturamento Potencial
+      // Faturamento potencial
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
       doc.text('FATURAMENTO POTENCIAL', 152, boxY + 14);
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor(147, 51, 234); // Purple
+      doc.setTextColor(147, 51, 234);
       doc.text(new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValor + totalPendente), 152, boxY + 20);
 
-      // Coluna 4: Total de Registros
+      // Total de atendimentos
       doc.setFont('SpaceMono', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
       doc.text('TOTAL DE REGISTROS', 225, boxY + 14);
       doc.setFont('SpaceMono', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor(30, 41, 59); // Slate
+      doc.setTextColor(30, 41, 59);
       doc.text(`${data.length} atendimentos`, 225, boxY + 20);
 
-      // Add page numbers
+      // Numeração de páginas
       const pageCount = doc.internal.getNumberOfPages();
       for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFont('SpaceMono', 'normal');
         doc.setFontSize(7.5);
         doc.setTextColor(150);
-        // A4 Landscape width is 297mm, center is 148.5mm, height 210mm
+        // Rodapé com paginação
         doc.text(`Bárbara Reis Nail Designer • Página ${i} de ${pageCount}`, 148.5, 202, { align: 'center' });
       }
 

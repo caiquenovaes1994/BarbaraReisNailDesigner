@@ -1,7 +1,7 @@
-// Carregar variáveis de ambiente ANTES de qualquer outra coisa
+// Carrega variáveis de ambiente
 require('dotenv').config();
 
-// Definir timezone para Horário de Brasília
+// Define timezone da aplicação
 process.env.TZ = process.env.TZ || 'America/Sao_Paulo';
 
 const express = require('express');
@@ -14,10 +14,10 @@ const { initCronJobs } = require('./scripts/cronJobs');
 const logger = require('./utils/logger');
 
 const app = express();
-// Habilita trust proxy para proxies reversos (Render, Cloudflare)
+// Configura proxy reverso
 app.set('trust proxy', 1);
 
-// Headers de segurança com CSP personalizada
+// Configura headers de segurança
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -43,7 +43,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Permite requisições sem origin (ex: mobile apps, curl, Postman)
+    // Permite requisições sem origin
     if (!origin) {
       return callback(null, true);
     }
@@ -52,7 +52,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    // Permite qualquer IP de rede local (192.168.*, 10.*, 172.16-31.*) exclusivamente em ambiente de desenvolvimento
+    // Permite rede local em desenvolvimento
     const isDevelopment = process.env.NODE_ENV !== 'production';
     const isLocalNetwork = isDevelopment && (
       origin.startsWith('http://192.168.') || 
@@ -64,7 +64,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    // Bloqueia origens não autorizadas de forma limpa (sem disparar exceção 500)
+    // Bloqueia origens não autorizadas
     callback(null, false);
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -75,14 +75,14 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Rate limiting para rotas de autenticação
+// Rate limit para autenticação
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 20, // Limite de 20 requisições por IP a cada 15 minutos
+  windowMs: 15 * 60 * 1000, // Janela de 15 min
+  max: 20, // Máximo de requisições
   message: { error: 'Muitas requisições originadas deste IP, por favor tente novamente após 15 minutos' }
 });
 
-// Rate limiting global para proteção contra abuso e flooding (300 requisições / 15 min)
+// Rate limit global
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -95,12 +95,12 @@ app.use('/api', routes);
 
 
 
-// Handler para rotas inexistentes (404)
+// Rota 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint não encontrado.' });
 });
 
-// Middleware global de tratamento centralizado de erros (500)
+// Tratamento global de erros
 app.use((err, req, res, next) => {
   const isProduction = process.env.NODE_ENV === 'production';
   const status = err.status || err.statusCode || 500;
@@ -123,10 +123,10 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 
-// Inicia as rotinas automáticas de background
+// Inicia tarefas agendadas
 initCronJobs();
 
-// Proteção contra falhas fatais no processo
+// Captura erros não tratados do processo
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('[PROCESS_UNHANDLED_REJECTION]', reason);
 });
